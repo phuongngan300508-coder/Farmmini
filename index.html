@@ -2958,6 +2958,17 @@ if (btnGoToFarm && farmSection) {
 }
 
 </script>
+  <script>
+  // Đăng ký Service Worker để bật tính năng Tải thành App (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('PWA Service Worker sẵn sàng:', reg.scope))
+        .catch(err => console.error('Lỗi đăng ký Service Worker:', err));
+    });
+  }
+</script>
+
 </body>
 </html>
 
