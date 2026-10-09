@@ -1,7 +1,9 @@
 {
+  "id": "/farm-mini-app",
   "name": "Farm Mini",
   "short_name": "Farm Mini",
-  "start_url": "./",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#E8F5E9",
   "theme_color": "#4CAF50",
