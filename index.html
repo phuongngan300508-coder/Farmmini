@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<!-- Thiết lập màu thanh trạng thái và chế độ app độc lập -->
+<meta name="theme-color" content="#6aa84f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Farm Mini">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <title>Nông Trại Nhỏ</title>
 <link rel="manifest" href="manifest.json">
 <style>
@@ -2955,6 +2962,14 @@ if (btnGoToFarm && farmSection) {
   btnGoToFarm.onclick = () => {
     farmSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
+}
+
+  if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('App đã sẵn sàng cài đặt:', reg.scope))
+      .catch(err => console.log('Lỗi đăng ký Service Worker:', err));
+  });
 }
 
 </script>
