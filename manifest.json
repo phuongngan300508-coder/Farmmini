@@ -1,0 +1,18 @@
+{
+  "name": "Nông Trại Nhỏ - Farm Mini",
+  "short_name": "Farm Mini",
+  "description": "Trò chơi quản lý nông trại mini",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f7ef",
+  "theme_color": "#6aa84f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/05FpK0FS/1791515796946.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
