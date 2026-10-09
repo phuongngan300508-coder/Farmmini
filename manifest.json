@@ -1,5 +1,5 @@
 {
-  "id": "/farm-mini-app",
+  "id": "farm-mini-unique-id",
   "name": "Farm Mini",
   "short_name": "Farm Mini",
   "start_url": "./index.html",
