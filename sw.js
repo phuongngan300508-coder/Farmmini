@@ -1,4 +1,4 @@
-const CACHE_NAME = 'farm-mini-v1';
+const CACHE_NAME = 'farm-mini-v2';
 const ASSETS = [
   './',
   './index.html',
