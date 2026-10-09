@@ -1,0 +1,2965 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nông Trại Nhỏ</title>
+<style>
+  :root{
+    --bg:#f3f7ef;
+    --card:#ffffff;
+    --accent:#6aa84f;
+    --muted:#8a8f94;
+    --shadow: 0 6px 18px rgba(19,40,19,0.08);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#e9f2e6);color:#1b2a19;}
+  .app{
+    max-width:1100px;
+    /* Loại bỏ margin top, chỉ giữ auto và bottom */
+    margin:0 auto 18px auto; 
+    /* Bỏ padding top, chỉ giữ padding các cạnh khác */
+    padding:0 18px 18px 18px; 
+    display:grid;grid-template-columns: 1fr 360px;gap:18px;
+  }
+  /* responsive */
+  @media (max-width:900px){ .app{grid-template-columns:1fr; padding:12px;} .right{order:2} .left{order:1} }
+/* Login screen styles */
+.login-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:var(--bg);z-index:100;
+  display:none; /* MẶC ĐỊNH ẨN */
+  place-items:center;
+  /* Loại bỏ transition */
+}
+body.logged-out .login-overlay{
+  display:grid; /* CHỈ HIỂN THỊ KHI CÓ LỚP logged-out */
+}
+/* QUY TẮC MỚI: Đảm bảo .app không có padding/margin thừa khi logged in */
+body:not(.logged-out) .app {
+  margin-top: 0;
+  padding-top: 0; /* Đảm bảo .app không đẩy header xuống */
+}
+.login-card{
+  background:var(--card);padding:24px;border-radius:12px;box-shadow:var(--shadow);
+  max-width:300px;text-align:center;
+}
+.login-card input[type="text"]{
+  width:100%;padding:10px;margin:10px 0 15px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;
+  font-size:16px;
+}
+.login-card h2{margin-top:0}
+
+
+/* header: add login/logout button */
+
+#loginStatusBtn{margin-left:12px}
+
+/* header */
+
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+
+  .brand{display:flex;gap:12px;align-items:center}
+
+  .logo{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#7cc576,#4b9a3a);box-shadow:var(--shadow);color:white;font-weight:700}
+
+  h1{font-size:18px;margin:0}
+
+  .sub{font-size:12px;color:var(--muted)}
+
+  /* left - farm */
+  .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+  /* NEW: Giới hạn chiều cao cho khu vực trang trại */
+#farm {
+    /* Đảm bảo #farm là flex/grid container cho .farm-grid */
+    /* Giữ nguyên display:grid, grid-template-columns, gap từ .farm-grid */
+    /* Cần đặt chiều cao tối đa cho phần tử cha của .farm-grid, nhưng trong trường hợp này,
+       #farm chính là .farm-grid. Ta áp dụng trực tiếp lên #farm. */
+    
+    max-height: 500px; /* Chiều cao tối đa, bạn có thể điều chỉnh giá trị này */
+    overflow-y: auto; /* Kích hoạt cuộn dọc khi nội dung vượt quá max-height */
+    /* Thêm một chút padding để thanh cuộn không bị dính vào mép */
+    padding-right: 10px; 
+}
+/* Đảm bảo bố cục grid vẫn hoạt động bên trong khu vực cuộn */
+.farm-grid {
+    padding-bottom: 5px; /* Thêm padding dưới cùng để ô cuối không bị cắt */
+}
+  .farm-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  @media (max-width:600px){ .farm-grid{grid-template-columns:repeat(4,1fr)} }
+
+  .tile{
+    background:linear-gradient(180deg,#dfeedd,#cfe6c7);
+    border-radius:8px;height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;cursor:pointer;overflow:hidden;border:1px solid rgba(0,0,0,0.03);
+  }
+  .tile.soil{background:linear-gradient(180deg,#bfa57d,#a87a51)}
+  .tile .seed-name{font-size:12px;color:#153615;font-weight:600}
+  .tile .seed-emoji{font-size:28px;line-height:1;margin-bottom:4px}
+  .tile .progress{position:absolute;left:6px;right:6px;bottom:6px;height:8px;border-radius:8px;background:rgba(255,255,255,0.6)}
+  .tile .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd166,#f09e00);border-radius:8px}
+
+  /* right - controls */
+/* Tái định nghĩa controls cho cột bên phải */
+.right .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Khoảng cách giữa các mục bên trong panel bên phải */
+}
+  .seed-list{display:flex;flex-direction:column;gap:8px}
+
+    .emoji{font-size:26px}
+  .seed .meta{flex:1}
+  .muted{color:var(--muted);font-size:13px}
+
+/* Thêm các cấp độ hạt giống vào CSS */
+/* Thiết lập màu đại diện cho từng cấp độ */
+.seed[data-level="Common"] { 
+    --tier-color: #6aa84f;       /* Xanh lá */
+    --tier-bg: #f2f9ed;
+}
+.seed[data-level="Uncommon"] { 
+    --tier-color: #e6a800;       /* Vàng đậm */
+    --tier-bg: #fefcf0;
+}
+.seed[data-level="Rare"] { 
+    --tier-color: #8e44ad;       /* Tím */
+    --tier-bg: #f8f2fc;
+}
+.seed[data-level="Legendary"] { 
+    --tier-color: #ff9800;       /* Cam vàng rực */
+    --tier-bg: #fff8e7;
+}
+.seed[data-level="Mythic"] { 
+    --tier-color: #ff00ff;       /* Hồng / Magenta neon */
+    --tier-bg: #fff0ff;
+}
+.seed[data-level="Divine"] { 
+    --tier-color: #d4af37;       /* Vàng kim thần thoại */
+    --tier-bg: #fffcf0;
+    color: #7a1c1c;
+}
+
+/* Áp dụng vạch màu viền trái mặc định */
+.seed {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-left: 5px solid var(--tier-color, #6aa84f);
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+/* Khi hạt giống được CHỌN: Tự động đổi viền sáng & nền theo màu cấp độ */
+.seed.active {
+    border: 2px solid var(--tier-color) !important;
+    border-left-width: 6px !important;
+    background: var(--tier-bg) !important;
+    box-shadow: 0 0 10px var(--tier-color), inset 0 0 4px var(--tier-color) !important;
+    transform: scale(0.99);
+    position: relative;
+    z-index: 1;
+}
+
+/* Hiệu ứng hào quang đặc biệt cho cấp Divine khi được chọn */
+.seed[data-level="Divine"].active {
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.8), 0 0 4px #ffffff, inset 0 0 6px rgba(212, 175, 55, 0.4) !important;
+}
+
+  /* NEW: Thêm cuộn dọc và giới hạn chiều cao cho Danh sách Hạt giống */
+#seedList {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden; /* Ngăn hiện thanh cuộn ngang không cần thiết */
+    padding: 6px 8px;   /* Tạo khoảng trống để quầng sáng bung ra không chạm mép */
+    box-sizing: border-box;
+}
+
+/* CUSTOM: Style cho các ô đất đang được chọn để phối giống (Nhiều ô) */
+.tile.selected-fusion {
+    border: 3px solid #ff00ff; /* Viền hồng/tím để chỉ đang được chọn */
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+}
+  .status{display:flex;gap:10px;align-items:center;justify-content:space-between}
+  .coins{background:#fff;border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-weight:700}
+  .btn{display:inline-block;padding:8px 12px;border-radius:10px;background:linear-gradient(180deg,var(--accent),#3e8a33);color:white;text-decoration:none;cursor:pointer;border:none;font-weight:700}
+  .btn.secondary{background:#eaf5e7;color:var(--accent);border:1px solid rgba(75,154,58,0.12)}
+  .log{max-height:180px;overflow:auto;padding:10px;background:#fbfff9;border-radius:8px;border:1px dashed rgba(0,0,0,0.03);font-size:13px;color:#2b3b2a}
+
+  footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
+
+  /* small helpers */
+  .row{display:flex;gap:8px;align-items:center}
+  .muted-2{color:#58705a;font-size:13px}
+/* Thêm sau .row và .muted-2 */
+/* Thay đổi style cho Coins và Water */
+.resource{background:#fff;border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-weight:700}
+
+/* New Quest Styles */
+.quest-list{display:flex;flex-direction:column;gap:8px}
+.quest-item{
+    border: 1px solid #e0e5df; /* Màu viền nhẹ hơn */
+    background: #fdfdfd; /* Nền trắng nhẹ */
+    padding: 10px 14px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px; /* Cỡ chữ lớn hơn một chút */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); /* Thêm bóng mờ */
+    transition: all 0.2s ease;
+}
+.quest-progress{
+    font-weight: 700; 
+    color: var(--accent);
+    min-width: 60px; /* Đảm bảo đủ không gian cho văn bản trạng thái */
+    text-align: right;
+}
+
+/* ĐÃ XONG NHƯNG CHƯA NHẬN QUÀ: Nổi bật, viền sáng và nổi lên */
+.quest-item.quest-ready {
+    background: #eef9eb;
+    border: 2px solid #5aa338;
+    box-shadow: 0 0 10px rgba(90, 163, 56, 0.4);
+}
+.quest-item.quest-ready .quest-progress {
+    color: #2e7d32;
+    font-weight: 800;
+}
+.quest-item.quest-ready button {
+    background: linear-gradient(180deg, #6aa84f, #3b7c25) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* ĐÃ NHẬN THƯỞNG: Chìm xuống và mờ đi */
+.quest-completed{
+    background: #f4f6f3; 
+    border-color: #d1e2cc;
+    color: var(--muted);
+    opacity: 0.65;
+}
+.quest-completed .quest-progress {
+    color: #8a8f94; 
+}
+
+/* Đảm bảo nút nhận thưởng nhỏ hơn */
+.quest-item button {
+    margin-left: 12px !important;
+    padding: 6px 10px !important;
+    font-size: 12px;
+}
+
+
+  #dailyQuestsList {
+    max-height: 250px; /* Đặt chiều cao tối đa, bạn có thể điều chỉnh số này */
+    overflow-y: auto; /* Kích hoạt cuộn dọc khi nội dung vượt quá chiều cao tối đa */
+}
+  /* Thu nhỏ giao diện của Cửa hàng Đặc biệt */
+#specialShopList .seed {
+    padding: 6px 10px; /* Giảm padding để ô mỏng hơn */
+    gap: 8px; /* Giảm khoảng cách */
+    /* Đảm bảo viền trái vẫn là 5px như trong ảnh */
+    border-left-width: 5px; 
+}
+
+#specialShopList .seed .emoji {
+    font-size: 20px; /* Thu nhỏ biểu tượng */
+}
+
+#specialShopList .seed .meta {
+    flex: 1; /* Đảm bảo nó chiếm đủ không gian ngang */
+}
+
+#specialShopList .seed .meta div {
+    font-size: 14px; /* Thu nhỏ cỡ chữ tiêu đề */
+    font-weight: 600; /* Hơi đậm như trong ảnh */
+    margin: 0;
+}
+
+#specialShopList .seed .muted {
+    font-size: 11px; /* Thu nhỏ cỡ chữ chi tiết */
+    color: var(--muted);
+}
+
+/* Tinh chỉnh nút MUA */
+#specialShopList .seed button.btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    /* Đảm bảo nút không bị bóp méo */
+    min-width: 90px;
+    text-align: center;
+}
+ /* NEW: Thêm cuộn dọc và giới hạn chiều cao cho Cửa hàng Hạt giống */
+#shopList {
+    max-height: 400px; /* Chiều cao tối đa */
+    overflow-y: auto; /* Kích hoạt cuộn dọc */
+}
+/* Sửa lỗi hiển thị Bảng công thức phối giống bị cuộn dọc và hẹp ngang */
+#recipeTable {
+    width: 100%; /* Buộc nó mở rộng hết chiều ngang của panel cha */
+    /* KHÔNG đặt max-height hay overflow-y ở đây, để nó tự cuộn khi cần */
+}
+  
+  /* Popup Xác Nhận Kiểu Nông Trại */
+.farm-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(27, 42, 25, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: none;
+  place-items: center;
+}
+.farm-modal-overlay.open {
+  display: grid;
+}
+.farm-modal-box {
+  background: #fbfdf9;
+  border: 4px solid #8d5b35; /* Viền màu gỗ mộc */
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25), inset 0 0 0 2px #f4ecd8;
+  width: 90%;
+  max-width: 320px;
+  padding: 20px;
+  text-align: center;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.farm-modal-icon {
+  font-size: 42px;
+  margin-bottom: 6px;
+}
+.farm-modal-box h3 {
+  margin: 0 0 8px 0;
+  color: #5c3a21;
+  font-size: 18px;
+}
+.farm-modal-body {
+  font-size: 14px;
+  color: #435340;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.farm-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.farm-modal-actions button {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 13px;
+}
+
+  /* FARM LOADING SCREEN */
+.farm-loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #edf7e7 0%, #d8ebd2 100%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.farm-loader-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.farm-loader-card {
+  width: 90%;
+  max-width: 360px;
+  background: #ffffff;
+  border: 3px solid #6aa84f;
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(46, 125, 50, 0.18), inset 0 0 0 3px #f4fbf0;
+  padding: 30px 24px;
+  text-align: center;
+}
+
+/* Hiệu ứng đung đưa của cây lúa */
+.rice-stalk-container {
+  display: inline-block;
+  transform-origin: bottom center;
+  animation: swayRice 2.4s ease-in-out infinite;
+  margin-bottom: 8px;
+}
+
+.rice-icon {
+  font-size: 64px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 10px rgba(106, 168, 79, 0.35));
+}
+
+@keyframes swayRice {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg) scale(1.05); }
+  75% { transform: rotate(8deg) scale(1.05); }
+}
+
+.farm-loader-card h2 {
+  font-size: 20px;
+  color: #204e1c;
+  margin: 6px 0 4px 0;
+  font-weight: 800;
+}
+
+.loading-sub {
+  font-size: 13px;
+  color: #657e62;
+  margin: 0 0 20px 0;
+}
+
+/* Rãnh thanh loading */
+.farm-progress-track {
+  width: 100%;
+  height: 18px;
+  background: #e2edd8;
+  border-radius: 12px;
+  border: 2px solid #8cb87c;
+  padding: 2px;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Thanh chạy bên trong */
+.farm-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #7cc576, #3e8a33);
+  position: relative;
+  transition: width 0.15s ease-out;
+}
+
+/* Vệt sáng lướt qua thanh */
+.progress-shine {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  animation: shineMove 1.4s infinite;
+}
+
+@keyframes shineMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.loading-percent {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d6624;
+}
+
+  /* Tùy chỉnh Popup Hướng dẫn Nông trại */
+.settings-modal-box {
+  max-width: 520px !important;
+  text-align: left;
+  padding: 22px 20px 18px 20px;
+}
+
+.settings-modal-header {
+  text-align: center;
+  border-bottom: 2px dashed #d1c1a5;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.settings-modal-header h3 {
+  margin: 2px 0 4px 0;
+  font-size: 20px;
+}
+
+.settings-modal-content {
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Từng mục hướng dẫn */
+.guide-section {
+  background: #f4faef;
+  border: 1px solid #d5e8ce;
+  border-left: 4px solid #6aa84f;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.guide-section h4 {
+  margin: 0 0 6px 0;
+  color: #2b5624;
+  font-size: 14px;
+}
+
+.guide-section p {
+  margin: 3px 0;
+  font-size: 13px;
+  color: #3b4d38;
+  line-height: 1.45;
+}
+
+/* Tùy biến thanh cuộn mộc mạc bên trong hướng dẫn */
+.settings-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.settings-modal-content::-webkit-scrollbar-thumb {
+  background: #b7ceaf;
+  border-radius: 6px;
+}
+
+  /* ĐƠN HÀNG ĐÃ ĐỦ NÔNG SẢN: Nổi bật, viền sáng và hiệu ứng nút xanh rực */
+.quest-item.order-ready {
+    background: #f0fdf4 !important;
+    border: 2px solid #2e7d32 !important;
+    box-shadow: 0 0 12px rgba(46, 125, 50, 0.35) !important;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+.quest-item.order-ready .quest-progress {
+    color: #1b5e20 !important;
+    font-weight: 800;
+}
+.quest-item.order-ready button.btn {
+    background: linear-gradient(180deg, #43a047, #1b5e20) !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(27, 94, 32, 0.4) !important;
+    animation: pulseOrderBtn 1.8s infinite;
+}
+
+@keyframes pulseOrderBtn {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+}
+
+  </style>
+</head>
+<body>
+  <div class="login-overlay">
+  <div class="login-card">
+    <h2>Chào mừng đến với Farm Mini</h2>
+    <p class="muted">Nhập tên để chơi. Dữ liệu của bạn sẽ được lưu tự động.</p>
+    
+    <input type="text" id="usernameInput" placeholder="Tên người dùng (ví dụ: FarmerTuan)" />
+    
+    <div style="margin-top:20px; padding:12px; border: 1px dashed #f1c232; border-radius:10px;">
+        <div class="input-group">
+            <label for="oldCoinsInput" style="font-weight: bold; color: #b35e00;">💰 Tiền Cũ Bị Mất (Tùy chọn):</label>
+            <input type="number" id="oldCoinsInput" placeholder="Nhập số tiền bạn nhớ (VD: 50000)" value="0" min="0">
+        </div>
+        <button class="btn" id="applyOldCoinsBtn" style="width:100%; margin-top:12px; background:#4CAF50;">Áp Dụng Tiền Cũ</button>
+        <small class="muted" style="margin-top:8px; text-align:center;">Chỉ dùng trong trường hợp mất dữ liệu. Sẽ cộng trực tiếp vào số dư!</small>
+    </div>
+    <button class="btn" id="loginBtn" style="width:100%">Bắt đầu/Tiếp tục</button>
+  </div>
+</div>
+
+  <div class="app">
+    <div class="left">
+      <header>
+        <div class="brand">
+          <div class="logo">FM</div>
+          <div>
+            <h1>Farm Mini</h1>
+            <div class="sub">Trồng — Chăm — Thu hoạch — Đổi quà</div>
+          </div>
+        </div>
+        <div class="status">
+          <div class="resource" id="coins">💰 0</div>
+          <div class="resource" id="waterAmount" title="Lượng nước tưới cây">💧 50L</div>
+          <button class="btn secondary" id="loginStatusBtn" title="Tài khoản & Cài đặt">🧑‍🌾 Đăng xuất</button>
+        </div>
+
+
+      </header>
+    
+      
+            <div class="panel">
+  <h2>Trang trại của bạn 🚜</h2>
+  <div class="muted-2" style="margin-bottom:10px">Click 1 ô để <strong>trồng</strong>, click ô đã trồng để xem chi tiết hoặc thu hoạch.</div>
+
+  <div id="farm" class="farm-grid" aria-label="Farm grid">
+              </div>
+
+    <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+    <button class="btn" id="btnExpand">Mua thêm ô (+3) — 100₵</button>
+    <button class="btn secondary" id="btnHarvestAll">Thu hoạch tất cả (Đã chín)</button>     
+    <button class="btn secondary" id="btnClear">Reset farm</button>
+    <!-- NÚT CHUYỂN NHANH ĐẾN HẠT GIỐNG -->
+    <button class="btn" id="btnGoToSeeds" style="margin-left:auto;background:linear-gradient(180deg,#4a86e8,#2a62bc);">🌱 Chọn Hạt Giống ⬇</button>
+  </div>
+
+</div>
+
+      <div style="height:12px"></div>       
+      <div class="panel">
+        <h2>Thông tin ô 💬</h2>
+        <div id="tileInfo" class="muted">Chọn một ô đất để xem chi tiết.</div>
+        
+        <div class="panel controls" id="fusionPanel" style="display:none; margin-top: 12px; padding: 14px 0 0 0; border: none; box-shadow: none;">
+          <h2>Phối giống 🌱</h2>
+          <div id="fusionStatus" class="muted" style="padding: 0 14px 14px 14px;">Chọn hai cây đã chín để phối.</div>
+        </div>
+      </div>
+
+            <div style="height:12px"></div> <div class="panel">
+        <h2>Hoạt động 📝</h2>
+        <div class="log" id="log"></div>
+      </div>
+
+            <div class="panel" id="questPanel">
+        <h2>Nhiệm vụ Hàng ngày 💧</h2>
+        <div class="muted-2" style="margin-bottom:10px">Hoàn thành nhiệm vụ để nhận Nước (Reset: <span id="timeToReset"></span>)</div>
+        <div id="dailyQuestsList" class="quest-list">
+          </div>
+      </div>
+      
+      <div style="height:10px"></div>
+                <div class="panel controls">
+                    <h2>Kho hàng của bạn 🧺</h2>
+                    <div id="inventoryList" class="seed-list" style="max-height: 200px; overflow-y: auto;">
+                                            </div>
+                </div>
+
+                <div style="height:10px"></div>
+                <div class="panel controls">
+                    <h2>Đơn hàng Khách hàng 🚚</h2>
+                    <div class="muted-2" style="margin-bottom:10px">Hoàn thành đơn hàng để nhận tiền (Reset: <span id="timeToOrderReset"></span>)</div>
+                    <div id="orderList" class="quest-list">
+                                            </div>
+                </div>
+      <footer>Farm Mini • Minigame Tổng Hợp • Nông Trại Nhỏ</footer>
+    </div>
+
+        <div class="right">
+          
+    <div class="panel controls">
+        <h2>Bảng Công thức Phối giống 🧪</h2>
+        <div id="recipeTable" style="max-height: 250px; overflow-y: auto;">
+                    </div>
+    </div>
+          
+        <div class="panel controls" id="seedsPanel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <h2 style="margin:0">Hạt giống 🌱</h2>
+          <!-- NÚT CHUYỂN NGƯỢC LÊN ĐẤT TRỒNG -->
+          <button class="btn" id="btnGoToFarm" style="background:linear-gradient(180deg,#7cc576,#4b9a3a);font-size:12px;padding:6px 10px;">🚜 Lên Đất Trồng ⬆</button>
+        </div>
+        <div class="seed-list" id="seedList">
+        </div>
+          
+        <div style="height:10px"></div>
+
+        <div>
+            <h2>Cửa hàng hạt giống 🏪🌱</h2>
+            <div class="muted" style="margin-bottom:10px;">Mua hạt giống cấp cao để kiếm lợi nhuận lớn hơn!</div>
+            <div id="shopList" class="seed-list">
+                    </div>
+        </div>
+        
+    </div>
+    <div style="height:10px"></div> 
+
+    <div class="panel controls">
+        <h2>Cửa hàng Đặc biệt ✨</h2>
+        <div class="muted" style="margin-bottom:10px;">Đổi vật phẩm đặc biệt tại đây.</div>
+        <div id="specialShopList" class="seed-list">                   </div>
+    </div>
+    
+</div>
+      </div>
+</div>
+    
+
+<!-- FARM STYLE MODAL CONFIRMATION -->
+<div id="farmConfirmModal" class="farm-modal-overlay">
+  <div class="farm-modal-box">
+    <div class="farm-modal-icon" id="confirmModalEmoji">🎁</div>
+    <h3 id="confirmModalTitle">Xác Nhận Mua Hàng</h3>
+    <div id="confirmModalMessage" class="farm-modal-body">Bạn có chắc chắn muốn mua vật phẩm này không?</div>
+    <div class="farm-modal-actions">
+      <button class="btn secondary" id="confirmCancelBtn">Để sau</button>
+      <button class="btn" id="confirmAcceptBtn">Đồng ý mua</button>
+    </div>
+  </div>
+</div>
+
+  <!-- MÀN HÌNH LOADING NÔNG TRẠI -->
+<div id="loadingScreen" class="farm-loader-overlay">
+  <div class="farm-loader-card">
+    <!-- Cây lúa đung đưa -->
+    <div class="rice-stalk-container">
+      <div class="rice-icon">🌾</div>
+    </div>
+    <h2>Đang Vào Nông Trại...</h2>
+    <p id="loadingTip" class="loading-sub">Đang xới đất và gieo hạt...</p>
+
+    <!-- Khung thanh loading -->
+    <div class="farm-progress-track">
+      <div id="farmProgressBar" class="farm-progress-fill">
+        <span class="progress-shine"></span>
+      </div>
+    </div>
+    
+    <div id="loadingPercent" class="loading-percent">0%</div>
+  </div>
+</div>
+
+  <!-- POPUP MENU TÀI KHOẢN NÔNG DÂN -->
+<div id="userMenuModal" class="farm-modal-overlay">
+  <div class="farm-modal-box" style="max-width: 310px;">
+    <div class="farm-modal-icon">🧑‍🌾</div>
+    <h3 id="userMenuGreeting">Bác Nông Dân</h3>
+    <p class="muted-2" style="font-size: 13px; margin: 0 0 16px 0;">Menu Quản Lý & Tiện Ích</p>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <button class="btn" id="openGuideFromMenuBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        📖 Sổ Tay Hướng Dẫn
+      </button>
+      <button class="btn secondary" id="logoutFromMenuBtn" style="width: 100%; background: #fee2e2; color: #b91c1c; border-color: #fca5a5;">
+        🚪 Đăng Xuất Nông Trại
+      </button>
+      <button class="btn secondary" id="closeUserMenuBtn" style="width: 100%; margin-top: 4px;">
+        Đóng
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- POPUP CÀI ĐẶT & HƯỚNG DẪN NÔNG TRẠI -->
+<div id="settingsModal" class="farm-modal-overlay">
+  <div class="farm-modal-box settings-modal-box">
+    <div class="settings-modal-header">
+      <div class="farm-modal-icon">📖</div>
+      <h3>Sổ Tay Nông Dân</h3>
+      <div class="muted-2">Cẩm nang hướng dẫn canh tác & làm giàu</div>
+    </div>
+
+    <div class="settings-modal-content">
+      <div class="guide-section">
+        <h4>🌱 1. Trồng trọt & Thu hoạch</h4>
+        <p>• Chọn hạt giống bạn muốn ở danh sách bên phải (đối với laptop/ipad), còn trên điện thoại thì lướt xuống dưới.</p>
+        <p>• Nhấp vào <strong>ô đất trống</strong> để gieo hạt (tốn tiền mua hạt).</p>
+        <p>• Khi cây chín (có dấu ✓), nhấp vào ô rồi chọn <strong>Thu hoạch</strong> hoặc bấm nút <strong>Thu hoạch tất cả</strong>. Sản phẩm sẽ được đưa vào <strong>Kho hàng</strong>.</p>
+      </div>
+
+      <div class="guide-section">
+        <h4>💧 2. Nước tưới (Cực kỳ quan trọng)</h4>
+        <p>• Cây trồng tiêu thụ <strong>1L nước/ô/phút</strong> trong lúc phát triển.</p>
+        <p>• Nếu <strong>hết nước (0L)</strong>, cây sẽ <strong>chậm lớn 50%</strong>!</p>
+        <p>• Làm nhiệm vụ hàng ngày hoặc ghé <em>Cửa hàng Đặc biệt</em> để bổ sung nước.</p>
+      </div>
+
+      <div class="guide-section">
+        <h4>🧪 3. Phối giống (Lai tạo giống mới)</h4>
+        <p>• Khi có các cây đã chín trên ruộng, nhấp vào ô và chọn <strong>Chọn để Phối</strong>.</p>
+        <p>• Tra cứu <strong>Bảng Công thức Phối giống</strong> để kết hợp đúng nguyên liệu.</p>
+        <p>• Cấp cao (<em>Mythic, Divine</em>) yêu cầu nhiều ô cây chín và tốn thêm nước để thực hiện.</p>
+      </div>
+
+      <div class="guide-section">
+        <h4>🚚 4. Kho hàng & Đơn hàng Khách hàng</h4>
+        <p>• <strong>Kho hàng:</strong> Có thể chọn <em>Bán hết</em> để lấy tiền tươi ngay lập tức.</p>
+        <p>• <strong>Đơn hàng:</strong> Tích lũy đủ nông sản theo yêu cầu rồi bấm <em>Giao hàng</em> để nhận tiền thưởng cao hơn bán lẻ!</p>
+      </div>
+
+      <div class="guide-section">
+        <h4>🏪 5. Mở rộng & Cửa hàng</h4>
+        <p>• Dùng tiền mở rộng thêm ô đất trồng với nút <strong>Mua thêm ô (+3)</strong>.</p>
+        <p>• Mua hạt giống cao cấp hơn tại <em>Cửa hàng hạt giống</em> để gia tăng giá trị nông sản.</p>
+      </div>
+    </div>
+
+    <div class="farm-modal-actions" style="margin-top: 14px;">
+      <button class="btn" id="closeSettingsBtn" style="width: 100%;">Đã hiểu, tiếp tục làm nông!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
+*/
+
+const DEFAULT_COLS = 6;
+const DEFAULT_ROWS = 5;
+const DEFAULT_COINS = 150;
+const STORAGE_KEY_PREFIX = 'farmmini_';
+// Thêm vào gần đầu script, sau const STORAGE_KEY_PREFIX = 'farmmini_';
+const DEFAULT_WATER = 50; // New: Lượng nước mặc định
+const WATER_COST_RATE_PER_MIN = 1; // 1 Lít nước / phút / ô đang trồng (đơn giản hóa cho mỗi ô)
+const SLOWDOWN_RATE = 0.5; // Cây chậm 50% khi hết nước
+
+let lastWaterUpdate = Date.now(); // Theo dõi lần cuối nước được trừ
+let currentUser = null; // Tên người dùng đang đăng nhập
+let currentStorageKey = null; // Khóa localStorage cho người dùng hiện tại
+let selectedFusionTiles = []; // NEW: Mảng lưu ID của 2 ô được chọn để phối (tối đa 2)
+
+// State phải được khai báo một lần duy nhất
+let state = {
+  coins: DEFAULT_COINS,
+  water: DEFAULT_WATER, // NEW: Lượng nước
+  rows: DEFAULT_ROWS,
+  cols: DEFAULT_COLS,
+  tiles: [], // array of tile objects
+  selectedSeed: 'carrot', 
+  unlockedSeeds: ['carrot', 'corn', 'tomato', 'potato', 'cucumber'], 
+  lastWaterUpdate: Date.now(), // NEW: Lưu thời điểm cập nhật nước cuối cùng
+  dailyQuests: [], // NEW: Nhiệm vụ hàng ngày (sẽ được tạo khi load)
+  lastQuestReset: 0, // NEW: Thời điểm reset nhiệm vụ
+  // NEW: Inventory (Kho hàng) - Lưu số lượng sản phẩm đã thu hoạch
+  inventory: {},   
+  activeOrders: [],
+  lastOrderReset: 0, // Thời điểm reset đơn hàng cuối cùng
+ seeds: {
+    // ===========================================
+    // 🌱 CẤP BÌNH THƯỜNG (COMMON) - Mặc định có sẵn
+    // ===========================================
+    carrot: { id:'carrot', name:'Cà rốt', emoji:'🥕', time:20, cost:5, value:12, level:'Common' },
+    corn: { id:'corn', name:'Ngô', emoji:'🌽', time:30, cost:8, value:18, level:'Common' },
+    tomato: { id:'tomato', name:'Cà chua', emoji:'🍅', time:25, cost:7, value:15, level:'Common' },
+    potato: { id:'potato', name:'Khoai tây', emoji:'🥔', time:22, cost:6, value:13, level:'Common' },
+    cucumber: { id:'cucumber', name:'Dưa leo', emoji:'🥒', time:18, cost:5, value:11, level:'Common' },
+
+    // ===========================================
+    // 🌿 CẤP TRUNG BÌNH (UNCOMMON / MEDIUM)
+    // ===========================================
+    strawberry: { id:'strawberry', name:'Dâu', emoji:'🍓', time:40, cost:12, value:30, level:'Uncommon', shopPrice: 150 },
+    coffee: { id:'coffee', name:'Cà phê', emoji:'☕', time:50, cost:15, value:38, level:'Uncommon', shopPrice: 180 },
+    cabbage: { id:'cabbage', name:'Bắp cải', emoji:'🥬', time:34, cost:10, value:24, level:'Uncommon', shopPrice: 130 },
+    pumpkin: { id:'pumpkin', name:'Bí đỏ', emoji:'🎃', time:45, cost:14, value:35, level:'Uncommon', shopPrice: 170 },
+    grape: { id:'grape', name:'Nho', emoji:'🍇', time:55, cost:18, value:46, level:'Uncommon', shopPrice: 220 },
+
+    // --- FUSION UNCOMMON ---
+    carno: { id:'carno', name:'Carno', emoji:'🌽🥕', time:35, cost:15, value:63, level:'Uncommon', fusion: true },
+    tomcar: { id:'tomcar', name:'Tomcar', emoji:'🍅🥕', time:36, cost:16, value:65, level:'Uncommon', fusion: true },
+    potcorn: { id:'potcorn', name:'Potcorn', emoji:'🥔🌽', time:38, cost:17, value:68, level:'Uncommon', fusion: true },
+    tomcumber: { id:'tomcumber', name:'Tomcumber', emoji:'🍅🥒', time:35, cost:16, value:61, level:'Uncommon', fusion: true },
+    potcumber: { id:'potcumber', name:'Potcumber', emoji:'🥔🥒', time:40, cost:18, value:70, level:'Uncommon', fusion: true },
+
+
+    // ===========================================
+    // 💎 CẤP HIẾM (RARE)
+    // ===========================================
+    cacao: { id:'cacao', name:'Ca cao', emoji:'🍫', time:90, cost:30, value:85, level:'Rare', shopPrice: 400 },
+    moonflower: { id:'moonflower', name:'Cây Ánh Trăng', emoji:'🌙', time:85, cost:28, value:80, level:'Rare', shopPrice: 400 },
+    orchid: { id:'orchid', name:'Hoa lan', emoji:'🌸', time:75, cost:25, value:70, level:'Rare', shopPrice: 400 },
+    greentea: { id:'greentea', name:'Trà xanh', emoji:'🍵', time:70, cost:22, value:60, level:'Rare', shopPrice: 450 },
+    peach: { id:'peach', name:'Đào', emoji:'🍑', time:80, cost:26, value:75, level:'Rare', shopPrice: 450 },
+    blueberry: { id:'blueberry', name:'Việt Quất', emoji:'🫐', time:75, cost:28, value:78, level:'Rare', shopPrice: 420 },
+    honeytree: { id:'honeytree', name:'Cây mật ong', emoji:'🍯', time:100, cost:35, value:100, level:'Rare', shopPrice: 500 },
+    
+    // --- FUSION RARE ---
+    berrycaff: { id:'berrycaff', name:'BerryCaff', emoji:'☕🍓', time:85, cost:40, value:110, level:'Rare', fusion: true },
+    pumpgrap: { id:'pumpgrap', name:'PumpGrap', emoji:'🎃🍇', time:90, cost:42, value:150, level:'Rare', fusion: true },
+    pumpcabb: { id:'pumpcabb', name:'PumpCabb', emoji:'🎃🥬', time:88, cost:41, value:135, level:'Rare', fusion: true }, 
+    coffcabb: { id:'coffcabb', name:'CoffCabb', emoji:'☕🥬', time:80, cost:38, value:120, level:'Rare', fusion: true },
+    strawcabb: { id:'strawcabb', name:'StrawCabb', emoji:'🍓🥬', time:82, cost:39, value:130, level:'Rare', fusion: true },
+ 
+    // ===========================================
+    // ✨ CẤP HUYỀN THOẠI (LEGENDARY)
+    // ===========================================
+    mooncacao: { id:'mooncacao', name:'MoonCacao', emoji:'🌙🍫', time:120, cost:60, value:250, level:'Legendary', fusion: true },
+    berrypump: { id:'berrypump', name:'BerryPump', emoji:'☕🍓🎃🍇', time:125, cost:65, value:300, level:'Legendary', fusion: true },
+    coffstraw: { id:'coffstraw', name:'CoffStraw', emoji:'☕🍓🥬', time:115, cost:58, value:245, level:'Legendary', fusion: true },
+    honeygrap: { id:'honeygrap', name:'HoneyGrap', emoji:'🐝🍇🎃', time:130, cost:70, value:270, level:'Legendary', fusion: true },
+    orchidtea: { id:'orchidtea', name:'OrchidTea', emoji:'🌸🍵', time:120, cost:62, value:255, level:'Legendary', fusion: true },
+    mega_pump: { id:'mega_pump', name:'MegaPump', emoji:'🎃🎃', time:140, cost:75, value:350, level:'Legendary', fusion: true },
+    cacao_honey: { id:'cacao_honey', name:'Cacao Mật Ong', emoji:'🍫🍯', time:145, cost:80, value:380, level:'Legendary', fusion: true },
+    moon_orchid: { id:'moon_orchid', name:'Hoa Ánh Trăng', emoji:'🌙🌸', time:135, cost:70, value:310, level:'Legendary', fusion: true },
+    tea_honey: { id:'tea_honey', name:'Trà Mật Ong', emoji:'🍵🍯', time:150, cost:90, value:400, level:'Legendary', fusion: true },
+    peachtea: { id:'peachtea', name:'Trà Đào', emoji:'🍑🍵', time:120, cost:65, value:320, level:'Legendary', fusion: true },
+    blueberrycacao: { id:'blueberrycacao', name:'Blueberry Cacao', emoji:'🫐🍫', time:130, cost:70, value:330, level:'Legendary', fusion: true },
+    
+    // ✅ CẬP NHẬT MỚI: 5 LEGENDARY SEEDS
+    star_lotus: { id:'star_lotus', name:'Sen Sao', emoji:'⭐🌸', time:160, cost:150, value:450, level:'Legendary', fusion: true },
+    lava_fruit: { id:'lava_fruit', name:'Trái Dung Nham', emoji:'🔥🍒', time:170, cost:160, value:480, level:'Legendary', fusion: true },
+    crystal_tea: { id:'crystal_tea', name:'Trà Pha Lê', emoji:'💎🍵', time:148, cost:135, value:390, level:'Legendary', fusion: true },
+    aqua_berry: { id:'aqua_berry', name:'Việt Quất Nước', emoji:'💧🍓', time:152, cost:140, value:410, level:'Legendary', fusion: true },
+    shadow_bean: { id:'shadow_bean', name:'Đậu Bóng Tối', emoji:'🌑🌱', time:175, cost:170, value:500, level:'Legendary', fusion: true },
+
+
+    // ===========================================
+    // 👑 CẤP THẦN THÁNH (MYTHIC)
+    // ===========================================
+    sunstone: { id:'sunstone', name:'Đá Mặt Trời', emoji:'🌞', time:180, cost:110, value:650, level:'Mythic', fusion: true },
+    dragonfruit: { id:'dragonfruit', name:'Thanh Long Rồng', emoji:'🐉', time:190, cost:115, value:680, level:'Mythic', fusion: true },
+    starcandy: { id:'starcandy', name:'Kẹo Sao', emoji:'🌟', time:200, cost:120, value:700, level:'Mythic', fusion: true },
+    phoenix: { id:'phoenix', name:'Phượng Hoàng', emoji:'🔥', time:195, cost:125, value:720, level:'Mythic', fusion: true },
+    galaxy: { id:'galaxy', name:'Cây Ngân Hà', emoji:'🌌', time:210, cost:140, value:800, level:'Mythic', fusion: true },
+     neptune: { id:'neptune', name:'Hải Vương', emoji:'🔱', time:215, cost:144, value:820, level:'Mythic', fusion: true },
+    m_diamond: { id:'m_diamond', name:'Kim Cương Mía', emoji:'💎', time:220, cost:148, value:850, level:'Mythic', fusion: true },
+    eternity: { id:'eternity', name:'Hoa Vĩnh Cửu', emoji:'♾️', time:230, cost:160, value:900, level:'Mythic', fusion: true },
+    rainbow: { id:'rainbow', name:'Cầu Vồng', emoji:'🌈', time:240, cost:180, value:1000, level:'Mythic', fusion: true },
+    celestial: { id:'celestial', name:'Thiên Thể', emoji:'💫', time:250, cost:200, value:1200, level:'Mythic', fusion: true },
+    
+    // ✅ CẬP NHẬT MỚI: 5 MYTHIC SEEDS
+    aurora_seed: { id:'aurora_seed', name:'Hạt Cực Quang', emoji:'✨💚', time:260, cost:250, value:1300, level:'Mythic', fusion: true },
+    thunder_root: { id:'thunder_root', name:'Củ Sấm Sét', emoji:'⚡🍠', time:270, cost:270, value:1400, level:'Mythic', fusion: true },
+    comet_star: { id:'comet_star', name:'Sao Chổi', emoji:'☄️⭐', time:280, cost:300, value:1500, level:'Mythic', fusion: true },
+    wind_blossom: { id:'wind_blossom', name:'Hoa Gió', emoji:'💨🌬️', time:290, cost:330, value:1600, level:'Mythic', fusion: true },
+    siren_song: { id:'siren_song', name:'Khúc Hát Nàng Tiên Cá', emoji:'🧜‍♀️🎶', time:300, cost:350, value:1700, level:'Mythic', fusion: true },
+
+    // ===========================================
+    // ⭐ CẤP THẦN TỐI THƯỢNG (DIVINE) - Cập nhật giá
+    // ===========================================
+    star_tear: { id:'star_tear', name:'Lệ Tinh Tú', emoji:'✨💧', time:260, cost:300, value:1800, level:'Divine', fusion: true },
+    sun_crown: { id:'sun_crown', name:'Vương Miện Mặt Trời', emoji:'👑☀️', time:280, cost:350, value:2000, level:'Divine', fusion: true },
+    time_fruit: { id:'time_fruit', name:'Trái Cây Thời Gian', emoji:'⏳🍇', time:300, cost:400, value:2200, level:'Divine', fusion: true },
+    chaos_leaf: { id:'chaos_leaf', name:'Lá Hỗn Mang', emoji:'🌀🍃', time:320, cost:450, value:2500, level:'Divine', fusion: true },
+    void_rose: { id:'void_rose', name:'Hoa Hồng Hư Vô', emoji:'🖤🌹', time:340, cost:500, value:2800, level:'Divine', fusion: true },
+    soul_tree: { id:'soul_tree', name:'Cây Hồn', emoji:'👻🌳', time:360, cost:550, value:3000, level:'Divine', fusion: true },
+    diamond_heart: { id:'diamond_heart', name:'Kim Cương Trái Tim', emoji:'💖💎', time:380, cost:600, value:3200, level:'Divine', fusion: true },
+    ocean_pearl: { id:'ocean_pearl', name:'Ngọc Trai Đại Dương', emoji:'🌊⚪', time:400, cost:650, value:3500, level:'Divine', fusion: true },
+    aether: { id:'aether', name:'Tinh Chất Ether', emoji:'🧪💨', time:420, cost:700, value:3800, level:'Divine', fusion: true },
+    infinity: { id:'infinity', name:'Hoa Vô Cực', emoji:'🌸⚛️', time:450, cost:750, value:4500, level:'Divine', fusion: true },
+    
+    // ✅ CẬP NHẬT MỚI: 5 DIVINE SEEDS
+    nebula_core: { id:'nebula_core', name:'Lõi Tinh Vân', emoji:'💫🌌', time:510, cost:1000, value:5000, level:'Divine', fusion: true },
+    chronos_berry: { id:'chronos_berry', name:'Mạn Việt Quất Thời Gian', emoji:'⏳🫐', time:530, cost:1200, value:5500, level:'Divine', fusion: true },
+    cosmic_heart: { id:'cosmic_heart', name:'Trái Tim Vũ Trụ', emoji:'❤️‍🔥', time:550, cost:1400, value:6000, level:'Divine', fusion: true },
+    sacred_fire: { id:'sacred_fire', name:'Lửa Thiêng', emoji:'🔥🙏', time:570, cost:1600, value:6500, level:'Divine', fusion: true },
+    world_tree: { id:'world_tree', name:'Cây Thế Giới', emoji:'🌍🌳', time:600, cost:1800, value:7000, level:'Divine', fusion: true }
+  },
+
+  // CỬA HÀNG ĐẶC BIỆT (Nằm cùng cấp với seeds)
+  specialShopItems: {
+    // NEW: Gói mua nước
+    water_50l: { name:'Gói Nước (50L)', value:50, cost:200, type:'water' },
+    // Gói tiền
+    pack10k: { name:'Gói 10k', value:10000, cost:500000, type:'coin' },
+    pack20k: { name:'Gói 20k', value:20000, cost:650000, type:'coin' },
+    pack30k: { name:'Gói 30k', value:30000, cost:700000, type:'coin' },
+    pack40k: { name:'Gói 40k', value:40000, cost:750000, type:'coin' },
+    pack50k: { name:'Gói 50k', value:50000, cost:800000, type:'coin' }
+  }
+};
+
+// NEW: Định nghĩa công thức phối giống chi tiết
+const fusionRecipes = {
+    // COMMON -> UNCOMMON FUSIONS (100% SUCCESS)
+    Uncommon: {
+        cost: 0,
+        successRate: 1, // 100%
+        recipes: [
+            { ingredients: ['carrot', 'corn'], result: 'carno' }, // Cà rốt + Ngô → Carno
+            { ingredients: ['carrot', 'tomato'], result: 'tomcar' }, // Cà rốt + Cà chua → Tomcar
+            { ingredients: ['corn', 'potato'], result: 'potcorn' }, // Ngô + Khoai tây → Potcorn
+            { ingredients: ['cucumber', 'tomato'], result: 'tomcumber' }, // Dưa leo + Cà chua → Tomcumber
+            { ingredients: ['potato', 'cucumber'], result: 'potcumber' } // Khoai tây + Dưa leo → Potcumber
+        ]
+    },
+
+    // UNCOMMON -> RARE FUSIONS (70% SUCCESS)
+    Rare: {
+        cost: 20, // 20₵
+        successRate: 0.7, // 70%
+        recipes: [
+            { ingredients: ['strawberry', 'coffee'], result: 'berrycaff' }, // Dâu + Cà phê → BerryCaff
+            { ingredients: ['pumpkin', 'grape'], result: 'pumpgrap' }, // BÍ ĐỎ + NHO -> PUMBGRAP
+            { ingredients: ['coffee', 'cabbage'], result: 'coffcabb' }, // Cà phê + Bắp cải → CoffCabb
+            { ingredients: ['strawberry', 'cabbage'], result: 'strawcabb' }, // Dâu + Bắp cải → StrawCabb
+            { ingredients: ['pumpkin', 'cabbage'], result: 'pumpcabb' } // Bí đỏ + Bắp cải → PumpCabb
+        ]
+    },
+
+    // RARE -> LEGENDARY FUSIONS (60% SUCCESS)
+    Legendary: {
+        cost: 40, // 40₵
+        successRate: 0.6, // 60%
+        recipes: [
+            { ingredients: ['cacao', 'moonflower'], result: 'mooncacao' }, // Ca cao + Cây Ánh Trăng → MoonCacao
+            { ingredients: ['berrycaff', 'pumpgrap'], result: 'berrypump' }, // BerryCaff + PumpGrap → BerryPump
+            { ingredients: ['coffcabb', 'strawcabb'], result: 'coffstraw' }, // CoffCabb + StrawCabb → CoffStraw
+            { ingredients: ['pumpgrap', 'pumpcabb'], result: 'mega_pump' }, // PumpGrap + PumpCabb → MEGA_PUMP
+            { ingredients: ['orchid', 'greentea'], result: 'orchidtea' }, // Hoa lan + Trà xanh → OrchidTea
+            { ingredients: ['cacao', 'honeytree'], result: 'cacao_honey' }, // Ca cao + Cây mật ong → Cacao Mật Ong
+            { ingredients: ['moonflower', 'orchid'], result: 'moon_orchid' }, // Cây Ánh Trăng + Hoa lan → Hoa Ánh Trăng
+            { ingredients: ['greentea', 'honeytree'], result: 'tea_honey' }, // Trà xanh + Cây mật ong → Trà Mật Ong
+            { ingredients: ['peach', 'greentea'], result: 'peachtea' },
+            { ingredients: ['blueberry', 'cacao'], result: 'blueberrycacao' }, // Việt Quất + Ca Cao → Blueberry Cacao
+            
+            // ✅ CÔNG THỨC MỚI: 5 LEGENDARY SEEDS
+            { ingredients: ['honeytree', 'blueberry'], result: 'star_lotus' },
+            { ingredients: ['cacao', 'pumpgrap'], result: 'lava_fruit' },
+            { ingredients: ['greentea', 'berrycaff'], result: 'crystal_tea' },
+            { ingredients: ['moonflower', 'coffcabb'], result: 'aqua_berry' },
+            { ingredients: ['orchid', 'strawcabb'], result: 'shadow_bean' }
+        ]
+    },
+// NEW: LEGENDARY -> MYTHIC FUSIONS (40% SUCCESS)
+    Mythic: {
+        cost: 70, // 70₵
+        successRate: 0.4, // 40%
+        recipes: [
+            // Ingredients: [{id: 'seedId', qty: required_amount}, ...]
+            { ingredients: [{id: 'berrycaff', qty: 5}, {id: 'moonflower', qty: 3}], result: 'sunstone' },
+            { ingredients: [{id: 'potcorn', qty: 5}, {id: 'mega_pump', qty: 3}], result: 'dragonfruit' },
+            { ingredients: [{id: 'mooncacao', qty: 3}, {id: 'strawberry', qty: 7}], result: 'starcandy' },
+            { ingredients: [{id: 'coffee', qty: 5}, {id: 'cacao_honey', qty: 3}], result: 'phoenix' },
+            { ingredients: [{id: 'pumpgrap', qty: 4}, {id: 'berrypump', qty: 2}], result: 'galaxy' },
+            { ingredients: [{id: 'pumpcabb', qty: 4}, {id: 'peachtea', qty: 3}], result: 'neptune' },
+            { ingredients: [{id: 'strawcabb', qty: 4}, {id: 'orchidtea', qty: 3}], result: 'm_diamond' },
+            { ingredients: [{id: 'orchidtea', qty: 3}, {id: 'blueberrycacao', qty: 2}], result: 'eternity' },
+            { ingredients: [{id: 'mooncacao', qty: 4}, {id: 'tea_honey', qty: 5}], result: 'rainbow' },
+            { ingredients: [{id: 'mooncacao', qty: 6}, {id: 'cacao_honey', qty: 6}], result: 'celestial' },
+            
+            // ✅ CÔNG THỨC MỚI: 5 MYTHIC SEEDS
+            { ingredients: [{id: 'lava_fruit', qty: 4}, {id: 'cacao_honey', qty: 3}], result: 'aurora_seed' },
+            { ingredients: [{id: 'potcorn', qty: 8}, {id: 'mega_pump', qty: 4}], result: 'thunder_root' },
+            // comet_star: x3 Moon Orchid + x2 MoonCacao + x1 Starcandy (Tổng 6 ô)
+            { ingredients: [{id: 'moon_orchid', qty: 3}, {id: 'mooncacao', qty: 2}, {id: 'starcandy', qty: 1}], result: 'comet_star' },
+            { ingredients: [{id: 'coffstraw', qty: 3}, {id: 'pumpcabb', qty: 3}], result: 'wind_blossom' },
+            { ingredients: [{id: 'neptune', qty: 2}, {id: 'ocean_pearl', qty: 2}], result: 'siren_song' }
+        ]
+    },
+    // NEW: MYTHIC -> DIVINE FUSIONS (30% SUCCESS)
+Divine: {
+    cost: 150, // 150₵
+    successRate: 0.2, // 30%
+    recipes: [
+        // Yêu cầu số lượng lớn các giống Mythic và Legendary
+        { ingredients: [{id: 'sunstone', qty: 3}, {id: 'phoenix', qty: 2}], result: 'star_tear' }, // Tổng 5 ô
+        { ingredients: [{id: 'celestial', qty: 2}, {id: 'cacao_honey', qty: 5}], result: 'sun_crown' }, // Tổng 7 ô
+        { ingredients: [{id: 'dragonfruit', qty: 4}, {id: 'mega_pump', qty: 4}], result: 'time_fruit' }, // Tổng 8 ô
+        { ingredients: [{id: 'galaxy', qty: 3}, {id: 'mooncacao', qty: 6}], result: 'chaos_leaf' }, // Tổng 9 ô
+        { ingredients: [{id: 'starcandy', qty: 5}, {id: 'tea_honey', qty: 4}], result: 'void_rose' }, // Tổng 9 ô
+        { ingredients: [{id: 'neptune', qty: 4}, {id: 'sunstone', qty: 4}], result: 'soul_tree' }, // Tổng 8 ô
+        { ingredients: [{id: 'm_diamond', qty: 5}, {id: 'rainbow', qty: 3}], result: 'diamond_heart' }, // Tổng 8 ô
+        { ingredients: [{id: 'eternity', qty: 4}, {id: 'orchidtea', qty: 5}], result: 'ocean_pearl' }, // Tổng 9 ô
+        { ingredients: [{id: 'celestial', qty: 3}, {id: 'galaxy', qty: 3}, {id: 'phoenix', qty: 3}], result: 'aether' }, // Tổng 9 ô
+        { ingredients: [{id: 'rainbow', qty: 5}, {id: 'celestial', qty: 5}], result: 'infinity' }, // Tổng 10 ô
+        
+        // ✅ CÔNG THỨC MỚI: 5 DIVINE SEEDS
+        { ingredients: [{id: 'galaxy', qty: 5}, {id: 'celestial', qty: 5}], result: 'nebula_core' },
+        { ingredients: [{id: 'time_fruit', qty: 3}, {id: 'blueberrycacao', qty: 7}], result: 'chronos_berry' },
+        { ingredients: [{id: 'sun_crown', qty: 4}, {id: 'diamond_heart', qty: 4}], result: 'cosmic_heart' },
+        { ingredients: [{id: 'phoenix', qty: 5}, {id: 'cacao_honey', qty: 5}], result: 'sacred_fire' },
+        { ingredients: [{id: 'soul_tree', qty: 5}, {id: 'infinity', qty: 5}], result: 'world_tree' }
+    ]
+}
+};
+
+  // NEW: Định nghĩa nhiệm vụ hàng ngày (Đã sắp xếp theo cấp độ và sau đó theo Reward giảm dần)
+const QUEST_DEFINITIONS = [
+    // ===========================================
+    // 🟢 CẤP ĐỘ DỄ (DỄ) - Reward: 2
+    // ===========================================
+    { id: 'harvest_carrot', type: 'harvest', seedId: 'carrot', required: 10, reward: 10, level: 'dễ', desc: 'Thu hoạch 10 củ Cà rốt' },
+    { id: 'harvest_corn', type: 'harvest', seedId: 'corn', required: 10, reward: 10, level: 'dễ', desc: 'Thu hoạch 10 trái Ngô' },
+    
+    // ===========================================
+    // 🟡 CẤP ĐỘ VỪA (VỪA) - Sắp xếp theo Reward giảm dần: 35 -> 30 -> 30 -> 25 -> 20
+    // ===========================================
+    { id: 'harvest_cabbage', type: 'harvest', seedId: 'cabbage', required: 10, reward: 20, level: 'vừa', desc: 'Thu hoạch 10 Bắp cải' }, // MỚI
+    { id: 'harvest_strawberry', type: 'harvest', seedId: 'strawberry', required: 10, reward: 20, level: 'vừa', desc: 'Thu hoạch 10 trái Dâu' }, // Đã có, đổi reward
+    { id: 'harvest_coffee', type: 'harvest', seedId: 'coffee', required: 10, reward: 25, level: 'vừa', desc: 'Thu hoạch 10 Cà phê' }, // MỚI
+    { id: 'harvest_pumpkin_10', type: 'harvest', seedId: 'pumpkin', required: 10, reward: 30, level: 'vừa', desc: 'Thu hoạch 10 Bí đỏ' }, // MỚI (Dùng chung ID với Bí ngô)
+    { id: 'harvest_grape', type: 'harvest', seedId: 'grape', required: 10, reward: 30, level: 'vừa', desc: 'Thu hoạch 10 Nho' }, // MỚI
+    { id: 'harvest_pumpkin_15', type: 'harvest', seedId: 'pumpkin', required: 15, reward: 35, level: 'vừa', desc: 'Thu hoạch 15 Bí đỏ' }, // MỚI
+
+    // ===========================================
+    // 🔴 CẤP ĐỘ KHÓ (KHÓ) - Sắp xếp theo Reward giảm dần: 60 -> 40 -> 35 -> 30 -> 25 -> 10 -> 10
+    // ===========================================
+    { id: 'harvest_orchidtea', type: 'harvest', seedId: 'orchidtea', required: 10, reward: 40, level: 'khó', desc: 'Thu hoạch 10 cây OrchidTea' },
+    { id: 'harvest_moonflower', type: 'harvest', seedId: 'moonflower', required: 10, reward: 45, level: 'khó', desc: 'Thu hoạch 10 cây Ánh Trăng' },
+    { id: 'harvest_mega_pump', type: 'harvest', seedId: 'mega_pump', required: 10, reward: 50, level: 'khó', desc: 'Thu hoạch 10 cây MegaPump' },
+    { id: 'harvest_honeytree', type: 'harvest', seedId: 'honeytree', required: 10, reward: 50, level: 'khó', desc: 'Thu hoạch 10 Cây mật ong' }, 
+    { id: 'harvest_cacao_honey', type: 'harvest', seedId: 'cacao_honey', required: 10, reward: 55, level: 'khó', desc: 'Thu hoạch 10 Cacao Mật Ong' }, 
+    { id: 'harvest_tea_honey', type: 'harvest', seedId: 'tea_honey', required: 10, reward: 60, level: 'khó', desc: 'Thu hoạch 10 Trà Mật Ong' }, 
+    { id: 'harvest_berrypump', type: 'harvest', seedId: 'berrypump', required: 20, reward: 100, level: 'khó', desc: 'Thu hoạch 20 BerryPump' }   
+];
+  
+  // Thêm vào khu vực định nghĩa dữ liệu (gần QUEST_DEFINITIONS)
+
+const ORDERS = [
+    // 🟢 DỄ (COMMON) - Tỷ lệ 60%
+    { id: 'O01', customer: 'Bữa tiệc BBQ', required: [{ seedId: 'carrot', qty: 25 }, { seedId: 'corn', qty: 20 }], reward: 450, level: 'Common' },
+    { id: 'O02', customer: 'Siêu thị mini', required: [{ seedId: 'tomato', qty: 30 }, { seedId: 'cucumber', qty: 15 }], reward: 500, level: 'Common' },
+    { id: 'O03', customer: 'Quán ăn sáng', required: [{ seedId: 'potato', qty: 35 }], reward: 400, level: 'Common' },
+    { id: 'O04', customer: 'Công thức Salad', required: [{ seedId: 'cucumber', qty: 25 }, { seedId: 'carrot', qty: 10 }], reward: 350, level: 'Common' },
+    { id: 'O05', customer: 'Đồ ăn vặt', required: [{ seedId: 'potato', qty: 20 }, { seedId: 'corn', qty: 15 }, { seedId: 'tomato', qty: 10 }], reward: 550, level: 'Common' },
+
+    // 🟡 TRUNG BÌNH (UNCOMMON) - Tỷ lệ 30%
+    { id: 'O06', customer: 'Tiệm bánh', required: [{ seedId: 'strawberry', qty: 15 }, { seedId: 'corn', qty: 10 }], reward: 650, level: 'Uncommon' },
+    { id: 'O07', customer: 'Nông trại đối tác', required: [{ seedId: 'cabbage', qty: 18 }, { seedId: 'carrot', qty: 12 }], reward: 700, level: 'Uncommon' },
+    { id: 'O08', customer: 'Chế biến Carno', required: [{ seedId: 'carno', qty: 8 }], reward: 850, level: 'Uncommon' },
+    { id: 'O09', customer: 'Quán cà phê', required: [{ seedId: 'coffee', qty: 15 }], reward: 750, level: 'Uncommon' },
+    { id: 'O10', customer: 'Quà tặng Lễ', required: [{ seedId: 'pumpkin', qty: 12 }, { seedId: 'grape', qty: 10 }], reward: 900, level: 'Uncommon' },
+    { id: 'O11', customer: 'Nước ép đặc biệt', required: [{ seedId: 'tomcumber', qty: 6 }, { seedId: 'strawberry', qty: 8 }], reward: 1000, level: 'Uncommon' },
+    { id: 'O12', customer: 'Bữa tiệc Thu', required: [{ seedId: 'pumpkin', qty: 20 }, { seedId: 'potato', qty: 15 }], reward: 800, level: 'Uncommon' },
+
+    // 🔴 KHÓ (RARE) - Tỷ lệ 7%
+    { id: 'O13', customer: 'Nhà pha chế', required: [{ seedId: 'berrycaff', qty: 5 }], reward: 1200, level: 'Rare' },
+    { id: 'O14', customer: 'Nhà máy Sô cô la', required: [{ seedId: 'cacao', qty: 10 }], reward: 1500, level: 'Rare' },
+    { id: 'O15', customer: 'Khách sạn cao cấp', required: [{ seedId: 'orchid', qty: 5 }, { seedId: 'greentea', qty: 5 }], reward: 1400, level: 'Rare' },
+    { id: 'O16', customer: 'Chuyên gia làm nến', required: [{ seedId: 'moonflower', qty: 8 }, { seedId: 'pumpcabb', qty: 4 }], reward: 1800, level: 'Rare' },
+    { id: 'O17', customer: 'Trà chiều', required: [{ seedId: 'greentea', qty: 12 }, { seedId: 'honeytree', qty: 5 }], reward: 2000, level: 'Rare' },
+
+    // 🟣 HUYỀN THOẠI (LEGENDARY) - Tỷ lệ 3%
+    { id: 'O18', customer: 'Quỹ Bảo tồn', required: [{ seedId: 'mooncacao', qty: 3 }], reward: 2500, level: 'Legendary' },
+    { id: 'O19', customer: 'Hoàng gia', required: [{ seedId: 'orchidtea', qty: 2 }, { seedId: 'honeygrap', qty: 2 }], reward: 3500, level: 'Legendary' },
+    { id: 'O20', customer: 'Bộ sưu tập', required: [{ seedId: 'cacao_honey', qty: 1 }], reward: 1800, level: 'Legendary' }
+];
+
+const ORDER_LEVEL_RATES = {
+    'Common': 0.60,
+    'Uncommon': 0.30,
+    'Rare': 0.07,
+    'Legendary': 0.03
+};
+  
+// UI DOM References
+const farmEl = document.getElementById('farm');
+const seedListEl = document.getElementById('seedList');
+const coinsEl = document.getElementById('coins');
+const waterAmountEl = document.getElementById('waterAmount');
+const logEl = document.getElementById('log');
+const dailyQuestsListEl = document.getElementById('dailyQuestsList');
+const timeToResetEl = document.getElementById('timeToReset');
+const tileInfoEl = document.getElementById('tileInfo');
+const btnExpand = document.getElementById('btnExpand');
+const btnClear = document.getElementById('btnClear');
+const buyPack = document.getElementById('buyPack');
+// NEW: Khai báo nút Thu hoạch tất cả
+const btnHarvestAll = document.getElementById('btnHarvestAll'); // NEW
+const shopListEl = document.getElementById('shopList');
+const specialShopListEl = document.getElementById('specialShopList');
+const recipeTableEl = document.getElementById('recipeTable');
+const loginOverlay = document.querySelector('.login-overlay');
+const usernameInput = document.getElementById('usernameInput');
+const loginBtn = document.getElementById('loginBtn');
+const loginStatusBtn = document.getElementById('loginStatusBtn');
+const fusionPanelEl = document.getElementById('fusionPanel');
+const fusionStatusEl = document.getElementById('fusionStatus');
+const oldCoinsInput = document.getElementById('oldCoinsInput');
+const applyOldCoinsBtn = document.getElementById('applyOldCoinsBtn');
+// CÁC PHẦN TỬ MỚI KHAI BÁO CHÍNH XÁC VÀ DUY NHẤT
+const inventoryListEl = document.getElementById('inventoryList');
+const orderListEl = document.getElementById('orderList');
+const timeToOrderResetEl = document.getElementById('timeToOrderReset');
+
+
+// Helper
+  
+  // Thêm vào khu vực Helper Functions
+
+function getRandomOrder() {
+    let rand = Math.random();
+    let level = '';
+
+    // Xác định cấp độ dựa trên tỷ lệ
+    if (rand < ORDER_LEVEL_RATES.Common) {
+        level = 'Common';
+    } else if (rand < ORDER_LEVEL_RATES.Common + ORDER_LEVEL_RATES.Uncommon) {
+        level = 'Uncommon';
+    } else if (rand < ORDER_LEVEL_RATES.Common + ORDER_LEVEL_RATES.Uncommon + ORDER_LEVEL_RATES.Rare) {
+        level = 'Rare';
+    } else {
+        level = 'Legendary';
+    }
+
+    // Lọc và chọn ngẫu nhiên đơn hàng trong cấp độ đó
+    const availableOrders = ORDERS.filter(o => o.level === level);
+    if (availableOrders.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * availableOrders.length);
+    const selectedOrder = availableOrders[randomIndex];
+
+    // Tạo bản sao và gán instanceId độc nhất (tránh lỗi trùng id khi giao)
+    return JSON.parse(JSON.stringify({
+        ...selectedOrder,
+        instanceId: `${selectedOrder.id}_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+        status: 'active'
+    }));
+}
+
+
+function getTodayOrders() {
+    const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 giờ
+    const now = Date.now();
+
+    // Nếu chưa có đơn hàng hoặc đã qua thời điểm reset
+    if (state.activeOrders.length === 0 || now - state.lastOrderReset >= RESET_INTERVAL_MS) {
+        log('Đơn hàng khách hàng được tạo/reset.');
+        state.activeOrders = [];
+
+        // Tạo 3 đơn hàng ngẫu nhiên
+        for (let i = 0; i < 3; i++) {
+            const newOrder = getRandomOrder();
+            if (newOrder) {
+                // ĐẢM BẢO MỖI ĐƠN CÓ 1 MÃ RIÊNG BIỆT KHÔNG BAO GIỜ TRÙNG
+                newOrder.instanceId = 'order_' + now + '_' + i + '_' + Math.random().toString(36).substr(2, 6);
+                state.activeOrders.push(newOrder);
+            }
+        }
+
+        state.lastOrderReset = now;
+        save();
+    }
+    return state.activeOrders;
+}
+
+
+// NEW: Hàm lấy nhiệm vụ của ngày hôm nay (dựa trên lastQuestReset)
+function getTodayQuests() {
+    // 1. Lấy thời điểm nửa đêm hôm nay (ví dụ: nếu bây giờ là 1:35 sáng 12/12/2025, mốc này là 00:00:00 12/12/2025)
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    const todayMidnightMs = todayMidnight.getTime();
+    
+    // Nếu lastQuestReset là 0 (lần đầu chơi) HOẶC nếu thời điểm reset cuối cùng
+    // là TRƯỚC mốc nửa đêm hôm nay (tức là đã sang ngày mới và chưa reset)
+    if (state.lastQuestReset === 0 || state.lastQuestReset < todayMidnightMs) {
+        log('Nhiệm vụ hàng ngày được tạo/reset do đã sang ngày mới.');
+        
+        // Khởi tạo nhiệm vụ mới 
+        state.dailyQuests = QUEST_DEFINITIONS.map(questDef => ({
+            ...questDef,
+            current: 0,
+            completed: false
+        }));
+
+        // Đặt thời điểm reset là mốc nửa đêm của ngày hôm nay
+        state.lastQuestReset = todayMidnightMs;
+        save();
+    }
+
+    return state.dailyQuests;
+}
+
+// Hàm tính tỉ lệ tăng trưởng bị chậm (1.0 = bình thường, 0.5 = chậm 50%)
+function getGrowTimeRatio() {
+    return state.water > 0 ? 1.0 : SLOWDOWN_RATE;
+}
+
+// Hàm trừ nước theo thời gian
+function updateWater() {
+    const now = Date.now();
+    const elapsedMs = now - state.lastWaterUpdate;
+    
+    // Chỉ xử lý tối đa 10 phút (600,000ms) để tránh lỗi khi người chơi AFK quá lâu
+    const maxElapsedMs = 600000; 
+    const clampedElapsedMs = Math.min(elapsedMs, maxElapsedMs); 
+    
+    // Số phút trôi qua
+    const elapsedMins = clampedElapsedMs / 60000;
+    
+    // Số lượng ô đang trồng
+    const plantedTilesCount = state.tiles.filter(t => t.planted).length;
+    
+    // Mức tiêu thụ nước (Lít)
+    // (Số ô đang trồng * Tỷ lệ tiêu thụ * Số phút trôi qua)
+    const waterConsumption = plantedTilesCount * WATER_COST_RATE_PER_MIN * elapsedMins;
+    
+    if (waterConsumption > 0) {
+        // Trừ nước
+        state.water = Math.max(0, state.water - waterConsumption);
+    }
+    
+    // Cập nhật thời điểm lần cuối xử lý nước
+    state.lastWaterUpdate = now;
+    renderWater();
+    
+    // Nếu có tiles, render lại farm để cập nhật thanh tiến trình (nếu cần)
+    if (plantedTilesCount > 0) {
+        renderFarm(false);
+    }
+}
+function createEmptyTiles(rows, cols){
+  const arr = [];
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      arr.push({
+        id: `${r}-${c}`,
+        planted: false,
+        seedId: null,
+        plantedAt: null, // timestamp
+        growUntil: null, // timestamp when ready
+      });
+    }
+  }
+  return arr;
+}
+function findTile(id){ return state.tiles.find(t=>t.id===id); }
+function formatCoins(n){ return n + '₵'; }
+// Thêm sau formatCoins(n)
+function formatWater(n){ return n + 'L'; }
+function getRandomTileId(tileIds) {
+    return tileIds[Math.floor(Math.random() * tileIds.length)];
+}
+// ⭐ NEW: Helper function để lấy key tạm thời cho localStorage
+function getOldCoinsKey() { return 'farmmini_old_coins_temp'; }
+// --- LOGIC FUNCTIONS (LOAD/SAVE/AUTH) ---
+
+function log(msg){
+  const p = document.createElement('div');
+  p.textContent = `${(new Date()).toLocaleTimeString()} — ${msg}`;
+  logEl.prepend(p);
+}
+
+function save(){
+  if (!currentUser || !currentStorageKey) return; // Chỉ lưu nếu đã đăng nhập
+  
+  updateWater(); // Thực hiện trừ nước ngay trước khi lưu
+  
+  localStorage.setItem(currentStorageKey, JSON.stringify({
+    coins: state.coins,
+    water: state.water, // NEW
+    rows: state.rows,
+    cols: state.cols,
+    tiles: state.tiles,
+    unlockedSeeds: state.unlockedSeeds,
+    dailyQuests: state.dailyQuests, // NEW
+    lastQuestReset: state.lastQuestReset, // NEW
+    // ĐÃ THÊM 3 TRƯỜNG BỊ THIẾU
+    inventory: state.inventory,
+    activeOrders: state.activeOrders,
+    lastOrderReset: state.lastOrderReset,
+    // KẾT THÚC CÁC TRƯỜNG ĐƯỢC THÊM
+    lastWaterUpdate: state.lastWaterUpdate // NEW
+  }));
+}
+
+function load(){
+    if (!currentUser) return; 
+
+    currentStorageKey = STORAGE_KEY_PREFIX + currentUser;
+    const raw = localStorage.getItem(currentStorageKey);
+
+    const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
+
+    // 💡 Tái tạo initialState an toàn (CHÚ Ý: Đã bao gồm Inventory/Orders/ResetTime)
+    let initialState = JSON.parse(JSON.stringify({ 
+        coins: DEFAULT_COINS,
+        water: DEFAULT_WATER,
+        rows: DEFAULT_ROWS,
+        cols: DEFAULT_COLS,
+        tiles: [],
+        selectedSeed: 'carrot', 
+        unlockedSeeds: DEFAULT_UNLOCKED_SEEDS, 
+        lastWaterUpdate: Date.now(),
+        dailyQuests: [],
+        lastQuestReset: 0,
+        inventory: {}, 
+        activeOrders: [], 
+        lastOrderReset: 0, 
+        seeds: state.seeds,
+        specialShopItems: state.specialShopItems
+    }));
+    
+    // Khởi tạo tiles cho initialState
+    initialState.tiles = createEmptyTiles(initialState.rows, initialState.cols);
+
+    let isNewAccount = false; 
+
+    if(raw){
+        try{
+            const parsed = JSON.parse(raw);
+            if(parsed && parsed.tiles){
+                
+                state = initialState;
+                state = Object.assign(state, parsed);
+                // ** SỬA LỖI:** Đảm bảo các trường này được tải LÊN TỪ parsed nếu chúng tồn tại
+                if(parsed.inventory) state.inventory = parsed.inventory;
+                if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
+                if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
+                
+                state.selectedSeed = 'carrot'; 
+                
+            } else {
+                throw 'bad';
+            }
+        } catch(e){
+            console.warn(`Could not load state for ${currentUser}, creating new.`);
+            state = initialState;
+            isNewAccount = true; 
+            save();
+        }
+    } else {
+        // Tên đăng nhập chưa có trong localStorage -> Tạo tài khoản mới
+        state = initialState;
+        isNewAccount = true; 
+        save();
+    }
+    
+    // ⭐ NEW: LOGIC ÁP DỤNG TIỀN CŨ BỊ MẤT (Chỉ cộng tiền nếu có trong localStorage tạm thời)
+    const oldCoinsTemp = localStorage.getItem(getOldCoinsKey());
+    if (oldCoinsTemp) {
+        const oldCoinsValue = parseInt(oldCoinsTemp);
+        if (oldCoinsValue > 0) {
+            state.coins += oldCoinsValue; // CỘNG TIỀN CŨ VÀO state.coins
+            log(`💰 Đã áp dụng tiền cũ: +${oldCoinsValue}₵.`);
+        }
+        localStorage.removeItem(getOldCoinsKey()); // XÓA KEY TẠM THỜI
+    }
+    // ⭐ END NEW LOGIC
+
+    // Tự động cấp instanceId cho các đơn hàng cũ chưa có mã riêng để không bị lỗi trùng đơn
+    if (state.activeOrders && Array.isArray(state.activeOrders)) {
+        state.activeOrders.forEach((o, idx) => {
+            if (!o.instanceId) {
+                o.instanceId = 'order_fixed_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 5);
+            }
+        });
+    }
+
+    // Nếu Đơn hàng chưa được tạo (lần đầu tiên), thì mới tạo đơn mới.
+    // Nếu state.activeOrders có sẵn, hàm này sẽ bỏ qua và không tạo đơn mới.
+    getTodayOrders(); 
+    getTodayQuests();
+    
+    // NEW: Trừ nước theo thời gian AFK
+    updateWater();
+
+    localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
+    document.body.classList.remove('logged-out');
+    renderSeeds();
+    renderFarm();
+    renderShop(); 
+    renderSpecialShop(); 
+    renderRecipeTable();
+    renderWater();
+    renderQuests();
+    renderInventory();
+    renderOrders();
+    renderFusionPanel(); // Cập nhật trạng thái phối giống sau khi load
+    updateLoginStatusUI();
+    
+    if (isNewAccount) {
+        log(`Chào mừng ${currentUser}! Đã tạo tài khoản mới.`);
+    } else {
+        log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
+    }
+}
+
+
+function login(username){
+  if (username && username.trim().length >= 3){
+    currentUser = username.trim();
+    load(); 
+  } else {
+    alert('Tên người dùng phải có ít nhất 3 ký tự.');
+  }
+}
+
+function logout(){
+  if(confirm('Bạn có chắc muốn đăng xuất? Tiến trình hiện tại sẽ được lưu tự động.')){
+    save(); 
+    currentUser = null;
+    currentStorageKey = null;
+    document.body.classList.add('logged-out');
+    updateLoginStatusUI();
+    log('Đã đăng xuất.');
+  }
+}
+
+function updateLoginStatusUI(){
+  if(currentUser){
+    loginStatusBtn.textContent = `🧑‍🌾 ${currentUser}`;
+    loginStatusBtn.title = 'Mở Menu Quản Lý';
+    // Cập nhật Coin và Water
+    coinsEl.textContent = '💰 ' + state.coins;
+    waterAmountEl.textContent = '💧 ' + formatWater(Math.floor(state.water)); // NEW
+    waterAmountEl.title = `Nước: ${Math.floor(state.water)}L. Tiêu thụ: ${WATER_COST_RATE_PER_MIN}L/ô/phút.`;
+    
+  } else {
+    // ...
+    coinsEl.textContent = '💰 ???';
+    waterAmountEl.textContent = '💧 ???'; // NEW
+    farmEl.innerHTML = '<div class="muted" style="text-align:center; padding: 20px;">Vui lòng đăng nhập để xem trang trại.</div>';
+    // ...
+    dailyQuestsListEl.innerHTML = '<div class="muted">Đăng nhập để xem nhiệm vụ.</div>'; // NEW
+    timeToResetEl.textContent = '???';
+  }
+}
+
+
+// --- RENDERING FUNCTIONS ---
+
+function renderSeeds(){
+  if (!currentUser) return;
+
+  seedListEl.innerHTML = '';
+  
+  // Lọc chỉ những hạt giống đã được mở khóa
+  const availableSeeds = Object.values(state.seeds).filter(s => state.unlockedSeeds.includes(s.id));
+  
+  // Phân loại hạt giống theo cấp độ
+  const categorizedSeeds = {
+    'Common': [],
+    'Uncommon': [],
+    'Rare': [],
+    'Legendary': [], // Giữ nguyên
+    'Mythic': [],
+    'Divine': []// ✅ ĐÃ THÊM CẤP MYTHIC
+  };
+  
+  availableSeeds.forEach(s => {
+    if (categorizedSeeds[s.level]) {
+      categorizedSeeds[s.level].push(s);
+    }
+  });
+
+  const levelMap = {
+    'Common': '🌱 Bình thường',
+    'Uncommon': '🌿 Trung bình',
+    'Rare': '💎 Hiếm',
+    'Legendary': '✨ Huyền thoại',
+    'Mythic': '👑 Thần thánh', // ✅ ĐÃ THÊM CẤP MYTHIC
+    'Divine': '⭐ Thần Tối Thượng'
+  };
+
+  for (const level in categorizedSeeds) {
+    const seeds = categorizedSeeds[level];
+    if (seeds.length > 0) {
+      // Thêm tiêu đề cấp độ
+      const header = document.createElement('h3');
+      header.style.fontSize = '14px';
+      header.style.margin = '10px 0 5px 0';
+      header.textContent = levelMap[level];
+      seedListEl.appendChild(header);
+
+      // Hiển thị từng hạt giống
+      seeds.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'seed' + (state.selectedSeed===s.id ? ' active' : '');
+        div.dataset.seed = s.id;
+        div.dataset.level = s.level; 
+        
+        div.innerHTML = `<div class="emoji">${s.emoji}</div>
+          <div class="meta">
+            <div style="font-weight:700">${s.name} <span class="muted">(${s.time}s)</span></div>
+            <div class="muted">Giá: ${s.cost} • Bán: ${s.value}</div>
+          </div>`;
+        
+        div.onclick = ()=>{ 
+          if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+          state.selectedSeed = s.id; 
+          renderSeeds(); 
+          log(`Chọn hạt: ${s.name}`); 
+        };
+        seedListEl.appendChild(div);
+      });
+    }
+  }
+}
+
+// Thêm vào sau renderSeeds()
+function renderWater(){
+  if (!currentUser) return;
+  waterAmountEl.textContent = '💧 ' + formatWater(Math.floor(state.water));
+  waterAmountEl.style.color = state.water > 0 ? '#1b2a19' : '#ff0000'; // Đỏ nếu hết nước
+  waterAmountEl.title = `Nước: ${Math.floor(state.water)}L. Tiêu thụ: ${WATER_COST_RATE_PER_MIN}L/ô/phút. ${state.water <= 0 ? 'Cây phát triển chậm 50%!' : ''}`;
+}
+
+// Hàm render nhiệm vụ hàng ngày (Đã tối ưu hóa hiển thị)
+function renderQuests() {
+    if (!currentUser) return;
+    
+    // Cập nhật thời gian reset
+    const today = new Date();
+    const nextReset = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 0, 0, 0);
+    const diff = nextReset.getTime() - Date.now();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    timeToResetEl.textContent = `${h} giờ ${m} phút ${s} giây`;
+
+    getTodayQuests(); // Đảm bảo quests đã được tạo/reset
+
+    dailyQuestsListEl.innerHTML = '';
+    
+    // Sắp xếp: Ưu tiên nhiệm vụ đã xong lên đầu (0), chưa xong ở giữa (1), đã nhận quà xuống cuối (2)
+    const sortedQuests = [...state.dailyQuests].sort((a, b) => {
+        const getPriority = q => {
+            if (q.completed === true) return 0;
+            if (q.completed === false) return 1;
+            if (q.completed === 'claimed') return 2;
+            return 1;
+        };
+        return getPriority(a) - getPriority(b);
+    });
+
+    sortedQuests.forEach(quest => {
+        const isCompleted = quest.completed === true;
+        const isClaimed = quest.completed === 'claimed';
+        
+        const div = document.createElement('div');
+        div.className = 'quest-item' + (isCompleted ? ' quest-ready' : isClaimed ? ' quest-completed' : '');
+
+        let progressText;
+        if (isClaimed) {
+            progressText = 'Đã nhận ✅';
+        } else if (isCompleted) {
+            progressText = 'Sẵn sàng!';
+        } else {
+            progressText = `${Math.min(quest.current, quest.required)}/${quest.required}`;
+        }
+        
+        // Thêm div chứa nội dung và div chứa trạng thái/nút
+        div.innerHTML = `
+            <div>
+                ${quest.desc} 
+                <span class="muted-2">(${quest.level})</span>
+            </div>
+            <div class="row" style="align-items: center;">
+                <div class="quest-progress">${progressText}</div>
+                <button class="btn secondary" 
+                    ${isCompleted ? '' : 'disabled'} 
+                    onclick="claimQuestReward('${quest.id}')">
+                    +${quest.reward} 💧
+                </button>
+            </div>
+        `;
+        dailyQuestsListEl.appendChild(div);
+    });
+}
+
+  
+// Thay thế hàm renderFarm hiện tại bằng hàm này
+function renderFarm(logIfSlow = true){
+  if (!currentUser) return;
+
+  // NEW: Cập nhật nước trước khi render
+  if (logIfSlow) updateWater(); 
+  
+  farmEl.innerHTML = '';
+  farmEl.style.gridTemplateColumns = `repeat(${state.cols},1fr)`;
+  
+  // NEW: Lấy tỉ lệ tăng trưởng
+  const growRatio = getGrowTimeRatio(); 
+  if (growRatio < 1.0 && logIfSlow) {
+    log(`Cảnh báo: Cây trồng phát triển chậm ${((1 - growRatio) * 100).toFixed(0)}% do hết nước!`);
+  }
+  
+  state.tiles.forEach(tile=>{
+    // Logic rendering ô đất
+    const el = document.createElement('div');
+    el.className = 'tile ' + (tile.planted ? 'soil' : '');
+    el.dataset.id = tile.id;
+    if(tile.planted){
+      const seed = state.seeds[tile.seedId];
+      
+      // Sử dụng lại logic cũ:
+      const ready = Date.now() >= tile.growUntil;
+      // Sử dụng thanh tiến trình visual:
+      const progressPctVisual = Math.min(100, Math.floor( ((Date.now() - tile.plantedAt) / (tile.growUntil - tile.plantedAt)) * 100 ));
+      
+      const emoji = `<div class="seed-emoji">${seed.emoji}</div>`;
+      const name = `<div class="seed-name">${seed.name}${ready ? ' ✓' : ''}</div>`;
+      const progress = `<div class="progress"><i style="width:${isNaN(progressPctVisual)?0:progressPctVisual}%"></i></div>`;
+      el.innerHTML = emoji + name + progress;
+    } else {
+      el.innerHTML = `<div style="font-size:28px">🌱</div><div class="muted">Ô đất</div>`;
+    }
+    el.onclick = ()=> onTileClick(tile.id);
+    farmEl.appendChild(el);
+  });
+  coinsEl.textContent = '💰 ' + state.coins;
+}
+
+function renderTileInfo(id){
+  if (!currentUser) return;
+  
+  const tile = findTile(id);
+  if(!tile) return;
+
+  // Logic hiển thị thông tin ô đất
+  if(!tile.planted){
+    tileInfoEl.innerHTML = `Ô <strong>${id}</strong> — Trống. Click để trồng hạt <strong>${state.seeds[state.selectedSeed].name}</strong>.`;
+  } else {
+    const seed = state.seeds[tile.seedId];
+    const remain = Math.max(0, Math.ceil((tile.growUntil - Date.now())/1000));
+    const ready = Date.now() >= tile.growUntil;
+
+    // Kiểm tra xem ô này có đang được chọn để phối giống không
+    const isSelectedForFusion = selectedFusionTiles.includes(id);
+
+    tileInfoEl.innerHTML = `<div><strong>${seed.name}</strong> ${seed.emoji}</div>
+      <div class="muted">Trồng: ${new Date(tile.plantedAt).toLocaleTimeString()}</div>
+      <div class="muted">Sẵn sàng sau: <strong>${ready? 'Đã chín' : remain + ' giây'}</strong></div>
+      <div style="margin-top:8px">
+        ${ready 
+          ? `<button class="btn" id="harvestNow">Thu hoạch</button>` 
+          : `<button class="btn secondary" id="speedUp">Tăng tốc (10₵)</button>`
+        }
+        
+        ${ready 
+            ? `<button class="btn ${isSelectedForFusion ? 'secondary' : ''}" 
+                        id="selectFusion" 
+                        style="margin-left: 8px;">
+                        ${isSelectedForFusion ? 'Đã chọn phối' : 'Chọn để Phối'}
+              </button>`
+            : ''
+        }
+      </div>`;
+    
+    setTimeout(()=>{ // attach handlers after DOM update
+      const btn = document.getElementById('harvestNow');
+      // THAY ĐỔI: Gọi hàm harvestTile(id) mới thay vì onTileClick(id)
+      if(btn) btn.onclick = ()=> harvestTile(id); 
+      
+      const sp = document.getElementById('speedUp');
+      if(sp) sp.onclick = ()=> speedUpTile(id);
+      
+      // Nút chọn phối giống
+      const sf = document.getElementById('selectFusion');
+      if(sf) sf.onclick = ()=> selectFusionTile(id);
+      
+    },0);
+  }
+}
+
+function renderShop(){
+  if (!currentUser) return;
+
+  shopListEl.innerHTML = '';
+
+  // Lọc ra hạt giống cần bán trong Cửa hàng: PHẢI là Uncommon/Rare VÀ KHÔNG phải là Fusion Seed
+  const shopSeeds = Object.values(state.seeds).filter(s => s.level !== 'Common' && !s.fusion);
+  
+  const levelMap = {
+    'Uncommon': '🌿 Trung bình',
+    'Rare': '💎 Hiếm'
+  };
+  
+  // Phân loại theo cấp độ
+  const categorizedShop = {
+    'Uncommon': shopSeeds.filter(s => s.level === 'Uncommon'),
+    'Rare': shopSeeds.filter(s => s.level === 'Rare')
+  };
+
+  for (const level in categorizedShop) {
+    const seeds = categorizedShop[level];
+    if (seeds.length > 0) {
+      // Thêm tiêu đề cấp độ
+      const header = document.createElement('h3');
+      header.style.fontSize = '14px';
+      header.style.margin = '10px 0 5px 0';
+      header.textContent = levelMap[level];
+      shopListEl.appendChild(header);
+
+      seeds.forEach(s => {
+        const isUnlocked = state.unlockedSeeds.includes(s.id);
+        
+        const shopItem = document.createElement('div');
+        shopItem.className = 'row' + ' seed'; 
+        shopItem.dataset.level = s.level;
+
+        shopItem.innerHTML = `
+          <div class="emoji">${s.emoji}</div>
+          <div class="meta" style="flex:1">
+            <div style="font-weight:700">${s.name} ${isUnlocked ? ' (Đã mở khóa)' : ''}</div>
+            <div class="muted">Giá trồng: ${s.cost}₵ | Lợi nhuận: ${s.value}₵</div>
+          </div>
+          ${isUnlocked 
+            ? `<button class="btn secondary" disabled>Đã sở hữu</button>` 
+            : `<button class="btn" onclick="buySeeds('${s.id}')">Mua ${s.shopPrice}₵</button>`
+          }
+        `;
+        shopListEl.appendChild(shopItem);
+      });
+    }
+  }
+}
+
+function renderSpecialShop(){
+  if (!currentUser) return;
+  
+  specialShopListEl.innerHTML = '';
+
+  for (const itemId in state.specialShopItems) {
+    const item = state.specialShopItems[itemId];
+
+    const shopItem = document.createElement('div');
+    shopItem.className = 'row seed'; // Sử dụng lại style seed
+    
+    // Đặt màu viền dựa trên loại vật phẩm
+    let borderColor = '';
+    let emoji = '';
+    let itemDetail = '';
+    let clickAction = '';
+    
+    if (item.type === 'coin') {
+        borderColor = '#f1c232'; // Vàng cho Coin
+        emoji = '💸';
+        itemDetail = `Nhận ngay: ${item.value}₵`;
+        clickAction = `buySpecialItem('${itemId}')`;
+    } else if (item.type === 'water') {
+        borderColor = '#4a86e8'; // Xanh dương cho Water (NEW)
+        emoji = '💦';
+        itemDetail = `Nhận ngay: ${item.value}L Nước`;
+        // HÀNH ĐỘNG MỚI: Gọi hàm buyWater(amount, cost)
+        clickAction = `buyWater(${item.value}, ${item.cost})`;
+    } else if (item.type === 'ssm') {
+        borderColor = '#674ea7'; // Tím cho SSM
+        emoji = '✨';
+        itemDetail = `Vật phẩm: ${item.value} SSM`;
+        clickAction = `buySpecialItem('${itemId}')`;
+    }
+    
+    shopItem.style.borderLeft = `5px solid ${borderColor}`;
+
+    shopItem.innerHTML = `
+      <div class="emoji">${emoji}</div>
+      <div class="meta" style="flex:1">
+        <div style="font-weight:700">${item.name}</div>
+        <div class="muted">${itemDetail}</div>
+      </div>
+      <button class="btn" onclick="${clickAction}">Mua ${item.cost}₵</button>
+    `;
+    specialShopListEl.appendChild(shopItem);
+  }
+}
+
+// HÀM KIỂM TRA CHUNG CHO TẤT CẢ CÔNG THỨC (Mythic, Legendary, Rare, Uncommon, DIVINE)
+function findMatchingFusionRecipe(selectedTileIds) {
+    if (selectedTileIds.length === 0) return null;
+
+    // 1. Phân tích các loại cây đã chọn và số lượng
+    const ingredientCounts = {};
+    const tileObjects = selectedTileIds.map(findTile);
+    tileObjects.forEach(tile => {
+        if (tile && tile.seedId) {
+            ingredientCounts[tile.seedId] = (ingredientCounts[tile.seedId] || 0) + 1;
+        }
+    });
+
+    // Sắp xếp các loại cây theo cấp độ giảm dần để ưu tiên công thức cao cấp (Mythic/Divine)
+    // Mặc dù không cần thiết cho logic chính, nhưng giúp định hướng debug nếu cần.
+    const selectedSeedIds = Object.keys(ingredientCounts).sort((a, b) => {
+        const levelA = state.seeds[a].level;
+        const levelB = state.seeds[b].level;
+        const levels = ['Divine', 'Mythic', 'Legendary', 'Rare', 'Uncommon', 'Common'];
+        return levels.indexOf(levelA) - levels.indexOf(levelB);
+    });
+
+    
+    // --- BƯỚC 2: KIỂM TRA CÔNG THỨC NHIỀU Ô (DIVINE VÀ MYTHIC) ---
+    // Duyệt qua các nhóm công thức đặc biệt (Divine và Mythic)
+    const specialFusionGroups = ['Divine', 'Mythic']; 
+    
+    for (const groupName of specialFusionGroups) {
+        const recipeGroup = fusionRecipes[groupName];
+        
+        // Chỉ kiểm tra nếu số lượng ô đất hiện tại lớn hơn 2
+        if (selectedTileIds.length >= 2) { 
+            for (const recipe of recipeGroup.recipes) {
+                let match = true;
+                let requiredTotal = 0;
+                
+                // Recipe: [{id: 'seedId', qty: required_amount}, ...]
+                // Kiểm tra xem tất cả thành phần có khớp và đủ số lượng không
+                for (const required of recipe.ingredients) {
+                    requiredTotal += required.qty;
+                    if ((ingredientCounts[required.id] || 0) !== required.qty) {
+                        match = false;
+                        break;
+                    }
+                }
+                
+                // Phải khớp TỔNG số ô đã chọn với TỔNG số lượng yêu cầu
+                // và phải khớp tất cả thành phần yêu cầu
+                if (match && selectedTileIds.length === requiredTotal) {
+                    return { 
+                        group: groupName, 
+                        recipe: recipe, 
+                        resultSeed: state.seeds[recipe.result] 
+                    };
+                }
+            }
+        }
+    }
+
+
+    // --- BƯỚC 3: KIỂM TRA CÔNG THỨC 2 Ô CŨ (Legendary, Rare, Uncommon) ---
+    if (selectedTileIds.length === 2) {
+        const tileObjects = selectedTileIds.map(findTile);
+        const seed1 = tileObjects[0].seedId;
+        const seed2 = tileObjects[1].seedId;
+        const level1 = state.seeds[seed1].level;
+        const level2 = state.seeds[seed2].level;
+        
+        // Phối 2 cây cùng cấp độ (Legendary, Rare, Uncommon, Common)
+        if (level1 === level2) {
+            const nextLevel = 
+                level1 === 'Common' ? 'Uncommon' : 
+                level1 === 'Uncommon' ? 'Rare' : 
+                level1 === 'Rare' ? 'Legendary' : null;
+
+            if (nextLevel) {
+                const recipeGroup = fusionRecipes[nextLevel];
+
+                if (recipeGroup) {
+                    const ingredientIds = [seed1, seed2].sort();
+                    let matchedRecipe = recipeGroup.recipes.find(r => {
+                        // Công thức 2 ô cũ chỉ cần kiểm tra 2 ID, không cần qty
+                        const recipeIngredients = [...r.ingredients].sort(); 
+                        return ingredientIds[0] === recipeIngredients[0] && ingredientIds[1] === recipeIngredients[1];
+                    });
+
+                    if (matchedRecipe) {
+                        return { 
+                            group: nextLevel, 
+                            recipe: matchedRecipe, 
+                            resultSeed: state.seeds[matchedRecipe.result] 
+                        };
+                    }
+                }
+            }
+        }
+    }
+    
+    return null;
+}
+
+function renderFusionPanel(){
+    if (selectedFusionTiles.length === 0) {
+        fusionPanelEl.style.display = 'none';
+        document.querySelectorAll('.tile').forEach(el => el.classList.remove('selected-fusion'));
+        return;
+    }
+   
+    fusionPanelEl.style.display = 'block';
+    
+    const match = findMatchingFusionRecipe(selectedFusionTiles);
+    
+    if (match) {
+        const resultSeed = match.resultSeed;
+        const recipeGroup = fusionRecipes[match.group];
+        const isSpecialLevel = match.group === 'Mythic' || match.group === 'Divine'; // NEW: Bắt cả Divine
+        
+        let costDisplay = recipeGroup.cost === 0 ? 'Miễn phí' : `${recipeGroup.cost}₵`;
+        let successDisplay = `${recipeGroup.successRate * 100}% thành công`;
+
+        let ingredientsDetails = '';
+        
+        if (isSpecialLevel) {
+            // Logic cho cả MYTHIC và DIVINE
+            ingredientsDetails = match.recipe.ingredients.map(req => {
+                const seed = state.seeds[req.id];
+                return `<strong>x${req.qty} ${seed.name} ${seed.emoji}</strong>`;
+            }).join(' + ');
+            
+            // NEW: Tính chi phí nước cho cấp độ đặc biệt
+            let waterCostText = match.group === 'Divine' ? ' (15L nước)' : ' (10L nước)';
+            let buttonText = `Thực hiện Phối Giống ${match.group}`;
+
+            fusionStatusEl.innerHTML = `
+                <div>Phối (${selectedFusionTiles.length} ô): ${ingredientsDetails}</div>
+                <div>Kết quả: <strong>${resultSeed.name} ${resultSeed.emoji} (${match.group})</strong></div>
+                <div class="muted">Chi phí: <strong>${costDisplay}${waterCostText}</strong> | Tỷ lệ: <strong>${successDisplay}</strong></div>
+                <button class="btn" style="margin-top: 8px;" onclick="doCrossBreed('${match.group}')">${buttonText}</button>
+                <button class="btn secondary" onclick="selectedFusionTiles = []; renderFusionPanel();" style="margin-left: 8px;">Hủy chọn (${selectedFusionTiles.length} ô)</button>
+            `;
+        } else {
+            // Logic cũ (Legendary, Rare, Uncommon)
+            const seed1 = state.seeds[match.recipe.ingredients[0]];
+            const seed2 = state.seeds[match.recipe.ingredients[1]];
+            
+            fusionStatusEl.innerHTML = `
+                <div>Phối: <strong>${seed1.name} ${seed1.emoji} + ${seed2.name} ${seed2.emoji}</strong></div>
+                <div>Cấp độ: ${seed1.level} → ${match.group}</div>
+                <div class="muted">Chi phí: <strong>${costDisplay}</strong> | Tỷ lệ: <strong>${successDisplay}</strong></div>
+                <button class="btn" style="margin-top: 8px;" onclick="doCrossBreed('${match.group}')">Thực hiện Phối Giống</button>
+                <button class="btn secondary" onclick="selectedFusionTiles = []; renderFusionPanel();" style="margin-left: 8px;">Hủy</button>
+            `;
+        }
+    } else {
+        // Không khớp công thức hoặc chưa đủ ô
+        let statusText = selectedFusionTiles.length < 2 
+            ? `Đã chọn ${selectedFusionTiles.length} ô. Chọn thêm.`
+            : `Không tìm thấy công thức phối giống nào khớp với ${selectedFusionTiles.length} ô đã chọn.`;
+            
+        fusionStatusEl.innerHTML = `
+            <div>${statusText}</div>
+            <button class="btn secondary" onclick="selectedFusionTiles = []; renderFusionPanel();" style="margin-left: 8px;">Hủy tất cả</button>
+        `;
+    }
+    // Đảm bảo các ô đang chọn có style
+    selectedFusionTiles.forEach(id => {
+        const el = document.querySelector(`.tile[data-id="${id}"]`);
+        if (el) el.classList.add('selected-fusion');
+    });
+}
+
+function renderRecipeTable(){
+    if (!currentUser) return;
+    
+    recipeTableEl.innerHTML = '';
+    
+    let html = '';
+
+    for (const nextLevel in fusionRecipes) {
+        const recipeGroup = fusionRecipes[nextLevel];
+        const isSpecialLevel = nextLevel === 'Mythic' || nextLevel === 'Divine';
+        
+        let baseLevel = '';
+        if (nextLevel === 'Uncommon') baseLevel = 'Common';
+        else if (nextLevel === 'Rare') baseLevel = 'Uncommon';
+        else if (nextLevel === 'Legendary') baseLevel = 'Rare';
+        else if (nextLevel === 'Mythic') baseLevel = 'Legendary + Rare/Uncommon'; 
+        else if (nextLevel === 'Divine') baseLevel = 'Mythic + Legendary'; 
+
+        const cost = recipeGroup.cost ? `${recipeGroup.cost}₵` : 'Miễn phí';
+        const rate = recipeGroup.successRate * 100;
+
+        // TIÊU ĐỀ CẤP ĐỘ: 
+        // 1. margin-left/right âm (-14px) để bù trừ padding của panel cha.
+        // 2. width: auto; (mặc định) kết hợp với box-sizing: border-box để ngăn tràn ngang.
+        // 3. text-align: left; để căn trái.
+        // 4. padding: 0 14px 5px 14px; để văn bản có lớp đệm an toàn.
+        html += `<h3 style="font-size: 14px; margin: 10px -14px 5px -14px; padding: 0 14px 5px 14px; border-bottom: 1px solid #eee; text-align: left; box-sizing: border-box; color:${nextLevel === 'Mythic' ? '#ff00ff' : nextLevel === 'Divine' ? '#990000' : '#1b2a19'}">
+                    Phối cây ${baseLevel} (${rate}% - ${cost}) → ${nextLevel}
+                </h3>`;
+        
+        // Chi tiết công thức: Xóa padding-left để bám sát lề trái của panel.
+        html += `<div style="font-size: 13px;">`; 
+        recipeGroup.recipes.forEach(recipe => {
+            const resultSeed = state.seeds[recipe.result];
+            const isUnlocked = state.unlockedSeeds.includes(recipe.result);
+            const status = isUnlocked ? '✅' : '🔒';
+            const color = isUnlocked ? '#1b2a19' : '#8a8f94';
+
+            let ingredientsDisplay = '';
+            let totalQty = 0;
+            
+            if (isSpecialLevel) {
+                ingredientsDisplay = recipe.ingredients.map(req => {
+                    const seed = state.seeds[req.id];
+                    totalQty += req.qty;
+                    return `x${req.qty} ${seed.emoji}`;
+                }).join(' + ');
+                ingredientsDisplay = `[${totalQty} ô] ${ingredientsDisplay}`;
+            } else {
+                const ingredient1 = state.seeds[recipe.ingredients[0]];
+                const ingredient2 = state.seeds[recipe.ingredients[1]];
+                ingredientsDisplay = `<strong>${ingredient1.emoji} + ${ingredient2.emoji}</strong>`;
+            }
+
+            // Dòng chi tiết công thức: Không có padding-left để bám sát lề trái của panel.
+            html += `<div style="padding: 3px 0; color: ${color};">
+                        ${status} ${ingredientsDisplay} → ${resultSeed.name} ${resultSeed.emoji} 
+                        (Trồng: ${resultSeed.cost}₵/Bán: ${resultSeed.value}₵)
+                    </div>`;
+        });
+        html += `</div>`;
+    }
+
+    recipeTableEl.innerHTML = html;
+}
+
+  // Thêm vào khu vực RENDERING FUNCTIONS
+function renderInventory() {
+    if (!currentUser) return;
+    inventoryListEl.innerHTML = '';
+
+    const items = Object.entries(state.inventory)
+        .filter(([, qty]) => qty > 0)
+        .sort(([idA], [idB]) => state.seeds[idA].level.localeCompare(state.seeds[idB].level));
+
+    if (items.length === 0) {
+        inventoryListEl.innerHTML = '<div class="muted" style="text-align:center; padding: 10px;">Kho hàng trống. Thu hoạch cây trồng để bắt đầu tích trữ!</div>';
+        return;
+    }
+
+    items.forEach(([seedId, qty]) => {
+        const seed = state.seeds[seedId];
+        const div = document.createElement('div');
+        div.className = 'seed';
+        div.dataset.level = seed.level;
+
+        div.innerHTML = `
+            <div class="emoji">${seed.emoji}</div>
+            <div class="meta" style="flex:1">
+                <div style="font-weight:700">${seed.name}</div>
+                <div class="muted">Bán trực tiếp: ${seed.value}₵</div>
+            </div>
+            <div style="font-weight: 700;">x${qty}</div>
+            <button class="btn secondary" style="padding: 6px 10px; font-size: 13px; min-width: 90px;" onclick="sellFromInventory('${seedId}')">Bán hết</button>
+        `;
+        inventoryListEl.appendChild(div);
+    });
+}
+  
+  // Thêm vào khu vực RENDERING FUNCTIONS
+function renderOrders() {
+    if (!currentUser) return;
+
+    // Cập nhật thời gian reset
+    const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000;
+    const timeUntilReset = state.lastOrderReset + RESET_INTERVAL_MS - Date.now();
+    const h = Math.floor(timeUntilReset / 3600000);
+    const m = Math.floor((timeUntilReset % 3600000) / 60000);
+    const s = Math.floor((timeUntilReset % 60000) / 1000);
+    timeToOrderResetEl.textContent = `${h} giờ ${m} phút ${s} giây`;
+
+    getTodayOrders();
+
+    orderListEl.innerHTML = '';
+
+    // Sắp xếp ưu tiên: Sẵn sàng -> Chưa đủ -> Đã giao
+    const sortedOrders = [...state.activeOrders].sort((a, b) => {
+        const getPriority = (order) => {
+            if (order.status === 'completed') return 2;
+            const isReady = order.required.every(req => (state.inventory[req.seedId] || 0) >= req.qty);
+            return isReady ? 0 : 1;
+        };
+        return getPriority(a) - getPriority(b);
+    });
+
+    sortedOrders.forEach((order) => {
+        const isCompleted = order.status === 'completed';
+        let requirementsMet = true;
+        let requirementDetails = '';
+
+        order.required.forEach(req => {
+            const seed = state.seeds[req.seedId];
+            const hasQty = state.inventory[req.seedId] || 0;
+            const met = hasQty >= req.qty;
+            if (!met) requirementsMet = false;
+
+            requirementDetails += `
+                <div style="font-size: 13px; color: ${met ? '#2e7d32' : '#b35e00'}; font-weight: ${met ? '600' : 'normal'}; margin-left: 10px;">
+                    ${seed.emoji} ${seed.name}: ${Math.min(hasQty, req.qty)}/${req.qty} ${met ? '✓' : ''}
+                </div>
+            `;
+        });
+
+        const isReady = requirementsMet && !isCompleted;
+
+        const div = document.createElement('div');
+        div.className = 'quest-item' + (isReady ? ' order-ready' : isCompleted ? ' quest-completed' : '');
+
+        let statusText = '';
+        if (isCompleted) {
+            statusText = 'Đã giao ✅';
+        } else if (isReady) {
+            statusText = 'Sẵn sàng giao! 📦';
+        } else {
+            statusText = 'Chưa đủ';
+        }
+
+        div.innerHTML = `
+            <div>
+                <strong style="font-size: 15px;">${order.customer}</strong>
+                <span class="muted-2"> (${order.level})</span>
+                ${requirementDetails}
+            </div>
+            <div class="row" style="align-items: center;">
+                <div class="quest-progress" style="min-width: 125px;">${statusText}</div>
+                <button class="btn ${isReady ? '' : 'secondary'}" 
+                    ${isReady ? '' : 'disabled'}
+                    onclick="completeOrder('${order.instanceId}')"
+                    style="margin-left: 12px !important; padding: 7px 12px !important; font-size: 12px;">
+                    Giao hàng +${order.reward}₵
+                </button>
+            </div>
+        `;
+        orderListEl.appendChild(div);
+    });
+}
+
+
+  
+// --- GAME LOGIC FUNCTIONS ---
+
+  // Thêm vào khu vực GAME LOGIC FUNCTIONS
+
+// Bán tất cả sản phẩm của một loại từ kho
+function sellFromInventory(seedId) {
+    if (!currentUser) return;
+    const qty = state.inventory[seedId] || 0;
+    if (qty === 0) return;
+
+    const seed = state.seeds[seedId];
+    const totalValue = qty * seed.value;
+    state.coins += totalValue;
+    state.inventory[seedId] = 0;
+
+    log(`Đã bán x${qty} ${seed.name} trực tiếp. Nhận +${totalValue}₵.`);
+    save();
+    renderFarm(); // Cập nhật Coins
+    renderInventory();
+    renderOrders();
+}
+
+// Hoàn thành đơn hàng
+function completeOrder(orderInstanceId) {
+    if (!currentUser) return;
+    
+    // Tìm chính xác đơn hàng theo instanceId và phải đang active
+    const order = state.activeOrders.find(o => o.instanceId === orderInstanceId && o.status === 'active');
+
+    if (!order) {
+        log('Lỗi: Đơn hàng không tìm thấy hoặc đã hoàn thành.');
+        return;
+    }
+
+    // 1. Kiểm tra đủ sản phẩm trong kho
+    let requirementsMet = true;
+    order.required.forEach(req => {
+        const hasQty = state.inventory[req.seedId] || 0;
+        if (hasQty < req.qty) requirementsMet = false;
+    });
+
+    if (!requirementsMet) {
+        log(`Lỗi: Không đủ sản phẩm trong kho để giao đơn ${order.customer}.`);
+        return;
+    }
+
+    // 2. Trừ sản phẩm trong kho
+    order.required.forEach(req => {
+        state.inventory[req.seedId] -= req.qty;
+        if (state.inventory[req.seedId] < 0) state.inventory[req.seedId] = 0;
+    });
+
+    // 3. Cộng tiền thưởng và đánh dấu hoàn thành cho đúng đơn này
+    state.coins += order.reward;
+    order.status = 'completed';
+
+    log(`Hoàn thành đơn hàng ${order.customer}. Nhận +${order.reward}₵.`);
+    save();
+    renderFarm();
+    renderInventory();
+    renderOrders();
+}
+
+
+  
+function buySpecialItem(itemId) {
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+
+  const item = state.specialShopItems[itemId];
+  if (!item) { log('Lỗi: Vật phẩm không tồn tại.'); return; }
+  if (item.type === 'water') return;
+
+  if (state.coins < item.cost) {
+    alert(`Không đủ tiền mua ${item.name}. Cần ${item.cost}₵.`);
+    return;
+  }
+
+  // Hiện popup xác nhận phong cách nông trại
+  showFarmConfirm(
+    'Mua Vật Phẩm',
+    `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost}₵</span> chứ?`,
+    '💸',
+    () => {
+      state.coins -= item.cost;
+      let logMsg = '';
+      if (item.type === 'coin') {
+        state.coins += item.value;
+        logMsg = `Đã mua ${item.name}. Nhận thêm +${item.value}₵.`;
+      } else {
+        logMsg = `Đã mua ${item.name} với giá ${item.cost}₵.`;
+      }
+      log(logMsg);
+      save();
+      renderFarm();
+      renderSpecialShop();
+    }
+  );
+}
+
+function buyWater(amount, cost) {
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+
+  if (state.coins < cost) {
+    alert(`Không đủ tiền mua nước. Cần ${cost}₵.`);
+    return;
+  }
+
+  // Hiện popup xác nhận mua nước
+  showFarmConfirm(
+    'Tiếp Thêm Nước 💧',
+    `Bạn có chắc muốn mua <strong>${amount}L Nước</strong> với giá <span style="color:#b35e00;font-weight:bold;">${cost}₵</span> không?`,
+    '💦',
+    () => {
+      state.coins -= cost;
+      state.water += amount;
+      log(`Đã mua ${amount}L nước với giá ${cost}₵.`);
+      save();
+      renderFarm();
+      renderWater();
+    }
+  );
+}
+
+
+function buySeeds(seedId) {
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+  
+  const seed = state.seeds[seedId];
+  if (!seed || !seed.shopPrice) return;
+  
+  if (state.unlockedSeeds.includes(seedId)) {
+    log(`${seed.name} đã được mở khóa.`);
+    return;
+  }
+
+  if (state.coins < seed.shopPrice) {
+    log(`Không đủ tiền mua hạt ${seed.name}. Cần ${seed.shopPrice}₵.`);
+    alert(`Không đủ tiền mua hạt ${seed.name}. Cần ${seed.shopPrice}₵.`);
+    return;
+  }
+
+  // Mua hạt giống (Mở khóa)
+  state.coins -= seed.shopPrice;
+  state.unlockedSeeds.push(seedId); // NEW: Thêm vào danh sách mở khóa
+  
+  // Tự động chọn hạt giống vừa mua để người chơi trồng ngay
+  state.selectedSeed = seedId;
+  
+  log(`Đã mua và mở khóa ${seed.name} (${seed.shopPrice}₵). Đã chọn để trồng.`);
+  save();
+  renderSeeds(); // Cập nhật danh sách hạt giống đã chọn
+  renderFarm();
+  renderShop(); // Cập nhật cửa hàng
+}
+
+function onTileClick(id){
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+
+  const tile = findTile(id);
+  if(!tile) return;
+    
+  // Nếu người chơi đang chọn ô để phối giống, chỉ hiển thị thông tin ô đất
+  // và không cho phép Trồng/Thu hoạch trực tiếp.
+  if (selectedFusionTiles.length > 0) {
+    renderTileInfo(id);
+    return;
+  }
+
+  if(!tile.planted){
+    // CỐ GẮNG TRỒNG HẠT GIỐNG ĐANG CHỌN
+    const seed = state.seeds[state.selectedSeed];
+    if(!seed){ log('Hạt giống chưa chọn'); return; }
+    if(state.coins < seed.cost){ log('Không đủ tiền để mua hạt.'); alert('Bạn không đủ tiền mua hạt giống!'); return; }
+    
+    // NEW WATER MECHANIC: Cập nhật nước trước khi trồng
+    updateWater(); 
+    
+    // Trừ chi phí
+    state.coins -= seed.cost;
+    
+    // NEW: Tính toán thời gian chín đã điều chỉnh theo tình trạng nước
+    const growRatio = getGrowTimeRatio();
+    const adjustedTime = seed.time / growRatio;
+
+    tile.planted = true;
+    tile.seedId = seed.id;
+    tile.plantedAt = Date.now();
+    tile.growUntil = Date.now() + adjustedTime * 1000;
+    tile.isFusionResult = false; 
+    save();
+    renderFarm();
+    renderTileInfo(tile.id);
+    log(`Đã trồng ${seed.name} (chi phí ${seed.cost}₵). Thời gian chín: ${adjustedTime.toFixed(0)}s.`);
+    
+    // Xóa trạng thái chọn phối giống sau khi trồng
+    selectedFusionTiles = []; 
+    renderFusionPanel();
+
+  } else {
+    // Logic: Khi click vào ô đã trồng
+    const ready = Date.now() >= tile.growUntil;
+    // TÌM HẠT GIỐNG ĐANG TRỒNG
+    const currentSeed = state.seeds[tile.seedId];
+    
+    if (ready) {
+        // ** ĐÃ SỬA ĐỔI **
+        // BỎ LOGIC TỰ ĐỘNG THU HOẠCH CỦA DIVINE
+        // MỌI CÂY KHI ĐÃ CHÍN ĐỀU SẼ HIỂN THỊ MENU THÔNG TIN Ô
+        renderTileInfo(tile.id);
+    } else {
+        // Chưa chín: Hiển thị thông tin (và nút Tăng tốc)
+        renderTileInfo(tile.id);
+    }
+  }
+}
+
+// Thay thế khối 'Thu hoạch theo ô' hiện tại bằng khối này
+function harvestTile(id) {
+    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+    const tile = findTile(id);
+    // BỎ qua bước kiểm tra Date.now() < tile.growUntil
+    // vì nút này chỉ xuất hiện khi cây đã chín (được kiểm soát trong renderTileInfo)
+    if (!tile || !tile.planted) return; 
+
+    const seed = state.seeds[tile.seedId];
+    
+    // === 1. Cho sản phẩm vào Kho hàng (Inventory) ===
+    if (!state.inventory[seed.id]) {
+        state.inventory[seed.id] = 0;
+    }
+    state.inventory[seed.id]++;
+    // ===============================================
+
+    log(`Thu hoạch ${seed.name} và cho vào kho hàng.`);
+    
+    // 2. Theo dõi nhiệm vụ 
+    checkQuestProgress('harvest', { seedId: seed.id });
+    checkQuestProgress('harvest_level', { level: seed.level });
+    
+    // 3. Reset ô đất
+    tile.planted = false;
+    tile.seedId = null;
+    tile.plantedAt = null;
+    tile.growUntil = null;
+    tile.isFusionResult = false; 
+    
+    save();
+    renderFarm();
+    renderInventory();
+    renderOrders(); 
+    tileInfoEl.textContent = `Bạn vừa thu hoạch ${seed.name}. Đã chuyển vào kho hàng.`;
+
+    // 4. Xóa trạng thái chọn phối giống
+    selectedFusionTiles = [];
+    renderFusionPanel();
+}
+
+
+// Thay thế khối 'Thu hoạch tất cả' hiện tại bằng khối này
+function harvestAllTiles() {
+    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+    
+    let harvestedCount = 0;
+    
+    // NEW: Cập nhật nước trước khi thu hoạch
+    updateWater();
+
+    state.tiles.forEach(tile => {
+        // Chỉ thu hoạch ô đã trồng VÀ đã chín
+        if (tile.planted && Date.now() >= tile.growUntil) {
+            const seed = state.seeds[tile.seedId];
+            
+            // === 1. Cho sản phẩm vào Kho hàng (Inventory) ===
+            if (!state.inventory[seed.id]) {
+                state.inventory[seed.id] = 0;
+            }
+            state.inventory[seed.id]++;
+            // ===============================================
+
+            // 2. Theo dõi nhiệm vụ 
+            checkQuestProgress('harvest', { seedId: seed.id });
+            checkQuestProgress('harvest_level', { level: seed.level });
+            
+            // 3. Reset ô đất
+            tile.planted = false;
+            tile.seedId = null;
+            tile.plantedAt = null;
+            tile.growUntil = null;
+            tile.isFusionResult = false;
+            
+            harvestedCount++;
+        }
+    });
+
+    if (harvestedCount > 0) {
+        log(`Đã thu hoạch ${harvestedCount} cây trồng và chuyển vào kho hàng.`);
+        
+        // 4. Xóa trạng thái chọn phối giống và Render UI
+        selectedFusionTiles = [];
+        save();
+        renderFarm();
+        renderInventory();
+        renderOrders();
+        renderFusionPanel();
+        tileInfoEl.textContent = `Đã thu hoạch tất cả (${harvestedCount} cây) và chuyển vào kho.`;
+    } else {
+        log('Không có cây nào đã chín để thu hoạch.');
+        tileInfoEl.textContent = 'Không có cây nào đã chín để thu hoạch.';
+    }
+}
+
+function speedUpTile(id){
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+  if(state.coins < 10){ alert('Không đủ tiền tăng tốc'); return; }
+  const tile = findTile(id);
+  if(!tile) return;
+  state.coins -= 10;
+  tile.growUntil = Date.now() - 100; // ready
+  log(`Tăng tốc ô ${id} (-10₵)`);
+  save();
+  renderFarm();
+  renderTileInfo(id);
+}
+
+function selectFusionTile(id){
+  if (!currentUser) return;
+  const tile = findTile(id);
+  const tileElement = document.querySelector(`.tile[data-id="${id}"]`);
+
+  if (!tile || !tile.planted || Date.now() < tile.growUntil) return; // Chỉ cho phép chọn cây đã chín
+
+  if (selectedFusionTiles.includes(id)) {
+    selectedFusionTiles = selectedFusionTiles.filter(t => t !== id);
+    tileElement.classList.remove('selected-fusion');
+    log(`Đã bỏ chọn ô ${id} cho phối giống.`);
+  } else {
+    selectedFusionTiles.push(id);
+    tileElement.classList.add('selected-fusion');
+    log(`Đã chọn ô ${id} cho phối giống (${selectedFusionTiles.length} ô đã chọn).`);
+  }
+  
+  renderFusionPanel();
+  renderTileInfo(id); // Cập nhật trạng thái hiển thị
+}
+
+// Sửa đổi doCrossBreed để hoạt động với tất cả cấp độ
+function doCrossBreed(){
+    if (selectedFusionTiles.length === 0) return;
+    
+    const match = findMatchingFusionRecipe(selectedFusionTiles);
+    
+    if (!match) { 
+        log('Phối giống THẤT BẠI! Công thức không hợp lệ.');
+        alert('Phối giống thất bại! Công thức không hợp lệ hoặc chưa đủ ô đã chọn.');
+        selectedFusionTiles = [];
+        renderFusionPanel();
+        renderFarm();
+        return;
+    }
+    
+    const recipeGroup = fusionRecipes[match.group];
+    const resultSeed = match.resultSeed;
+    
+    // 1. Xác định chi phí và Nước dựa trên cấp độ công thức
+    const COST = recipeGroup.cost;
+    let WATER_COST = 0;
+    
+    if (match.group === 'Mythic') {
+        WATER_COST = 10;
+    } else if (match.group === 'Divine') { // NEW: Thêm chi phí nước cho DIVINE
+        WATER_COST = 15;
+    }
+    
+    // 2. Kiểm tra chi phí
+    if (state.coins < COST) {
+        log(`Không đủ tiền. Cần ${COST}₵.`);
+        alert(`Không đủ tiền. Cần ${COST}₵.`);
+        return;
+    }
+    if (WATER_COST > 0 && state.water < WATER_COST) {
+        log(`Không đủ nước. Cần ${WATER_COST}L.`);
+        alert(`Không đủ nước. Cần ${WATER_COST}L.`);
+        return;
+    }
+    
+    // 3. Trừ chi phí và Nước
+    state.coins -= COST;
+    if (WATER_COST > 0) {
+        state.water -= WATER_COST;
+        log(`Trừ ${COST}₵ và ${WATER_COST}L nước cho Phối giống ${match.group}.`);
+    } else {
+        log(`Trừ ${COST}₵ chi phí phối giống.`);
+    }
+
+    // 4. Kiểm tra tỉ lệ thành công
+    const success = Math.random() < recipeGroup.successRate;
+
+    // 5. Cập nhật tiến độ nhiệm vụ (sử dụng cấp độ của nguyên liệu đầu vào)
+    // Đối với công thức nhiều ô, ta lấy cấp độ nguyên liệu cao nhất làm đại diện cho cấp độ phối
+    const inputSeedLevels = selectedFusionTiles.map(id => state.seeds[findTile(id).seedId].level);
+    const fusionLevelForQuest = inputSeedLevels.includes('Legendary') ? 'Legendary' : inputSeedLevels.includes('Rare') ? 'Rare' : 'Uncommon';
+    checkQuestProgress('fusion', { resultLevel: fusionLevelForQuest });
+
+    // 6. Xóa các ô cây gốc
+    const tilesToClear = [...selectedFusionTiles]; // Copy list
+    tilesToClear.forEach(id => {
+        const tile = findTile(id);
+        if (tile) {
+            tile.planted = false; tile.seedId = null; tile.plantedAt = null; tile.growUntil = null;
+            tile.isFusionResult = false;
+        }
+    });
+    
+    if (success) {
+        // 7. TRỒNG CÂY MỚI
+        // Chọn 1 ô ngẫu nhiên từ các ô đã xóa để trồng cây kết quả
+        const plantedTileId = getRandomTileId(selectedFusionTiles);
+        const plantedTile = findTile(plantedTileId);
+        
+        if (plantedTile) {
+            // Tính thời gian chín
+            const growRatio = getGrowTimeRatio();
+            const adjustedTime = resultSeed.time / growRatio;
+
+            plantedTile.planted = true;
+            plantedTile.seedId = resultSeed.id;
+            plantedTile.plantedAt = Date.now();
+            plantedTile.growUntil = Date.now() + adjustedTime * 1000;
+            plantedTile.isFusionResult = true; 
+            
+            log(`Phối giống THÀNH CÔNG! Tạo ra ${resultSeed.name} ${resultSeed.emoji} (Chín trong ${adjustedTime.toFixed(0)}s) tại ô ${plantedTileId}.`);
+            
+            // Mở khóa hạt giống fusion
+            if (!state.unlockedSeeds.includes(resultSeed.id)) {
+                state.unlockedSeeds.push(resultSeed.id);
+                log(`Đã mở khóa hạt giống ${resultSeed.name} vĩnh viễn.`);
+            }
+        } else {
+            log('Lỗi nội bộ: Không thể tìm thấy ô để trồng cây mới.');
+        }
+    } else {
+        log(`Phối giống THẤT BẠI! Mất ${selectedFusionTiles.length} cây gốc.`);
+    }
+
+    // 8. Reset và Render
+    selectedFusionTiles = [];
+    save();
+    renderFarm();
+    renderSeeds(); 
+    renderFusionPanel();
+    renderRecipeTable();
+}
+  
+// Hàm nhận thưởng nhiệm vụ (Sau buyWater)
+function claimQuestReward(questId) {
+    if (!currentUser) return;
+    const quest = state.dailyQuests.find(q => q.id === questId);
+
+    if (!quest || quest.completed !== true) {
+        log('Nhiệm vụ chưa hoàn thành hoặc đã nhận thưởng.');
+        return;
+    }
+    
+    // Thêm nước và đánh dấu đã nhận
+    state.water += quest.reward;
+    quest.completed = 'claimed'; // Đánh dấu đã nhận thưởng
+    
+    log(`Nhận thưởng: +${quest.reward}L nước từ nhiệm vụ "${quest.desc}"`);
+    save();
+    renderWater();
+    renderQuests();
+}
+
+// Hàm kiểm tra tiến trình nhiệm vụ (Sau claimQuestReward)
+function checkQuestProgress(type, data) {
+    if (!currentUser) return;
+
+    let updated = false;
+
+    state.dailyQuests.forEach(quest => {
+        if (quest.completed === true || quest.completed === 'claimed') return;
+
+        if (quest.type === type) {
+            let shouldIncrement = false;
+
+            if (type === 'harvest') {
+                if (data.seedId === quest.seedId) shouldIncrement = true;
+            } else if (type === 'harvest_level') {
+                if (data.level === quest.level) shouldIncrement = true;
+            } else if (type === 'fusion') {
+                // SỬA LỖI: So sánh cấp độ của nguyên liệu (resultLevel) với cấp độ nhiệm vụ (quest.level)
+                if (data.resultLevel === quest.level) shouldIncrement = true;
+            }
+
+            if (shouldIncrement) {
+                quest.current++;
+                updated = true;
+                if (quest.current >= quest.required) {
+                    quest.completed = true;
+                    log(`Nhiệm vụ hoàn thành: "${quest.desc}"!`);
+                }
+            }
+        }
+    });
+
+    if (updated) {
+        renderQuests();
+        save();
+    }
+}
+   
+
+// Event Listeners for Game Buttons (Đã thêm kiểm tra đăng nhập)
+btnExpand.onclick = ()=>{
+    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+    if(state.coins < 100){ alert('Cần 100₵ để mở rộng'); return; }
+    state.coins -= 100;
+    
+    const r = state.rows; // Hàng mới
+    // Thêm các ô đất mới (theo số cột hiện tại)
+    for(let c=0;c<state.cols;c++){
+        // Quan trọng: Đảm bảo id mới chính xác, ví dụ: '5-0', '5-1', ...
+        state.tiles.push({ id: `${r}-${c}`, planted:false, seedId:null, plantedAt:null, growUntil:null, isFusionResult: false });
+    }
+    state.rows += 1; // Tăng số hàng
+    save();
+    renderFarm();
+    log('Mở rộng trang trại +1 hàng');
+};
+
+// Gán sự kiện cho nút Thu hoạch tất cả (ĐÃ THÊM DÒNG NÀY)
+btnHarvestAll.onclick = harvestAllTiles;
+
+// Thay thế hàm btnClear hiện tại bằng hàm này:
+btnClear.onclick = ()=>{
+    // ... logic reset farm ...
+    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+    // Cập nhật thông báo confirm
+    if(!confirm('Bạn có chắc muốn reset trang trại? (Tiền, Nước và kích thước sẽ được giữ lại)')) return; 
+    
+    // Chỉ reset tile data
+    state.tiles = createEmptyTiles(state.rows, state.cols);
+    
+    // NEW: Reset Water về lượng mặc định
+    state.water = DEFAULT_WATER; 
+
+    save();
+    renderFarm();
+    renderWater(); // NEW: Cập nhật hiển thị nước
+    log('Đã reset trang trại');
+};
+
+// buy pack (vô hiệu hóa nút cũ vì đã chuyển logic vào renderShop)
+if(buyPack) buyPack.style.display = 'none';
+
+// ⭐ NEW: EVENT LISTENER CHO NÚT ÁP DỤNG TIỀN CŨ
+if (applyOldCoinsBtn) {
+    applyOldCoinsBtn.onclick = () => {
+        const oldCoinsValue = parseInt(oldCoinsInput.value || 0);
+        
+        if (oldCoinsValue <= 0) {
+            alert('Vui lòng nhập số tiền hợp lệ (lớn hơn 0).');
+            return;
+        }
+
+        if (confirm(`Bạn có chắc muốn áp dụng số tiền cũ là ${oldCoinsValue}₵ không? Số tiền này sẽ được cộng vào lần đăng nhập/tải dữ liệu kế tiếp.`)) {
+            // LƯU VÀO LOCAL STORAGE TẠM THỜI
+            localStorage.setItem(getOldCoinsKey(), oldCoinsValue.toString());
+            log(`✅ Tiền cũ +${oldCoinsValue}₵ đã được ghi nhận. Vui lòng nhấn "Bắt đầu/Tiếp tục" để áp dụng.`);
+            
+            // Đặt lại input về 0 sau khi áp dụng để tránh cộng dồn
+            oldCoinsInput.value = '0'; 
+        }
+    };
+}
+
+// --- STARTUP AND INTERVALS ---
+
+// Event listeners for login/logout buttons
+loginBtn.onclick = ()=>{
+  login(usernameInput.value);
+};
+usernameInput.addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+      login(usernameInput.value);
+  }
+});
+// Quản lý Popup Menu Tài Khoản & Hướng Dẫn
+const userMenuModal = document.getElementById('userMenuModal');
+const userMenuGreeting = document.getElementById('userMenuGreeting');
+const openGuideFromMenuBtn = document.getElementById('openGuideFromMenuBtn');
+const logoutFromMenuBtn = document.getElementById('logoutFromMenuBtn');
+const closeUserMenuBtn = document.getElementById('closeUserMenuBtn');
+
+const settingsModal = document.getElementById('settingsModal');
+const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+
+// Khi bấm vào nút chứa Tên người dùng / Icon Nông Dân
+loginStatusBtn.onclick = () => {
+  if (currentUser) {
+    if (userMenuGreeting) userMenuGreeting.textContent = currentUser;
+    userMenuModal.classList.add('open');
+  } else {
+    document.body.classList.add('logged-out');
+  }
+};
+
+// Đóng Menu Người Dùng
+if (closeUserMenuBtn) {
+  closeUserMenuBtn.onclick = () => userMenuModal.classList.remove('open');
+}
+
+// Bấm "Sổ Tay Hướng Dẫn" từ menu
+if (openGuideFromMenuBtn) {
+  openGuideFromMenuBtn.onclick = () => {
+    userMenuModal.classList.remove('open'); // Đóng menu
+    settingsModal.classList.add('open');   // Mở sổ tay hướng dẫn
+  };
+}
+
+// Bấm "Đăng Xuất" từ menu
+if (logoutFromMenuBtn) {
+  logoutFromMenuBtn.onclick = () => {
+    userMenuModal.classList.remove('open');
+    logout();
+  };
+}
+
+// Đóng Sổ tay hướng dẫn
+if (closeSettingsBtn) {
+  closeSettingsBtn.onclick = () => {
+    settingsModal.classList.remove('open');
+  };
+}
+
+// Bấm ra ngoài vùng mờ để đóng các popup tương ứng
+window.addEventListener('click', (e) => {
+  if (e.target === userMenuModal) {
+    userMenuModal.classList.remove('open');
+  }
+  if (e.target === settingsModal) {
+    settingsModal.classList.remove('open');
+  }
+});
+
+
+
+// Trong setInterval (1000ms):
+setInterval(()=>{
+  if(currentUser){
+    updateWater(); 
+    renderFarm(false); 
+    renderQuests(); 
+    renderOrders(); // Cập nhật trạng thái đơn hàng (để hiện nút Giao hàng)
+  }
+  updateLoginStatusUI(); 
+}, 1000);
+
+// Autosave occasionally
+setInterval(()=>save(), 5000);
+
+// Khởi tạo (CHỈ CHẠY MỘT LẦN)
+(function init() {
+  runFarmLoader(() => {
+    const lastUser = localStorage.getItem(STORAGE_KEY_PREFIX + 'last_user');
+
+    if (lastUser) {
+      usernameInput.value = lastUser;
+      login(lastUser); 
+    } else {
+      document.body.classList.add('logged-out');
+      updateLoginStatusUI();
+      log('Hệ thống khởi tạo. Vui lòng đăng nhập.');
+
+      renderShop(); 
+      renderSpecialShop(); 
+      renderRecipeTable();
+    }
+  });
+})();
+
+
+// Biến lưu callback khi người chơi bấm Đồng ý
+let onModalConfirmCallback = null;
+
+function showFarmConfirm(title, message, emoji, onConfirm) {
+  const modal = document.getElementById('farmConfirmModal');
+  document.getElementById('confirmModalTitle').textContent = title;
+  document.getElementById('confirmModalMessage').innerHTML = message;
+  document.getElementById('confirmModalEmoji').textContent = emoji || '🌾';
+  onModalConfirmCallback = onConfirm;
+  modal.classList.add('open');
+}
+
+function closeFarmConfirm() {
+  const modal = document.getElementById('farmConfirmModal');
+  modal.classList.remove('open');
+  onModalConfirmCallback = null;
+}
+
+// Bắt sự kiện 2 nút bấm trên popup
+document.getElementById('confirmCancelBtn').onclick = closeFarmConfirm;
+document.getElementById('confirmAcceptBtn').onclick = () => {
+  if (typeof onModalConfirmCallback === 'function') {
+    onModalConfirmCallback();
+  }
+  closeFarmConfirm();
+};
+
+// Quản lý Màn hình Loading (Chạy chậm rãi, mượt mà)
+function runFarmLoader(onComplete) {
+  const overlay = document.getElementById('loadingScreen');
+  const bar = document.getElementById('farmProgressBar');
+  const txt = document.getElementById('loadingPercent');
+  const tip = document.getElementById('loadingTip');
+
+  const tips = [
+    'Đang xới đất và gieo mầm...',
+    'Đang tưới nước cho các luống rau...',
+    'Đang nạp các công thức lai tạo đặc biệt...',
+    'Đang kiểm tra giỏ đồ và kho hàng...',
+    'Nông trại đã sẵn sàng! Chúc bạn mùa màng bội thu!'
+  ];
+
+  let progress = 0;
+  overlay.classList.remove('hidden');
+
+  // Chạy mỗi 50ms, mỗi lần chỉ tăng từ 1% đến 2%
+  const interval = setInterval(() => {
+    progress += Math.floor(Math.random() * 2) + 1;
+
+    // Cập nhật câu gợi ý theo từng mốc tiến độ
+    if (progress < 25) tip.textContent = tips[0];
+    else if (progress < 50) tip.textContent = tips[1];
+    else if (progress < 75) tip.textContent = tips[2];
+    else if (progress < 95) tip.textContent = tips[3];
+    else tip.textContent = tips[4];
+
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      bar.style.width = '100%';
+      txt.textContent = '100%';
+
+      // Dừng lại 0.6 giây ở mốc 100% để người chơi kịp nhìn câu chào trước khi vào game
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        if (typeof onComplete === 'function') onComplete();
+      }, 600);
+      return;
+    }
+
+    bar.style.width = progress + '%';
+    txt.textContent = progress + '%';
+  }, 50); 
+}
+
+// Điều hướng nhanh giữa Trang Trại và Danh Sách Hạt Giống
+const btnGoToSeeds = document.getElementById('btnGoToSeeds');
+const btnGoToFarm = document.getElementById('btnGoToFarm');
+const farmSection = document.getElementById('farm');
+const seedsSection = document.getElementById('seedsPanel') || document.getElementById('seedList');
+
+if (btnGoToSeeds && seedsSection) {
+  btnGoToSeeds.onclick = () => {
+    seedsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+
+if (btnGoToFarm && farmSection) {
+  btnGoToFarm.onclick = () => {
+    farmSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
+
+</script>
+</body>
+</html>
+
+
+
+
