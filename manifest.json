@@ -1,9 +1,7 @@
 {
-  "id": "/farm-mini/",
   "name": "Farm Mini",
   "short_name": "Farm Mini",
-  "start_url": "/farm-mini/",
-  "scope": "/farm-mini/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#D3FFAD",
   "theme_color": "#8DBA66",
