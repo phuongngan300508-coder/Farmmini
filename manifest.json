@@ -1,11 +1,16 @@
 {
   "name": "Farm Mini",
   "short_name": "Farm Mini",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#E8F5E9",
   "theme_color": "#4CAF50",
   "icons": [
+    {
+      "src": "https://i.postimg.cc/05FpK0FS/1791515796946.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
     {
       "src": "https://i.postimg.cc/05FpK0FS/1791515796946.jpg",
       "sizes": "512x512",
