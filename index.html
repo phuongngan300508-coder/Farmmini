@@ -563,6 +563,34 @@ body:not(.logged-out) .app {
     50% { transform: scale(1.04); }
 }
 
+  /* POPUP PHỐI GIỐNG 2 BƯỚC */
+.fusion-wizard-box { max-width: 380px !important; text-align: left; }
+.wizard-step-badge {
+  display: inline-block; background: #f3e5f5; color: #7b1fa2;
+  font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 20px; margin-bottom: 6px;
+}
+.wizard-crop-list {
+  max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 12px 0; padding-right: 4px;
+}
+.wizard-crop-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #ffffff;
+  border: 1px solid #dcd4c3; border-left: 5px solid #6aa84f; border-radius: 10px; cursor: pointer; transition: all 0.15s ease;
+}
+.wizard-crop-card:hover { background: #fbf5e8; transform: translateX(3px); }
+.wizard-crop-card.active-crop { background: #fdf3ff; border-color: #ba68c8; box-shadow: 0 0 8px rgba(186, 104, 200, 0.4); }
+.wizard-crop-info { flex: 1; }
+.wizard-crop-title { font-weight: 700; font-size: 14px; color: #2b3b2a; }
+.wizard-crop-sub { font-size: 12px; color: #657e62; }
+.wizard-qty-control { background: #f4faef; border: 1px solid #c9e0bf; border-radius: 12px; padding: 14px; margin: 14px 0; text-align: center; }
+.wizard-qty-display { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 10px 0; }
+.wizard-qty-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: none; background: linear-gradient(180deg, #9c27b0, #6a1b9a);
+  color: white; font-size: 20px; font-weight: bold; cursor: pointer; display: grid; place-items: center; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+.wizard-qty-btn:active { transform: scale(0.92); }
+.wizard-qty-num { font-size: 32px; font-weight: 900; color: #4a148c; min-width: 50px; text-align: center; }
+.wizard-slider { width: 100%; margin-top: 10px; accent-color: #9c27b0; }
+
   </style>
 </head>
 <body>
@@ -587,6 +615,7 @@ body:not(.logged-out) .app {
 
   <div class="app">
     <div class="left">
+            <div style="height:10px"></div>
       <header>
         <div class="brand">
           <div class="logo">FM</div>
@@ -639,6 +668,17 @@ body:not(.logged-out) .app {
         <h2>Hoạt động 📝</h2>
         <div class="log" id="log"></div>
       </div>
+      <div style="height:10px"></div>
+      
+      <!-- BẢNG THỬ THÁCH PHỐI GIỐNG -->
+<div class="panel controls" id="challengePanel">
+  <h2>Thử Thách Nhà Lai Tạo Cây 🏆</h2>
+  <div class="muted-2" style="margin-bottom:10px">
+    ⚠️ <strong>Lưu ý quan trọng:</strong> Chỉ được nhận thưởng <strong>duy nhất 1 lần</strong>! Khi nhận ở bất kỳ mốc nào, các mốc thưởng còn lại sẽ bị khóa vĩnh viễn.
+  </div>
+  <div id="fusionChallengeList" class="quest-list"></div>
+</div>
+<div style="height:10px"></div>
 
             <div class="panel" id="questPanel">
         <h2>Nhiệm vụ Hàng ngày 💧</h2>
@@ -671,6 +711,7 @@ body:not(.logged-out) .app {
         <div id="recipeTable" style="max-height: 250px; overflow-y: auto;">
                     </div>
     </div>
+    <div style="height:10px"></div>
           
         <div class="panel controls" id="seedsPanel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -703,6 +744,58 @@ body:not(.logged-out) .app {
       </div>
 </div>
     
+<!-- POPUP GOM PHỐI GIỐNG NHANH 2 BƯỚC -->
+<div id="quickFusionModal" class="farm-modal-overlay">
+  <div class="farm-modal-box fusion-wizard-box">
+    
+    <!-- BƯỚC 1: CHỌN CÂY -->
+    <div id="fusionStep1">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="wizard-step-badge">BƯỚC 1 / 2</span>
+        <span class="muted-2" style="font-size:12px;" id="totalSelectedBadge">Đã chọn: 0 ô</span>
+      </div>
+      <h3 style="color:#4a148c; margin-top:2px;">Chọn Giống Cần Phối 🌱</h3>
+      <p class="muted-2" style="font-size:13px; margin:0;">Nhấp vào loại cây đã chín bạn muốn gom số lượng:</p>
+
+      <div id="wizardCropList" class="wizard-crop-list"></div>
+
+      <div class="farm-modal-actions" style="margin-top:14px;">
+        <button class="btn secondary" id="closeWizardBtn1">Đóng</button>
+        <button class="btn" id="clearAllWizardBtn" style="background:#fce4ec; color:#c2185b; border:1px solid #f8bbd0;">Hủy chọn tất cả</button>
+      </div>
+    </div>
+
+    <!-- BƯỚC 2: CHỌN SỐ LƯỢNG -->
+    <div id="fusionStep2" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="wizard-step-badge">BƯỚC 2 / 2</span>
+        <button class="btn secondary" id="backToStep1Btn" style="padding:3px 8px; font-size:11px;">← Chọn giống khác</button>
+      </div>
+      <h3 id="step2CropTitle" style="color:#4a148c; margin-top:4px;">Cây</h3>
+      <p class="muted-2" style="font-size:13px; margin:0;" id="step2CropDesc">Chọn số lượng ô để phối:</p>
+
+      <div class="wizard-qty-control">
+        <div style="font-size:12px; font-weight:700; color:#58705a;">SỐ Ô ĐƯA VÀO PHỐI:</div>
+        <div class="wizard-qty-display">
+          <button class="wizard-qty-btn" id="qtyMinusBtn">-</button>
+          <div class="wizard-qty-num" id="qtyDisplayNum">1</div>
+          <button class="wizard-qty-btn" id="qtyPlusBtn">+</button>
+        </div>
+        <input type="range" class="wizard-slider" id="qtyRangeInput" min="0" max="1" value="1">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#8a8f94; margin-top:4px;">
+          <span>0 ô (Bỏ chọn)</span>
+          <button id="btnMaxQty" style="background:none; border:none; color:#7b1fa2; font-weight:bold; cursor:pointer; text-decoration:underline;">Chọn tối đa</button>
+        </div>
+      </div>
+
+      <div class="farm-modal-actions">
+        <button class="btn secondary" id="backStep2Btn">Quay lại</button>
+        <button class="btn" id="applyStep2Btn" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">Lưu vào nhóm phối</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- FARM STYLE MODAL CONFIRMATION -->
 <div id="farmConfirmModal" class="farm-modal-overlay">
@@ -785,19 +878,31 @@ body:not(.logged-out) .app {
 
       <div class="guide-section">
         <h4>🧪 3. Phối giống (Lai tạo giống mới)</h4>
-        <p>• Khi có các cây đã chín trên ruộng, nhấp vào ô và chọn <strong>Chọn để Phối</strong>.</p>
-        <p>• Tra cứu <strong>Bảng Công thức Phối giống</strong> để kết hợp đúng nguyên liệu.</p>
+        <p>• <strong>Phối thủ công:</strong> Nhấp vào ô cây chín và bấm <em>Chọn để Phối</em>.</p>
+        <p>• <strong>Phối nhanh nhiều ô (Mới):</strong> Bấm nút <strong>⚡ Chọn phối nhiều ô</strong> để mở bảng gom nhanh:
+          <br>+ <em>Bước 1:</em> Xem danh sách các cây đang chín trên ruộng và chọn giống cây.
+          <br>+ <em>Bước 2:</em> Dùng thanh trượt/nút tăng giảm để lấy chính xác số lượng ô đưa vào nhóm phối mà không cần nhấp từng ô lẻ!
+        </p>
         <p>• Cấp cao (<em>Mythic, Divine</em>) yêu cầu nhiều ô cây chín và tốn thêm nước để thực hiện.</p>
       </div>
 
       <div class="guide-section">
-        <h4>🚚 4. Kho hàng & Đơn hàng Khách hàng</h4>
+        <h4>🏆 4. Thử Thách Nhà Lai Tạo Cây (Mới)</h4>
+        <p>• Hoàn thành việc lai tạo để đạt các mốc thưởng lớn:</p>
+        <p>&nbsp;&nbsp;👑 <strong>15 giống Mythic:</strong> Nhận <strong>5.000₵</strong></p>
+        <p>&nbsp;&nbsp;⭐ <strong>15 giống Divine:</strong> Nhận <strong>7.000₵</strong></p>
+        <p>&nbsp;&nbsp;🌟 <strong>Toàn bộ 55 giống cây:</strong> Nhận <strong>10.000₵</strong></p>
+        <p>• ⚠️ <strong>Quy tắc nhận thưởng:</strong> Chỉ được nhận thưởng <strong>duy nhất 1 lần</strong>! Nếu nhận thưởng ở mốc thấp thì các mốc cao hơn sẽ bị khóa vĩnh viễn (hoặc ngược lại). Hãy cân nhắc kỹ trước khi bấm nhận!</p>
+      </div>
+
+      <div class="guide-section">
+        <h4>🚚 5. Kho hàng & Đơn hàng Khách hàng</h4>
         <p>• <strong>Kho hàng:</strong> Có thể chọn <em>Bán hết</em> để lấy tiền tươi ngay lập tức.</p>
         <p>• <strong>Đơn hàng:</strong> Tích lũy đủ nông sản theo yêu cầu rồi bấm <em>Giao hàng</em> để nhận tiền thưởng cao hơn bán lẻ!</p>
       </div>
 
       <div class="guide-section">
-        <h4>🏪 5. Mở rộng & Cửa hàng</h4>
+        <h4>🏪 6. Mở rộng & Cửa hàng</h4>
         <p>• Dùng tiền mở rộng thêm ô đất trồng với nút <strong>Mua thêm ô (+3)</strong>.</p>
         <p>• Mua hạt giống cao cấp hơn tại <em>Cửa hàng hạt giống</em> để gia tăng giá trị nông sản.</p>
       </div>
@@ -841,9 +946,10 @@ let state = {
   dailyQuests: [], // NEW: Nhiệm vụ hàng ngày (sẽ được tạo khi load)
   lastQuestReset: 0, // NEW: Thời điểm reset nhiệm vụ
   // NEW: Inventory (Kho hàng) - Lưu số lượng sản phẩm đã thu hoạch
-  inventory: {},   
+    inventory: {},   
   activeOrders: [],
-  lastOrderReset: 0, // Thời điểm reset đơn hàng cuối cùng
+  lastOrderReset: 0,
+  fusionRewardClaimed: null, // Lưu ID mốc đã nhận: 'mythic_all', 'divine_all', hoặc 'all_seeds'
  seeds: {
     // ===========================================
     // 🌱 CẤP BÌNH THƯỜNG (COMMON) - Mặc định có sẵn
@@ -1346,11 +1452,11 @@ function save(){
     dailyQuests: state.dailyQuests, // NEW
     lastQuestReset: state.lastQuestReset, // NEW
     // ĐÃ THÊM 3 TRƯỜNG BỊ THIẾU
-    inventory: state.inventory,
+        inventory: state.inventory,
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
-    // KẾT THÚC CÁC TRƯỜNG ĐƯỢC THÊM
-    lastWaterUpdate: state.lastWaterUpdate // NEW
+    fusionRewardClaimed: state.fusionRewardClaimed, // THÊM DÒNG NÀY
+    lastWaterUpdate: state.lastWaterUpdate
   }));
 }
 
@@ -1362,7 +1468,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (CHÚ Ý: Đã bao gồm Inventory/Orders/ResetTime)
+    // 💡 Tái tạo initialState an toàn (CHÚ Ý: Đã bao gồm Inventory/Orders/ResetTime/FusionReward)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -1377,6 +1483,7 @@ function load(){
         inventory: {}, 
         activeOrders: [], 
         lastOrderReset: 0, 
+        fusionRewardClaimed: null, // BỔ SUNG: Mốc thử thách phối giống đã nhận (mặc định null)
         seeds: state.seeds,
         specialShopItems: state.specialShopItems
     }));
@@ -1397,6 +1504,8 @@ function load(){
                 if(parsed.inventory) state.inventory = parsed.inventory;
                 if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
+                // BỔ SUNG: Tải trạng thái nhận thưởng thử thách phối giống
+                if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
                 state.selectedSeed = 'carrot'; 
                 
@@ -1456,6 +1565,7 @@ function load(){
     renderQuests();
     renderInventory();
     renderOrders();
+    renderFusionChallenges(); // BỔ SUNG: Hiển thị bảng thử thách phối giống sau khi nạp xong dữ liệu
     renderFusionPanel(); // Cập nhật trạng thái phối giống sau khi load
     updateLoginStatusUI();
     
@@ -1465,6 +1575,7 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
     }
 }
+
 
 
 function login(username){
@@ -2338,17 +2449,16 @@ function buySeeds(seedId) {
   }
 
   // Mua hạt giống (Mở khóa)
-  state.coins -= seed.shopPrice;
-  state.unlockedSeeds.push(seedId); // NEW: Thêm vào danh sách mở khóa
-  
-  // Tự động chọn hạt giống vừa mua để người chơi trồng ngay
+    state.coins -= seed.shopPrice;
+  state.unlockedSeeds.push(seedId);
   state.selectedSeed = seedId;
   
   log(`Đã mua và mở khóa ${seed.name} (${seed.shopPrice}₵). Đã chọn để trồng.`);
   save();
-  renderSeeds(); // Cập nhật danh sách hạt giống đã chọn
+  renderSeeds();
   renderFarm();
-  renderShop(); // Cập nhật cửa hàng
+  renderShop();
+  renderFusionChallenges(); // THÊM DÒNG NÀY
 }
 
 function onTileClick(id){
@@ -2629,10 +2739,12 @@ function doCrossBreed(){
             log(`Phối giống THÀNH CÔNG! Tạo ra ${resultSeed.name} ${resultSeed.emoji} (Chín trong ${adjustedTime.toFixed(0)}s) tại ô ${plantedTileId}.`);
             
             // Mở khóa hạt giống fusion
-            if (!state.unlockedSeeds.includes(resultSeed.id)) {
+                        if (!state.unlockedSeeds.includes(resultSeed.id)) {
                 state.unlockedSeeds.push(resultSeed.id);
                 log(`Đã mở khóa hạt giống ${resultSeed.name} vĩnh viễn.`);
+                renderFusionChallenges(); // THÊM DÒNG NÀY ĐỂ CẬP NHẬT BẢNG THỬ THÁCH
             }
+
         } else {
             log('Lỗi nội bộ: Không thể tìm thấy ô để trồng cây mới.');
         }
@@ -2971,77 +3083,287 @@ if (btnGoToFarm && farmSection) {
   };
 }
 
-  // Sự kiện cho nút Chọn phối nhiều ô
+ // Xử lý Popup Chọn Phối Nhanh 2 Bước
+const quickFusionModal = document.getElementById('quickFusionModal');
+const fusionStep1 = document.getElementById('fusionStep1');
+const fusionStep2 = document.getElementById('fusionStep2');
+const wizardCropList = document.getElementById('wizardCropList');
+const totalSelectedBadge = document.getElementById('totalSelectedBadge');
+
+const step2CropTitle = document.getElementById('step2CropTitle');
+const step2CropDesc = document.getElementById('step2CropDesc');
+const qtyMinusBtn = document.getElementById('qtyMinusBtn');
+const qtyPlusBtn = document.getElementById('qtyPlusBtn');
+const qtyDisplayNum = document.getElementById('qtyDisplayNum');
+const qtyRangeInput = document.getElementById('qtyRangeInput');
+const btnMaxQty = document.getElementById('btnMaxQty');
+
+const closeWizardBtn1 = document.getElementById('closeWizardBtn1');
+const clearAllWizardBtn = document.getElementById('clearAllWizardBtn');
+const backToStep1Btn = document.getElementById('backToStep1Btn');
+const backStep2Btn = document.getElementById('backStep2Btn');
+const applyStep2Btn = document.getElementById('applyStep2Btn');
 const btnQuickFusion = document.getElementById('btnQuickFusion');
-if (btnQuickFusion) {
-  btnQuickFusion.onclick = () => {
-    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
 
-    // 1. Tìm tất cả cây đã chín trên ruộng
-    const ripeTiles = state.tiles.filter(t => t.planted && Date.now() >= t.growUntil);
-    if (ripeTiles.length === 0) {
-      alert('Hiện trên ruộng không có cây nào đã chín để phối giống!');
-      return;
-    }
+let currentWizardSeedId = null;
+let currentWizardMaxQty = 0;
+let currentWizardSelectedQty = 0;
 
-    // 2. Gom nhóm theo loại cây
-    const seedCounts = {};
-    ripeTiles.forEach(t => {
-      seedCounts[t.seedId] = (seedCounts[t.seedId] || 0) + 1;
-    });
-
-    // 3. Tạo danh sách để người chơi chọn loại cây muốn gom
-    let menuText = "🌾 DANH SÁCH CÂY ĐÃ CHÍN TRÊN RUỘNG:\n";
-    const seedIds = Object.keys(seedCounts);
-    seedIds.forEach((sId, index) => {
-      const s = state.seeds[sId];
-      menuText += `${index + 1}. ${s.name} ${s.emoji} (Có ${seedCounts[sId]} ô chín)\n`;
-    });
-    menuText += "\nNhập số thứ tự cây bạn muốn gom:";
-
-    const pickIndexStr = prompt(menuText);
-    if (!pickIndexStr) return;
-
-    const pickIndex = parseInt(pickIndexStr.trim()) - 1;
-    if (isNaN(pickIndex) || pickIndex < 0 || pickIndex >= seedIds.length) {
-      alert('Lựa chọn không hợp lệ!');
-      return;
-    }
-
-    const chosenSeedId = seedIds[pickIndex];
-    const chosenSeed = state.seeds[chosenSeedId];
-    const maxQty = seedCounts[chosenSeedId];
-
-    // 4. Hỏi số lượng muốn lấy của loại đó
-    const qtyStr = prompt(
-      `Bạn chọn [${chosenSeed.name} ${chosenSeed.emoji}].\n` +
-      `Hiện có ${maxQty} ô chín. Nhập số lượng ô muốn đưa vào phối giống:`,
-      maxQty
-    );
-    if (!qtyStr) return;
-
-    const qty = parseInt(qtyStr.trim());
-    if (isNaN(qty) || qty <= 0 || qty > maxQty) {
-      alert(`Số lượng không hợp lệ! Chỉ được chọn từ 1 đến ${maxQty}.`);
-      return;
-    }
-
-    // 5. Gỡ các ô cùng loại cũ ra và thêm số lượng mới vào
-    selectedFusionTiles = selectedFusionTiles.filter(id => {
-      const t = findTile(id);
-      return t && t.seedId !== chosenSeedId;
-    });
-
-    const matchingTiles = ripeTiles.filter(t => t.seedId === chosenSeedId).slice(0, qty);
-    matchingTiles.forEach(t => selectedFusionTiles.push(t.id));
-
-    log(`⚡ Đã gom ${qty} ô [${chosenSeed.name}] vào danh sách phối giống (Tổng hiện tại: ${selectedFusionTiles.length} ô).`);
-    
-    // 6. Hiển thị ngay lên bảng phối giống
-    renderFarm(false);
-    renderFusionPanel();
-  };
+function openQuickFusionModal() {
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+  const ripeTiles = state.tiles.filter(t => t.planted && Date.now() >= t.growUntil);
+  if (ripeTiles.length === 0) {
+    alert('Không có cây nào đã chín trên ruộng để phối giống!');
+    return;
+  }
+  showStep1();
+  quickFusionModal.classList.add('open');
 }
+
+function closeQuickFusionModal() {
+  quickFusionModal.classList.remove('open');
+}
+
+function showStep1() {
+  fusionStep1.style.display = 'block';
+  fusionStep2.style.display = 'none';
+  totalSelectedBadge.textContent = `Đã chọn: ${selectedFusionTiles.length} ô`;
+
+  const ripeTiles = state.tiles.filter(t => t.planted && Date.now() >= t.growUntil);
+  const seedCounts = {};
+  ripeTiles.forEach(t => { seedCounts[t.seedId] = (seedCounts[t.seedId] || 0) + 1; });
+
+  wizardCropList.innerHTML = '';
+  Object.keys(seedCounts).forEach(sId => {
+    const seed = state.seeds[sId];
+    const totalRipe = seedCounts[sId];
+    const currentChosen = selectedFusionTiles.filter(id => {
+      const t = findTile(id);
+      return t && t.seedId === sId;
+    }).length;
+
+    const card = document.createElement('div');
+    card.className = 'wizard-crop-card' + (currentChosen > 0 ? ' active-crop' : '');
+    card.dataset.level = seed.level;
+
+    card.innerHTML = `
+      <div style="font-size:26px;">${seed.emoji}</div>
+      <div class="wizard-crop-info">
+        <div class="wizard-crop-title">${seed.name} <span class="muted" style="font-size:11px;">(${seed.level})</span></div>
+        <div class="wizard-crop-sub">Ruộng có: <strong>${totalRipe} ô chín</strong></div>
+      </div>
+      <div style="text-align:right;">
+        <span style="font-size:12px; font-weight:700; color:${currentChosen > 0 ? '#9c27b0' : '#8a8f94'};">
+          ${currentChosen > 0 ? `Đã chọn: ${currentChosen} ô` : 'Chưa chọn'}
+        </span>
+        <div style="font-size:11px; color:#9c27b0; font-weight:600; margin-top:2px;">Chọn số lượng ➔</div>
+      </div>
+    `;
+
+    card.onclick = () => openStep2(sId, totalRipe, currentChosen);
+    wizardCropList.appendChild(card);
+  });
+}
+
+function openStep2(seedId, maxQty, alreadyChosenQty) {
+  currentWizardSeedId = seedId;
+  currentWizardMaxQty = maxQty;
+  currentWizardSelectedQty = alreadyChosenQty > 0 ? alreadyChosenQty : 1;
+  const seed = state.seeds[seedId];
+
+  step2CropTitle.innerHTML = `${seed.name} ${seed.emoji}`;
+  step2CropDesc.innerHTML = `Ruộng có <strong>${maxQty}</strong> ô đã chín. Kéo thanh trượt hoặc bấm nút để chọn số lượng:`;
+
+  qtyRangeInput.max = maxQty;
+  qtyRangeInput.value = currentWizardSelectedQty;
+  updateQtyDisplay(currentWizardSelectedQty);
+
+  fusionStep1.style.display = 'none';
+  fusionStep2.style.display = 'block';
+}
+
+function updateQtyDisplay(val) {
+  val = Math.max(0, Math.min(val, currentWizardMaxQty));
+  currentWizardSelectedQty = val;
+  qtyDisplayNum.textContent = val;
+  qtyRangeInput.value = val;
+}
+
+qtyMinusBtn.onclick = () => updateQtyDisplay(currentWizardSelectedQty - 1);
+qtyPlusBtn.onclick = () => updateQtyDisplay(currentWizardSelectedQty + 1);
+qtyRangeInput.oninput = (e) => updateQtyDisplay(parseInt(e.target.value));
+btnMaxQty.onclick = () => updateQtyDisplay(currentWizardMaxQty);
+
+applyStep2Btn.onclick = () => {
+  if (!currentWizardSeedId) return;
+  const ripeTilesOfSeed = state.tiles.filter(t => t.planted && t.seedId === currentWizardSeedId && Date.now() >= t.growUntil);
+
+  selectedFusionTiles = selectedFusionTiles.filter(id => {
+    const t = findTile(id);
+    return t && t.seedId !== currentWizardSeedId;
+  });
+
+  const picked = ripeTilesOfSeed.slice(0, currentWizardSelectedQty);
+  picked.forEach(t => selectedFusionTiles.push(t.id));
+
+  const seed = state.seeds[currentWizardSeedId];
+  if (currentWizardSelectedQty > 0) {
+    log(`⚡ Đã chọn ${currentWizardSelectedQty} ô [${seed.name}] để phối.`);
+  } else {
+    log(`Đã hủy chọn [${seed.name}].`);
+  }
+
+  renderFarm(false);
+  renderFusionPanel();
+  showStep1();
+};
+
+  // ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
+const FUSION_CHALLENGES = [
+  {
+    id: 'mythic_all',
+    title: 'Bậc Thầy Thần Thánh 👑',
+    desc: 'Phối mở khóa đủ 15 giống cây Mythic',
+    reward: 5000,
+    check: () => {
+      const mythicSeeds = Object.values(state.seeds).filter(s => s.level === 'Mythic');
+      const unlockedCount = mythicSeeds.filter(s => state.unlockedSeeds.includes(s.id)).length;
+      return { current: unlockedCount, total: mythicSeeds.length, isComplete: unlockedCount >= mythicSeeds.length };
+    }
+  },
+  {
+    id: 'divine_all',
+    title: 'Tối Thượng Thần Thoại ⭐',
+    desc: 'Phối mở khóa đủ 15 giống cây Divine',
+    reward: 7000,
+    check: () => {
+      const divineSeeds = Object.values(state.seeds).filter(s => s.level === 'Divine');
+      const unlockedCount = divineSeeds.filter(s => state.unlockedSeeds.includes(s.id)).length;
+      return { current: unlockedCount, total: divineSeeds.length, isComplete: unlockedCount >= divineSeeds.length };
+    }
+  },
+  {
+    id: 'all_seeds',
+    title: 'Đại Nông Tinh Anh 🌟',
+    desc: 'Mở khóa toàn bộ 55 giống cây trong nông trại',
+    reward: 10000,
+    check: () => {
+      const allSeeds = Object.values(state.seeds);
+      const unlockedCount = allSeeds.filter(s => state.unlockedSeeds.includes(s.id)).length;
+      return { current: unlockedCount, total: allSeeds.length, isComplete: unlockedCount >= allSeeds.length };
+    }
+  }
+];
+
+// HÀM RENDER GIAO DIỆN BẢNG THỬ THÁCH
+function renderFusionChallenges() {
+  if (!currentUser) return;
+  const listEl = document.getElementById('fusionChallengeList');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  const hasClaimedAny = state.fusionRewardClaimed !== null && state.fusionRewardClaimed !== undefined;
+
+  FUSION_CHALLENGES.forEach(ch => {
+    const status = ch.check();
+    const isThisClaimed = state.fusionRewardClaimed === ch.id;
+    const isLockedOut = hasClaimedAny && !isThisClaimed;
+
+    const div = document.createElement('div');
+    div.className = 'quest-item' + 
+      (isThisClaimed ? ' quest-completed' : (status.isComplete && !hasClaimedAny ? ' quest-ready' : ''));
+
+    if (isLockedOut) {
+      div.style.opacity = '0.45';
+      div.style.filter = 'grayscale(0.8)';
+    }
+
+    let progressText = '';
+    let btnHtml = '';
+
+    if (isThisClaimed) {
+      progressText = 'Đã nhận thưởng ✅';
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">Đã xong</button>`;
+    } else if (isLockedOut) {
+      progressText = 'Đã khóa 🔒';
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">Đã khóa</button>`;
+    } else if (status.isComplete) {
+      progressText = 'Hoàn thành!';
+      btnHtml = `<button class="btn" style="background:linear-gradient(180deg,#ff9800,#e65100); font-size:12px; padding:6px 10px;" onclick="claimFusionChallengeReward('${ch.id}')">Nhận +${ch.reward.toLocaleString('vi-VN')}₵</button>`;
+    } else {
+      progressText = `${status.current}/${status.total}`;
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">+${ch.reward.toLocaleString('vi-VN')}₵</button>`;
+    }
+
+    div.innerHTML = `
+      <div>
+        <strong style="font-size:14px;">${ch.title}</strong>
+        <div class="muted-2" style="font-size:12px; margin-top:2px;">${ch.desc}</div>
+      </div>
+      <div class="row" style="align-items: center;">
+        <div class="quest-progress" style="min-width: 90px;">${progressText}</div>
+        ${btnHtml}
+      </div>
+    `;
+
+    listEl.appendChild(div);
+  });
+}
+
+// HÀM NHẬN THƯỞNG DUY NHẤT 1 LẦN
+function claimFusionChallengeReward(challengeId) {
+  if (!currentUser) return;
+  if (state.fusionRewardClaimed) {
+    alert('Bạn đã nhận thưởng thử thách phối giống trước đó rồi! Tính năng chỉ cho phép nhận 1 lần duy nhất.');
+    return;
+  }
+
+  const ch = FUSION_CHALLENGES.find(c => c.id === challengeId);
+  if (!ch) return;
+
+  const status = ch.check();
+  if (!status.isComplete) {
+    alert('Bạn chưa hoàn thành đủ số lượng giống cây cho thử thách này.');
+    return;
+  }
+
+  // Xác nhận trước khi khóa vĩnh viễn các mốc khác
+  showFarmConfirm(
+    'Nhận Thưởng Thử Thách',
+    `Bạn có chắc muốn nhận thưởng mốc <strong>${ch.title}</strong> (+<span style="color:#b35e00;font-weight:bold;">${ch.reward.toLocaleString('vi-VN')}₵</span>)?<br><br><span style="color:#c2185b; font-size:13px;">⚠️ Lưu ý: Sau khi nhận mốc này, 2 mốc thưởng còn lại sẽ bị <strong>KHÓA VĨNH VIỄN</strong>!</span>`,
+    '🏆',
+    () => {
+      state.coins += ch.reward;
+      state.fusionRewardClaimed = ch.id;
+
+      log(`🏆 Chúc mừng! Đã nhận thưởng mốc [${ch.title}] (+${ch.reward.toLocaleString('vi-VN')}₵). Các mốc thử thách khác đã khóa.`);
+      save();
+      renderFarm(false);
+      renderFusionChallenges();
+    }
+  );
+}
+
+backToStep1Btn.onclick = showStep1;
+backStep2Btn.onclick = showStep1;
+closeWizardBtn1.onclick = closeQuickFusionModal;
+
+clearAllWizardBtn.onclick = () => {
+  selectedFusionTiles = [];
+  renderFarm(false);
+  renderFusionPanel();
+  showStep1();
+  log('Đã xóa tất cả các ô trong nhóm phối giống.');
+};
+
+if (btnQuickFusion) {
+  btnQuickFusion.onclick = openQuickFusionModal;
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === quickFusionModal) closeQuickFusionModal();
+});
+
 
 </script>
 </body>
