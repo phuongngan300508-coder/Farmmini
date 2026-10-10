@@ -591,6 +591,59 @@ body:not(.logged-out) .app {
 .wizard-qty-num { font-size: 32px; font-weight: 900; color: #4a148c; min-width: 50px; text-align: center; }
 .wizard-slider { width: 100%; margin-top: 10px; accent-color: #9c27b0; }
 
+  /* TOAST NOTIFICATION TRÊN ĐẦU MÀN HÌNH */
+.farm-toast {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #1b2a19;
+  border: 2px solid #6aa84f;
+  border-radius: 12px;
+  padding: 12px 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10000;
+  transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+  opacity: 0;
+  pointer-events: none;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+
+.farm-toast.show {
+  top: 20px;
+  opacity: 1;
+}
+
+.farm-toast-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.farm-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.farm-toast-title {
+  font-size: 12px;
+  color: #58705a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.farm-toast-msg {
+  color: #2e7d32;
+  font-size: 14px;
+}
+
   </style>
 </head>
 <body>
@@ -831,7 +884,7 @@ body:not(.logged-out) .app {
   </div>
 </div>
 
-  <!-- POPUP MENU TÀI KHOẢN NÔNG DÂN -->
+    <!-- POPUP MENU TÀI KHOẢN NÔNG DÂN -->
 <div id="userMenuModal" class="farm-modal-overlay">
   <div class="farm-modal-box" style="max-width: 310px;">
     <div class="farm-modal-icon">🧑‍🌾</div>
@@ -857,6 +910,7 @@ body:not(.logged-out) .app {
     </div>
   </div>
 </div>
+
 
   <!-- POPUP CÀI ĐẶT & HƯỚNG DẪN NÔNG TRẠI -->
 <div id="settingsModal" class="farm-modal-overlay">
@@ -917,6 +971,15 @@ body:not(.logged-out) .app {
     <div class="farm-modal-actions" style="margin-top: 14px;">
       <button class="btn" id="closeSettingsBtn" style="width: 100%;">Đã hiểu, tiếp tục làm nông!</button>
     </div>
+  </div>
+</div>
+
+  <!-- KHUNG THÔNG BÁO NỔI TOAST -->
+<div id="farmToast" class="farm-toast">
+  <div class="farm-toast-icon" id="toastIcon">🎉</div>
+  <div class="farm-toast-body">
+    <div class="farm-toast-title" id="toastTitle">Thông báo</div>
+    <div class="farm-toast-msg" id="toastMsg">Đã cộng vào tài khoản!</div>
   </div>
 </div>
 
@@ -2390,7 +2453,6 @@ function buySpecialItem(itemId) {
     return;
   }
 
-  // Hiện popup xác nhận phong cách nông trại
   showFarmConfirm(
     'Mua Vật Phẩm',
     `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost}₵</span> chứ?`,
@@ -2401,10 +2463,17 @@ function buySpecialItem(itemId) {
       if (item.type === 'coin') {
         state.coins += item.value;
         logMsg = `Đã mua ${item.name}. Nhận thêm +${item.value}₵.`;
+        
+        // Hiện thông báo nổi 5s trên đầu màn hình
+        showTopToast(
+          'Nạp Tiền Thành Công', 
+          `Đã cộng <strong style="color:#b35e00;">+${item.value.toLocaleString('vi-VN')}₵</strong> vào số dư ví!`, 
+          '💰'
+        );
       } else {
         logMsg = `Đã mua ${item.name} với giá ${item.cost}₵.`;
       }
-      log(logMsg);
+      log(logMsg); // Vẫn lưu log vào hộp Hoạt động
       save();
       renderFarm();
       renderSpecialShop();
@@ -2420,7 +2489,6 @@ function buyWater(amount, cost) {
     return;
   }
 
-  // Hiện popup xác nhận mua nước
   showFarmConfirm(
     'Tiếp Thêm Nước 💧',
     `Bạn có chắc muốn mua <strong>${amount}L Nước</strong> với giá <span style="color:#b35e00;font-weight:bold;">${cost}₵</span> không?`,
@@ -2428,13 +2496,24 @@ function buyWater(amount, cost) {
     () => {
       state.coins -= cost;
       state.water += amount;
-      log(`Đã mua ${amount}L nước với giá ${cost}₵.`);
+      
+      const logMsg = `Đã mua ${amount}L nước với giá ${cost}₵.`;
+      log(logMsg); // Vẫn lưu log vào hộp Hoạt động
+      
+      // Hiện thông báo nổi 5s trên đầu màn hình
+      showTopToast(
+        'Bổ Sung Nước Thành Công', 
+        `Đã cộng <strong style="color:#1976d2;">+${amount}L Nước</strong> vào bồn chứa tưới cây!`, 
+        '💧'
+      );
+
       save();
       renderFarm();
       renderWater();
     }
   );
 }
+
 
 
 function buySeeds(seedId) {
@@ -3224,7 +3303,7 @@ applyStep2Btn.onclick = () => {
   showStep1();
 };
 
-  // ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
+// ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
 const FUSION_CHALLENGES = [
   {
     id: 'mythic_all',
@@ -3371,11 +3450,28 @@ window.addEventListener('click', (e) => {
   if (e.target === quickFusionModal) closeQuickFusionModal();
 });
 
+let toastTimer = null;
+
+function showTopToast(title, message, icon = '🎉') {
+  const toast = document.getElementById('farmToast');
+  const titleEl = document.getElementById('toastTitle');
+  const msgEl = document.getElementById('toastMsg');
+  const iconEl = document.getElementById('toastIcon');
+
+  titleEl.textContent = title;
+  msgEl.innerHTML = message;
+  iconEl.textContent = icon;
+
+  toast.classList.add('show');
+
+  if (toastTimer) clearTimeout(toastTimer);
+
+  // Đổi thành 3000 (tương ứng 3 giây)
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
 
 </script>
 </body>
 </html>
-
-
-
-
