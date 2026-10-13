@@ -1703,9 +1703,9 @@ function renderSeeds(){
     'Common': [],
     'Uncommon': [],
     'Rare': [],
-    'Legendary': [], // Giữ nguyên
+    'Legendary': [],
     'Mythic': [],
-    'Divine': []// ✅ ĐÃ THÊM CẤP MYTHIC
+    'Divine': []
   };
   
   availableSeeds.forEach(s => {
@@ -1719,21 +1719,19 @@ function renderSeeds(){
     'Uncommon': '🌿 Trung bình',
     'Rare': '💎 Hiếm',
     'Legendary': '✨ Huyền thoại',
-    'Mythic': '👑 Thần thánh', // ✅ ĐÃ THÊM CẤP MYTHIC
+    'Mythic': '👑 Thần thánh',
     'Divine': '⭐ Thần Tối Thượng'
   };
 
   for (const level in categorizedSeeds) {
     const seeds = categorizedSeeds[level];
     if (seeds.length > 0) {
-      // Thêm tiêu đề cấp độ
       const header = document.createElement('h3');
       header.style.fontSize = '14px';
       header.style.margin = '10px 0 5px 0';
       header.textContent = levelMap[level];
       seedListEl.appendChild(header);
 
-      // Hiển thị từng hạt giống
       seeds.forEach(s => {
         const div = document.createElement('div');
         div.className = 'seed' + (state.selectedSeed===s.id ? ' active' : '');
@@ -1748,6 +1746,12 @@ function renderSeeds(){
         
         div.onclick = ()=>{ 
           if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+
+          // 🎵 PHÁT ÂM THANH CHỌN HẠT GIỐNG
+          if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+            SoundEngine.selectSeed();
+          }
+
           state.selectedSeed = s.id; 
           renderSeeds(); 
           log(`Chọn hạt: ${s.name}`); 
@@ -1757,6 +1761,7 @@ function renderSeeds(){
     }
   }
 }
+
 
 // Thêm vào sau renderSeeds()
 function renderWater(){
@@ -2428,6 +2433,11 @@ function completeOrder(orderInstanceId) {
         if (state.inventory[req.seedId] < 0) state.inventory[req.seedId] = 0;
     });
 
+    // 🎵 PHÁT ÂM THANH HOÀN THÀNH ĐƠN HÀNG / NHẬN TIỀN
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+        SoundEngine.coinReward();
+    }
+
     // 3. Cộng tiền thưởng và đánh dấu hoàn thành cho đúng đơn này
     state.coins += order.reward;
     order.status = 'completed';
@@ -2438,7 +2448,6 @@ function completeOrder(orderInstanceId) {
     renderInventory();
     renderOrders();
 }
-
 
   
 function buySpecialItem(itemId) {
@@ -2458,13 +2467,18 @@ function buySpecialItem(itemId) {
     `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost}₵</span> chứ?`,
     '💸',
     () => {
+      // 🎵 PHÁT ÂM THANH MUA ĐỒ SHOP ĐẶC BIỆT
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
+        SoundEngine.specialBuy();
+      }
+
       state.coins -= item.cost;
       let logMsg = '';
       if (item.type === 'coin') {
         state.coins += item.value;
         logMsg = `Đã mua ${item.name}. Nhận thêm +${item.value}₵.`;
         
-        // Hiện thông báo nổi 5s trên đầu màn hình
+        // Hiện thông báo nổi trên đầu màn hình
         showTopToast(
           'Nạp Tiền Thành Công', 
           `Đã cộng <strong style="color:#b35e00;">+${item.value.toLocaleString('vi-VN')}₵</strong> vào số dư ví!`, 
@@ -2473,7 +2487,7 @@ function buySpecialItem(itemId) {
       } else {
         logMsg = `Đã mua ${item.name} với giá ${item.cost}₵.`;
       }
-      log(logMsg); // Vẫn lưu log vào hộp Hoạt động
+      log(logMsg);
       save();
       renderFarm();
       renderSpecialShop();
@@ -2494,13 +2508,18 @@ function buyWater(amount, cost) {
     `Bạn có chắc muốn mua <strong>${amount}L Nước</strong> với giá <span style="color:#b35e00;font-weight:bold;">${cost}₵</span> không?`,
     '💦',
     () => {
+      // 🎵 PHÁT ÂM THANH MUA NƯỚC SHOP ĐẶC BIỆT
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
+        SoundEngine.specialBuy();
+      }
+
       state.coins -= cost;
       state.water += amount;
       
       const logMsg = `Đã mua ${amount}L nước với giá ${cost}₵.`;
-      log(logMsg); // Vẫn lưu log vào hộp Hoạt động
+      log(logMsg);
       
-      // Hiện thông báo nổi 5s trên đầu màn hình
+      // Hiện thông báo nổi trên đầu màn hình
       showTopToast(
         'Bổ Sung Nước Thành Công', 
         `Đã cộng <strong style="color:#1976d2;">+${amount}L Nước</strong> vào bồn chứa tưới cây!`, 
@@ -2513,7 +2532,6 @@ function buyWater(amount, cost) {
     }
   );
 }
-
 
 
 function buySeeds(seedId) {
@@ -2580,6 +2598,12 @@ function onTileClick(id){
     tile.plantedAt = Date.now();
     tile.growUntil = Date.now() + adjustedTime * 1000;
     tile.isFusionResult = false; 
+
+    // 🎵 PHÁT ÂM THANH GIEO HẠT / TRỒNG CÂY
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.plant) {
+      SoundEngine.plant();
+    }
+
     save();
     renderFarm();
     renderTileInfo(tile.id);
@@ -2596,7 +2620,6 @@ function onTileClick(id){
     const currentSeed = state.seeds[tile.seedId];
     
     if (ready) {
-        // ** ĐÃ SỬA ĐỔI **
         // BỎ LOGIC TỰ ĐỘNG THU HOẠCH CỦA DIVINE
         // MỌI CÂY KHI ĐÃ CHÍN ĐỀU SẼ HIỂN THỊ MENU THÔNG TIN Ô
         renderTileInfo(tile.id);
@@ -2607,12 +2630,11 @@ function onTileClick(id){
   }
 }
 
+
 // Thay thế khối 'Thu hoạch theo ô' hiện tại bằng khối này
 function harvestTile(id) {
     if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
     const tile = findTile(id);
-    // BỎ qua bước kiểm tra Date.now() < tile.growUntil
-    // vì nút này chỉ xuất hiện khi cây đã chín (được kiểm soát trong renderTileInfo)
     if (!tile || !tile.planted) return; 
 
     const seed = state.seeds[tile.seedId];
@@ -2623,6 +2645,11 @@ function harvestTile(id) {
     }
     state.inventory[seed.id]++;
     // ===============================================
+
+    // 🎵 PHÁT ÂM THANH THU HOẠCH 1 Ô
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) {
+        SoundEngine.harvest();
+    }
 
     log(`Thu hoạch ${seed.name} và cho vào kho hàng.`);
     
@@ -2649,7 +2676,7 @@ function harvestTile(id) {
 }
 
 
-// Thay thế khối 'Thu hoạch tất cả' hiện tại bằng khối này
+// Khối 'Thu hoạch tất cả'
 function harvestAllTiles() {
     if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
     
@@ -2686,6 +2713,11 @@ function harvestAllTiles() {
     });
 
     if (harvestedCount > 0) {
+        // 🎵 PHÁT ÂM THANH THU HOẠCH TẤT CẢ
+        if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) {
+            SoundEngine.harvest();
+        }
+
         log(`Đã thu hoạch ${harvestedCount} cây trồng và chuyển vào kho hàng.`);
         
         // 4. Xóa trạng thái chọn phối giống và Render UI
@@ -2701,6 +2733,7 @@ function harvestAllTiles() {
         tileInfoEl.textContent = 'Không có cây nào đã chín để thu hoạch.';
     }
 }
+
 
 function speedUpTile(id){
   if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
@@ -2760,7 +2793,7 @@ function doCrossBreed(){
     
     if (match.group === 'Mythic') {
         WATER_COST = 10;
-    } else if (match.group === 'Divine') { // NEW: Thêm chi phí nước cho DIVINE
+    } else if (match.group === 'Divine') {
         WATER_COST = 15;
     }
     
@@ -2789,13 +2822,12 @@ function doCrossBreed(){
     const success = Math.random() < recipeGroup.successRate;
 
     // 5. Cập nhật tiến độ nhiệm vụ (sử dụng cấp độ của nguyên liệu đầu vào)
-    // Đối với công thức nhiều ô, ta lấy cấp độ nguyên liệu cao nhất làm đại diện cho cấp độ phối
     const inputSeedLevels = selectedFusionTiles.map(id => state.seeds[findTile(id).seedId].level);
     const fusionLevelForQuest = inputSeedLevels.includes('Legendary') ? 'Legendary' : inputSeedLevels.includes('Rare') ? 'Rare' : 'Uncommon';
     checkQuestProgress('fusion', { resultLevel: fusionLevelForQuest });
 
     // 6. Xóa các ô cây gốc
-    const tilesToClear = [...selectedFusionTiles]; // Copy list
+    const tilesToClear = [...selectedFusionTiles];
     tilesToClear.forEach(id => {
         const tile = findTile(id);
         if (tile) {
@@ -2805,8 +2837,10 @@ function doCrossBreed(){
     });
     
     if (success) {
+        // 🎵 PHÁT ÂM THANH PHỐI GIỐNG THÀNH CÔNG
+        SoundEngine.fusionSuccess();
+
         // 7. TRỒNG CÂY MỚI
-        // Chọn 1 ô ngẫu nhiên từ các ô đã xóa để trồng cây kết quả
         const plantedTileId = getRandomTileId(selectedFusionTiles);
         const plantedTile = findTile(plantedTileId);
         
@@ -2824,16 +2858,18 @@ function doCrossBreed(){
             log(`Phối giống THÀNH CÔNG! Tạo ra ${resultSeed.name} ${resultSeed.emoji} (Chín trong ${adjustedTime.toFixed(0)}s) tại ô ${plantedTileId}.`);
             
             // Mở khóa hạt giống fusion
-                        if (!state.unlockedSeeds.includes(resultSeed.id)) {
+            if (!state.unlockedSeeds.includes(resultSeed.id)) {
                 state.unlockedSeeds.push(resultSeed.id);
                 log(`Đã mở khóa hạt giống ${resultSeed.name} vĩnh viễn.`);
-                renderFusionChallenges(); // THÊM DÒNG NÀY ĐỂ CẬP NHẬT BẢNG THỬ THÁCH
+                renderFusionChallenges();
             }
 
         } else {
             log('Lỗi nội bộ: Không thể tìm thấy ô để trồng cây mới.');
         }
     } else {
+        // 🎵 PHÁT ÂM THANH PHỐI GIỐNG THẤT BẠI
+        SoundEngine.fusionFail();
         log(`Phối giống THẤT BẠI! Mất ${selectedFusionTiles.length} cây gốc.`);
     }
 
@@ -2845,6 +2881,7 @@ function doCrossBreed(){
     renderFusionPanel();
     renderRecipeTable();
 }
+
   
 // Hàm nhận thưởng nhiệm vụ (Sau buyWater)
 function claimQuestReward(questId) {
@@ -2856,6 +2893,11 @@ function claimQuestReward(questId) {
         return;
     }
     
+    // 🎵 PHÁT ÂM THANH NHẬN THƯỞNG NHIỆM VỤ
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+        SoundEngine.coinReward();
+    }
+
     // Thêm nước và đánh dấu đã nhận
     state.water += quest.reward;
     quest.completed = 'claimed'; // Đánh dấu đã nhận thưởng
@@ -2865,6 +2907,7 @@ function claimQuestReward(questId) {
     renderWater();
     renderQuests();
 }
+
 
 // Hàm kiểm tra tiến trình nhiệm vụ (Sau claimQuestReward)
 function checkQuestProgress(type, data) {
@@ -3419,6 +3462,11 @@ function claimFusionChallengeReward(challengeId) {
     `Bạn có chắc muốn nhận thưởng mốc <strong>${ch.title}</strong> (+<span style="color:#b35e00;font-weight:bold;">${ch.reward.toLocaleString('vi-VN')}₵</span>)?<br><br><span style="color:#c2185b; font-size:13px;">⚠️ Lưu ý: Sau khi nhận mốc này, 2 mốc thưởng còn lại sẽ bị <strong>KHÓA VĨNH VIỄN</strong>!</span>`,
     '🏆',
     () => {
+      // 🎵 PHÁT ÂM THANH CHIẾN THẮNG / HOÀN THÀNH THỬ THÁCH LỚN
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
+        SoundEngine.fanfareChallenge();
+      }
+
       state.coins += ch.reward;
       state.fusionRewardClaimed = ch.id;
 
@@ -3453,6 +3501,11 @@ window.addEventListener('click', (e) => {
 let toastTimer = null;
 
 function showTopToast(title, message, icon = '🎉') {
+  // 🎵 PHÁT ÂM THANH THÔNG BÁO POPUP
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.toast) {
+    SoundEngine.toast();
+  }
+
   const toast = document.getElementById('farmToast');
   const titleEl = document.getElementById('toastTitle');
   const msgEl = document.getElementById('toastMsg');
@@ -3471,6 +3524,224 @@ function showTopToast(title, message, icon = '🎉') {
     toast.classList.remove('show');
   }, 3000);
 }
+
+
+  // ==========================================
+// 🎵 HỆ THỐNG ÂM THANH NÔNG TRẠI (Web Audio API)
+// ==========================================
+const SoundEngine = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+  
+  // Tiếng bấm nút nhẹ nhàng
+  click() {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.05);
+  },
+
+    // Đặt bên trong đối tượng SoundEngine:
+  selectSeed() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, now); // Nốt D5
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08); // Lướt lên A5
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(now + 0.08);
+  },
+
+  // Gieo hạt / Trồng cây (tiếng sột soạt đất)
+  plant() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.12);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(now + 0.12);
+  },
+
+  // Thu hoạch nông sản (pop nảy giòn)
+  harvest() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(now + 0.12);
+  },
+
+  // Phối giống THÀNH CÔNG (chuỗi hợp âm thăng hoa)
+  fusionSuccess() {
+    this.init();
+    if (!this.ctx) return;
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const start = this.ctx.currentTime + idx * 0.08;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.25, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + 0.25);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.25);
+    });
+  },
+
+  // Phối giống THẤT BẠI (tiếng tụt dốc trầm buồn)
+  fusionFail() {
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.35);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(now + 0.35);
+  },
+
+  // Giao hàng / Nhận quà nhiệm vụ / Bán hàng (tiếng tiền lẻ leng keng)
+  coinReward() {
+    this.init();
+    if (!this.ctx) return;
+    const coins = [987.77, 1318.51]; // B5, E6
+    coins.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const start = this.ctx.currentTime + idx * 0.07;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.22, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.18);
+    });
+  },
+
+  // Đổi vật phẩm Shop đặc biệt (hiệu ứng lấp lánh phép thuật)
+  specialBuy() {
+    this.init();
+    if (!this.ctx) return;
+    const freqs = [659.25, 783.99, 987.77, 1174.66, 1318.51];
+    freqs.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const start = this.ctx.currentTime + idx * 0.05;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.18, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + 0.2);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.2);
+    });
+  },
+
+  // Hoàn thành thử thách Thần Thánh / Mở mốc lớn (Fanfare chiến thắng hoành tráng)
+  fanfareChallenge() {
+    this.init();
+    if (!this.ctx) return;
+    const notes = [
+      { f: 523.25, d: 0.12 },
+      { f: 659.25, d: 0.12 },
+      { f: 783.99, d: 0.12 },
+      { f: 1046.50, d: 0.4 }
+    ];
+    let offset = 0;
+    notes.forEach(n => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const start = this.ctx.currentTime + offset;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.f, start);
+      gain.gain.setValueAtTime(0.3, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + n.d);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(start);
+      osc.stop(start + n.d);
+      offset += n.d * 0.85;
+    });
+  },
+
+  // Âm thanh thông báo Toast
+  toast() {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(now + 0.2);
+  }
+};
+
+// Gắn âm thanh click tự động cho mọi nút bấm
+document.addEventListener('click', (e) => {
+  if (e.target.closest('button') || e.target.closest('.btn') || e.target.closest('.wizard-crop-card')) {
+    SoundEngine.click();
+  }
+});
 
 </script>
 </body>
