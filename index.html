@@ -1171,23 +1171,24 @@ const fusionRecipes = {
         ]
     },
 
-    // RARE -> LEGENDARY FUSIONS (60% SUCCESS)
+        // RARE -> LEGENDARY FUSIONS
     Legendary: {
-        cost: 40, // 40₵
-        successRate: 0.6, // 60%
+        cost: 40,
+        successRate: 0.6,
         recipes: [
-            { ingredients: ['cacao', 'moonflower'], result: 'mooncacao' }, // Ca cao + Cây Ánh Trăng → MoonCacao
-            { ingredients: ['berrycaff', 'pumpgrap'], result: 'berrypump' }, // BerryCaff + PumpGrap → BerryPump
-            { ingredients: ['coffcabb', 'strawcabb'], result: 'coffstraw' }, // CoffCabb + StrawCabb → CoffStraw
-            { ingredients: ['pumpgrap', 'pumpcabb'], result: 'mega_pump' }, // PumpGrap + PumpCabb → MEGA_PUMP
-            { ingredients: ['orchid', 'greentea'], result: 'orchidtea' }, // Hoa lan + Trà xanh → OrchidTea
-            { ingredients: ['cacao', 'honeytree'], result: 'cacao_honey' }, // Ca cao + Cây mật ong → Cacao Mật Ong
-            { ingredients: ['moonflower', 'orchid'], result: 'moon_orchid' }, // Cây Ánh Trăng + Hoa lan → Hoa Ánh Trăng
-            { ingredients: ['greentea', 'honeytree'], result: 'tea_honey' }, // Trà xanh + Cây mật ong → Trà Mật Ong
+            { ingredients: ['cacao', 'moonflower'], result: 'mooncacao' },
+            { ingredients: ['berrycaff', 'pumpgrap'], result: 'berrypump' },
+            { ingredients: ['coffcabb', 'strawcabb'], result: 'coffstraw' },
+            { ingredients: ['honeytree', 'grape'], result: 'honeygrap' }, // <-- BỔ SUNG DÒNG NÀY (Cây mật ong + Nho -> HoneyGrap)
+            { ingredients: ['pumpgrap', 'pumpcabb'], result: 'mega_pump' },
+            { ingredients: ['orchid', 'greentea'], result: 'orchidtea' },
+            { ingredients: ['cacao', 'honeytree'], result: 'cacao_honey' },
+            { ingredients: ['moonflower', 'orchid'], result: 'moon_orchid' },
+            { ingredients: ['greentea', 'honeytree'], result: 'tea_honey' },
             { ingredients: ['peach', 'greentea'], result: 'peachtea' },
-            { ingredients: ['blueberry', 'cacao'], result: 'blueberrycacao' }, // Việt Quất + Ca Cao → Blueberry Cacao
+            { ingredients: ['blueberry', 'cacao'], result: 'blueberrycacao' },
             
-            // ✅ CÔNG THỨC MỚI: 5 LEGENDARY SEEDS
+            // 5 LEGENDARY SEEDS MỚI
             { ingredients: ['honeytree', 'blueberry'], result: 'star_lotus' },
             { ingredients: ['cacao', 'pumpgrap'], result: 'lava_fruit' },
             { ingredients: ['greentea', 'berrycaff'], result: 'crystal_tea' },
@@ -1195,6 +1196,7 @@ const fusionRecipes = {
             { ingredients: ['orchid', 'strawcabb'], result: 'shadow_bean' }
         ]
     },
+
 // NEW: LEGENDARY -> MYTHIC FUSIONS (40% SUCCESS)
     Mythic: {
         cost: 70, // 70₵
