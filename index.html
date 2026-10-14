@@ -478,18 +478,20 @@ body:not(.logged-out) .app {
   color: #2d6624;
 }
 
-  /* Tùy chỉnh Popup Hướng dẫn Nông trại */
+ /* Tùy chỉnh Popup Hướng dẫn (Responsive 2 cột trên Laptop, PC, iPad) */
 .settings-modal-box {
-  max-width: 520px !important;
+  width: 92% !important;
+  max-width: 780px !important; /* Mở rộng chiều ngang popup để đủ chỗ chia 2 cột */
   text-align: left;
-  padding: 22px 20px 18px 20px;
+  padding: 22px 22px 18px 22px;
+  box-sizing: border-box;
 }
 
 .settings-modal-header {
   text-align: center;
   border-bottom: 2px dashed #d1c1a5;
   padding-bottom: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .settings-modal-header h3 {
@@ -497,22 +499,39 @@ body:not(.logged-out) .app {
   font-size: 20px;
 }
 
+/* Lưới hiển thị các mục hướng dẫn */
 .settings-modal-content {
-  max-height: 380px;
+  max-height: 440px; /* Tăng nhẹ chiều cao để hiển thị thoáng hơn */
   overflow-y: auto;
   padding-right: 8px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Mặc định chia 2 cột đều nhau */
   gap: 12px;
+  align-items: stretch;
 }
 
-/* Từng mục hướng dẫn */
+/* Trên điện thoại hoặc màn hình hẹp dưới 650px: Tự động gom về 1 cột */
+@media (max-width: 650px) {
+  .settings-modal-box {
+    max-width: 95% !important;
+    padding: 16px 14px 14px 14px;
+  }
+  .settings-modal-content {
+    grid-template-columns: 1fr; /* Trở về 1 cột dọc trên màn hình nhỏ */
+    max-height: 380px;
+  }
+}
+
+/* Từng thẻ nội dung hướng dẫn */
 .guide-section {
   background: #f4faef;
   border: 1px solid #d5e8ce;
   border-left: 4px solid #6aa84f;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .guide-section h4 {
@@ -889,6 +908,111 @@ body:not(.logged-out) .app {
   background: #f4faef;
 }
 
+  /* Style dành riêng cho chuồng trại gia súc */
+.tile.barn-tile {
+  background: linear-gradient(180deg, #fff8e7, #ffe0b2);
+  border: 1.5px solid #ffcc80;
+}
+.tile.barn-active {
+  background: linear-gradient(180deg, #fff3e0, #ffcc80);
+  border: 2px solid #f57c00;
+  box-shadow: 0 0 8px rgba(245, 124, 0, 0.25);
+}
+
+    /* Giới hạn chiều cao & thêm thanh cuộn cho Đơn hàng Thực phẩm (10 đơn) */
+  #foodOrderList {
+    max-height: 380px;      /* Giới hạn độ dài, vừa tầm nhìn */
+    overflow-y: auto;       /* Tự động hiện thanh cuộn dọc khi danh sách dài */
+    padding-right: 6px;     /* Đệm nhẹ để thanh cuộn không đè lên nút bấm */
+  }
+
+  /* Giới hạn chiều cao & thêm thanh cuộn cho Cửa hàng Con Giống */
+  #animalShopList {
+    max-height: 350px;      /* Giới hạn độ dài */
+    overflow-y: auto;       /* Hiện thanh cuộn dọc */
+    overflow-x: hidden;
+    padding-right: 6px;
+  }
+
+  /* Tiệm thức ăn chăn nuôi (nếu muốn cuộn luôn để cột phải gọn gàng) */
+  #specialRanchShopList {
+    max-height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 6px;
+  }
+
+  /* Tùy chỉnh thanh cuộn mảnh và mượt cho cả 3 mục trên */
+  #foodOrderList::-webkit-scrollbar,
+  #animalShopList::-webkit-scrollbar,
+  #specialRanchShopList::-webkit-scrollbar {
+    width: 6px;
+  }
+  #foodOrderList::-webkit-scrollbar-thumb,
+  #animalShopList::-webkit-scrollbar-thumb,
+  #specialRanchShopList::-webkit-scrollbar-thumb {
+    background: #e2b97f;
+    border-radius: 6px;
+  }
+
+  /* Giới hạn chiều cao & thêm thanh cuộn cho mục Con Giống Đã Sở Hữu */
+#selectedAnimalDisplay {
+  max-height: 260px;       /* Giới hạn chiều cao vừa đủ hiển thị 2-3 con, cuộn mượt mà khi mở khóa nhiều */
+  overflow-y: auto;        /* Tự động bật thanh cuộn dọc */
+  overflow-x: hidden;      /* Ẩn cuộn ngang */
+  padding: 6px 8px;        /* Khoảng đệm để viền sáng active không bị cắt mép */
+  box-sizing: border-box;
+}
+
+/* Tùy chỉnh thanh cuộn màu gỗ mộc cho khu chọn giống */
+#selectedAnimalDisplay::-webkit-scrollbar {
+  width: 6px;
+}
+#selectedAnimalDisplay::-webkit-scrollbar-thumb {
+  background: #e2b97f;
+  border-radius: 6px;
+}
+
+/* Thanh cuộn cho Nhiệm vụ hàng ngày chăn nuôi */
+  #dailyRanchQuestsList::-webkit-scrollbar {
+    width: 6px;
+  }
+  #dailyRanchQuestsList::-webkit-scrollbar-thumb {
+    background: #e2b97f;
+    border-radius: 6px;
+  }
+
+  /* Canh đỉnh cột phải ngang bằng với panel bên cột trái */
+.right {
+  padding-top: 104px; /* Bằng đúng chiều cao của header (khoảng 60px) + nút chuyển tab + khoảng cách đệm */
+  box-sizing: border-box;
+}
+
+/* Trên điện thoại/màn hình nhỏ thì bỏ thụt đầu để không bị trống một khoảng */
+@media (max-width: 900px) {
+  .right {
+    padding-top: 0;
+  }
+}
+
+/* Giới hạn chiều cao & thêm thanh cuộn cho khu chuồng trại gia súc */
+#ranchBarns {
+  max-height: 420px;       /* Giới hạn chiều cao vừa tầm mắt, hiển thị khoảng 2-3 hàng chuồng */
+  overflow-y: auto;        /* Tự động kích hoạt thanh cuộn dọc khi mở rộng nhiều chuồng */
+  overflow-x: hidden;      /* Ẩn cuộn ngang */
+  padding-right: 8px;      /* Khoảng đệm để thanh cuộn không đè vào ô chuồng */
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+/* Tùy chỉnh thanh cuộn màu gỗ mộc đồng bộ với khu chăn nuôi */
+#ranchBarns::-webkit-scrollbar {
+  width: 6px;
+}
+#ranchBarns::-webkit-scrollbar-thumb {
+  background: #e2b97f;
+  border-radius: 6px;
+}
   </style>
 </head>
 <body>
@@ -912,59 +1036,69 @@ body:not(.logged-out) .app {
 </div>
 
   <div class="app">
-    <div class="left">
-            <div style="height:10px"></div>
-      <header>
-        <div class="brand">
-          <div class="logo">FM</div>
-          <div>
-            <h1>Farm Mini</h1>
-            <div class="sub">Trồng — Chăm — Thu hoạch — Đổi quà</div>
+  <!-- ================= CỘT TRÁI (LEFT) ================= -->
+  <div class="left">
+    <div style="height:10px"></div>
+    <header>
+      <div class="brand">
+        <div class="logo">FM</div>
+        <div>
+          <h1>Farm Mini</h1>
+          <div class="sub">Trồng — Chăm — Thu hoạch — Đổi quà</div>
+        </div>
+      </div>
+      <div class="status">
+        <div class="resource" id="coins">💰 0</div>
+        <div class="resource" id="waterAmount" title="Lượng nước tưới cây">💧 50L</div>
+        <button class="btn secondary" id="loginStatusBtn" title="Tài khoản & Cài đặt">🧑‍🌾 Đăng xuất</button>
+      </div>
+    </header>
+
+    <!-- HÀNG NÚT CHUYỂN QUA LẠI GIỮA TRỒNG CÂY VÀ CHĂN NUÔI -->
+    <div style="display:flex; justify-content:flex-start; align-items:center; margin: 4px 0 8px 0;">
+      <button class="btn" id="btnGoToRanch" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:12px; padding:6px 14px; box-shadow:0 2px 6px rgba(180,83,9,0.3);">
+        🐄 Sang Khu Chăn Nuôi Gia Súc ➔
+      </button>
+      <button class="btn" id="btnGoToFarmTab" style="background:linear-gradient(180deg,#6aa84f,#3e8a33); font-size:12px; padding:6px 14px; display:none; box-shadow:0 2px 6px rgba(46,125,50,0.3);">
+        🌱 Về Vườn Trồng Cây ➔
+      </button>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 1. KHU TRỒNG CÂY (GOM HẾT VÀO #farmContainer) -->
+    <!-- ======================================================== -->
+    <div id="farmContainer">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
+          <!-- TIÊU ĐỀ TRANG TRẠI -->
+          <div class="farm-title-wrapper" id="farmTitleBtn" title="Nhấp để đổi tên & biểu tượng trang trại">
+            <h2 style="margin:0;" id="farmTitleText">Trang trại của bạn 🚜</h2>
+            <span class="farm-edit-icon">✏️</span>
+          </div>
+
+          <!-- Danh hiệu Nông Dân -->
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="muted-2" style="font-size:12px; font-weight:700;">Danh hiệu:</span>
+            <div id="farmEquippedBadge" class="active-title-badge title-style-default" title="Nhấp để chuyển nhanh tới bảng danh hiệu">
+              <span>🧑‍🌾</span> <span>Nông Dân</span>
+            </div>
           </div>
         </div>
-        <div class="status">
-          <div class="resource" id="coins">💰 0</div>
-          <div class="resource" id="waterAmount" title="Lượng nước tưới cây">💧 50L</div>
-          <button class="btn secondary" id="loginStatusBtn" title="Tài khoản & Cài đặt">🧑‍🌾 Đăng xuất</button>
-        </div>
+        <div class="muted-2" style="margin-bottom:10px">Click 1 ô để <strong>trồng</strong>, click ô đã trồng để xem chi tiết hoặc thu hoạch.</div>
 
+        <div id="farm" class="farm-grid" aria-label="Farm grid"></div>
 
-      </header>
-    
-      
-            <div class="panel">
-  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
-    <!-- TIÊU ĐỀ TRANG TRẠI CÓ THỂ ĐỔI TÊN & ICON -->
-<div class="farm-title-wrapper" id="farmTitleBtn" title="Nhấp để đổi tên & biểu tượng trang trại">
-  <h2 style="margin:0;" id="farmTitleText">Trang trại của bạn 🚜</h2>
-  <span class="farm-edit-icon">✏️</span>
-</div>
-    
-    <!-- Cụm nhãn 'Danh hiệu:' đi kèm khung hiển thị -->
-    <div style="display:flex; align-items:center; gap:6px;">
-      <span class="muted-2" style="font-size:12px; font-weight:700;">Danh hiệu:</span>
-      <div id="farmEquippedBadge" class="active-title-badge title-style-default" title="Nhấp để chuyển nhanh tới bảng danh hiệu">
-        <span>🧑‍🌾</span> <span>Nông Dân</span>
+        <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+            <button class="btn" id="btnExpand">Mua thêm ô (+3) — 100₵</button>
+            <button class="btn secondary" id="btnHarvestAll">Thu hoạch tất cả (Đã chín)</button>     
+            <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
+            <button class="btn secondary" id="btnClear">Reset farm</button>
+            <button class="btn" id="btnGoToFarmOrders" style="background:linear-gradient(180deg,#0288d1,#01579b);">🧺 Kho & Đơn Hàng ⬇</button>
+            <button class="btn" id="btnGoToSeeds" style="margin-left:auto;background:linear-gradient(180deg,#4a86e8,#2a62bc);">🌱 Chọn Hạt Giống ⬇</button>
+          </div>
       </div>
-    </div>
-  </div>
-  <div class="muted-2" style="margin-bottom:10px">Click 1 ô để <strong>trồng</strong>, click ô đã trồng để xem chi tiết hoặc thu hoạch.</div>
 
-  <div id="farm" class="farm-grid" aria-label="Farm grid">
-              </div>
-
-       <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
-    <button class="btn" id="btnExpand">Mua thêm ô (+3) — 100₵</button>
-    <button class="btn secondary" id="btnHarvestAll">Thu hoạch tất cả (Đã chín)</button>     
-    <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
-    <button class="btn secondary" id="btnClear">Reset farm</button>
-    <!-- NÚT CHUYỂN NHANH ĐẾN HẠT GIỐNG -->
-    <button class="btn" id="btnGoToSeeds" style="margin-left:auto;background:linear-gradient(180deg,#4a86e8,#2a62bc);">🌱 Chọn Hạt Giống ⬇</button>
-  </div>
-
-
-</div>
-
+      <!-- THÔNG TIN Ô TRỒNG CÂY -->
       <div style="height:12px"></div>       
       <div class="panel">
         <h2>Thông tin ô 💬</h2>
@@ -976,23 +1110,25 @@ body:not(.logged-out) .app {
         </div>
       </div>
 
-            <div style="height:12px"></div> <div class="panel">
-        <h2>Hoạt động 📝</h2>
-        <div class="log" id="log"></div>
+      <!-- HOẠT ĐỘNG BÊN TRỒNG CÂY -->
+      <div style="height:12px"></div> 
+      <div class="panel" id="farmLogPanel">
+        <h2>Hoạt động Trồng trọt 📝</h2>
+        <div class="log" id="logFarm"></div>
       </div>
+
       <div style="height:10px"></div>
-      
-      <!-- BẢNG THỬ THÁCH PHỐI GIỐNG -->
-<div class="panel controls" id="challengePanel">
-  <h2>Thử Thách Nhà Lai Tạo Cây 🏆</h2>
-  <div class="muted-2" style="margin-bottom:10px">
-    ⚠️ <strong>Lưu ý quan trọng:</strong> Chỉ được nhận thưởng <strong>duy nhất 1 lần</strong>! Khi nhận ở bất kỳ mốc nào, các mốc thưởng còn lại sẽ bị khóa vĩnh viễn.
-  </div>
-  <div id="fusionChallengeList" class="quest-list"></div>
-</div>
-<div style="height:10px"></div>
-      
-            <!-- KHU VỰC DANH HIỆU NÔNG DÂN -->
+      <!-- BẢNG THỬ THÁCH -->
+      <div class="panel controls" id="challengePanel">
+        <h2>Thử Thách Nhà Lai Tạo Cây 🏆</h2>
+        <div class="muted-2" style="margin-bottom:10px">
+          ⚠️ <strong>Lưu ý quan trọng:</strong> Chỉ được nhận thưởng <strong>duy nhất 1 lần</strong>!
+        </div>
+        <div id="fusionChallengeList" class="quest-list"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <!-- DANH HIỆU NÔNG DÂN -->
       <div class="panel controls" id="achievementsPanel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h2 style="margin:0;">Bảng Vinh Danh & Danh Hiệu 🎖️</h2>
@@ -1001,71 +1137,189 @@ body:not(.logged-out) .app {
         <div class="muted-2" style="margin-bottom:10px">Tích lũy các thành tựu nông nghiệp để khắc tên lên Bảng Vàng!</div>
         <div id="badgeList" class="badge-grid"></div>
       </div>
-      <div style="height:10px"></div>
 
-            <div class="panel" id="questPanel">
+      <div style="height:10px"></div>
+      <div class="panel" id="questPanel">
         <h2>Nhiệm vụ Hàng ngày 💧</h2>
         <div class="muted-2" style="margin-bottom:10px">Hoàn thành nhiệm vụ để nhận Nước (Reset: <span id="timeToReset"></span>)</div>
-        <div id="dailyQuestsList" class="quest-list">
-          </div>
+        <div id="dailyQuestsList" class="quest-list"></div>
       </div>
       
       <div style="height:10px"></div>
-                <div class="panel controls">
-                    <h2>Kho hàng của bạn 🧺</h2>
-                    <div id="inventoryList" class="seed-list" style="max-height: 200px; overflow-y: auto;">
-                                            </div>
-                </div>
+        <div class="panel controls" id="farmInventorySection">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="margin:0;">Kho hàng của bạn 🧺</h2>
+            <button class="btn" id="btnBackToFarmTop" style="background: linear-gradient(180deg, #7cc576, #3e8a33); font-size: 12px; padding: 5px 12px; box-shadow: 0 2px 6px rgba(46, 125, 50, 0.25); border: none; color: #fff;">
+  🚜 Lên Đất Trồng ⬆
+</button>
+          </div>
+          <div id="inventoryList" class="seed-list" style="max-height: 200px; overflow-y: auto; margin-top:8px;"></div>
+        </div>
 
-                <div style="height:10px"></div>
-                <div class="panel controls">
-                    <h2>Đơn hàng Khách hàng 🚚</h2>
-                    <div class="muted-2" style="margin-bottom:10px">Hoàn thành đơn hàng để nhận tiền (Reset: <span id="timeToOrderReset"></span>)</div>
-                    <div id="orderList" class="quest-list">
-                                            </div>
-                </div>
-      <footer>Farm Mini • Minigame Tổng Hợp • Nông Trại Nhỏ</footer>
+      <div style="height:10px"></div>
+      <div class="panel controls">
+        <h2>Đơn hàng Khách hàng 🚚</h2>
+        <div class="muted-2" style="margin-bottom:10px">Hoàn thành đơn hàng để nhận tiền (Reset: <span id="timeToOrderReset"></span>)</div>
+        <div id="orderList" class="quest-list"></div>
+      </div>
     </div>
+    <!-- KẾT THÚC KHU TRỒNG CÂY -->
 
-        <div class="right">
-          
-    <div class="panel controls">
+    <!-- ======================================================== -->
+    <!-- 2. KHU CHĂN NUÔI (SÁT NGAY DƯỚI NÚT CHUYỂN) -->
+    <!-- ======================================================== -->
+    <div id="ranchContainer" style="display:none;">
+      <div class="panel">
+        <div style="margin-bottom: 6px;">
+          <h2 style="margin:0; color:#b45309;">Khu Chuồng Trại Gia Súc 🏡🐄</h2>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom: 8px;">
+          <span class="muted-2" style="font-size:12px; font-weight:700;">Danh hiệu Trại:</span>
+          <div id="ranchEquippedBadge" class="active-title-badge title-style-default" style="border-color:#f59e0b; color:#b45309; background:#fffbeb;">
+            <span>🤠</span> <span>Chủ Trang Trại</span>
+          </div>
+        </div>
+
+        <div class="muted-2" style="margin-bottom:10px">
+          Gia súc nuôi trong chuồng <strong>tồn tại vĩnh viễn</strong> và tự động sản xuất theo vòng lặp liên tục!
+        </div>
+
+        <div id="ranchBarns" class="farm-grid"></div>
+
+        <div style="display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;">
+            <button class="btn" id="btnExpandBarns" style="background:linear-gradient(180deg,#f59e0b,#b45309);">Mở rộng chuồng (+2) — 250₵</button>
+            <button class="btn secondary" id="btnCollectAllFood">Thu hoạch tất cả thực phẩm</button>
+            <button class="btn" id="btnGoToRanchOrders" style="background:linear-gradient(180deg,#d97706,#92400e);">🥛 Kho & Đơn Trại ⬇</button>
+            <button class="btn" id="btnScrollToAnimals" style="margin-left:auto; background:linear-gradient(180deg,#e65100,#bf360c);">🐄 Chọn Giống ⬇</button>
+          </div>
+      </div>
+
+      <!-- 1. THÔNG TIN CHUỒNG NUÔI -->
+      <div style="height:12px"></div>
+      <div class="panel">
+        <h2>Thông tin Chuồng Nuôi 💬</h2>
+        <div id="barnInfo" class="muted">Chọn một ô chuồng để quản lý gia súc.</div>
+      </div>
+
+      <!-- 2. KHUNG HOẠT ĐỘNG CHĂN NUÔI -->
+      <div style="height:12px"></div>
+      <div class="panel" id="ranchLogPanel">
+        <h2>Hoạt động Chăn nuôi 📝</h2>
+        <div class="log" id="logRanch"></div>
+      </div>
+
+      <!-- 3. BẢNG DANH HIỆU CHĂN NUÔI -->
+        <div style="height:10px"></div>
+        <div class="panel controls" id="ranchAchievementsPanel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h2 style="margin:0; color:#b45309;">Bảng Vinh Danh Chủ Trại 🤠🎖️</h2>
+            <span id="ranchBadgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+          </div>
+          <div id="ranchBadgeList" class="badge-grid"></div>
+        </div>
+
+      <!-- 4. NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI (NHẬN THỨC ĂN) -->
+      <div style="height:10px"></div>
+      <div class="panel" id="ranchQuestPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 style="margin:0; color:#b45309;">Nhiệm Vụ Trại Hàng Ngày 🌾</h2>
+          <span class="muted-2" style="font-size:12px;">Reset: <span id="timeToRanchQuestReset"></span></span>
+        </div>
+        <div class="muted-2" style="margin:6px 0 10px 0;">Thu hoạch thực phẩm và giao đơn buôn để tích trữ Thức Ăn chăn nuôi!</div>
+        <div id="dailyRanchQuestsList" class="quest-list" style="max-height:260px; overflow-y:auto; padding-right:4px;"></div>
+      </div>
+
+      <!-- 5. KHO THỰC PHẨM -->
+        <div style="height:10px"></div>
+        <div class="panel controls" id="ranchInventorySection">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="margin:0;">Kho Thực Phẩm Gia Súc 🥛🥩</h2>
+            <button class="btn" id="btnBackToBarnsTop" style="background: linear-gradient(180deg, #f59e0b, #b45309); font-size: 12px; padding: 5px 12px; box-shadow: 0 2px 6px rgba(180, 83, 9, 0.25); border: none; color: #fff;">
+  🏡 Lên Chuồng ⬆
+</button>
+          </div>
+          <div class="muted-2" style="margin:6px 0 8px 0;">Trứng, sữa, thịt, lông đã thu hoạch:</div>
+          <div id="foodInventoryList" class="seed-list" style="max-height:220px; overflow-y:auto;"></div>
+        </div>
+
+      <!-- 6. ĐƠN HÀNG THỰC PHẨM -->
+      <div style="height:10px"></div>
+      <div class="panel controls">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 style="margin:0;">10 Đơn Giao Thực Phẩm Lớn Mỗi Ngày 🚚🥩</h2>
+          <span class="muted-2" style="font-size:12px;">Reset: <span id="timeToFoodOrdersReset"></span></span>
+        </div>
+        <div id="foodOrderList" class="quest-list" style="margin-top:10px;"></div>
+      </div>
+    </div>
+    <!-- KẾT THÚC KHU CHĂN NUÔI -->
+
+    <footer>Farm Mini • Minigame Tổng Hợp • Nông Trại Nhỏ</footer>
+  </div>
+  <!-- ================= KẾT THÚC CỘT TRÁI ================= -->
+
+  <!-- ================= CỘT PHẢI (RIGHT - 360px) ================= -->
+  <div class="right">
+    <!-- 1. SIDEBAR TRỒNG CÂY -->
+    <div id="farmRightSidebar">
+      <div class="panel controls">
         <h2>Bảng Công thức Phối giống 🧪</h2>
-        <div id="recipeTable" style="max-height: 250px; overflow-y: auto;">
-                    </div>
-    </div>
-    <div style="height:10px"></div>
-          
-        <div class="panel controls" id="seedsPanel">
+        <div id="recipeTable" style="max-height: 250px; overflow-y: auto;"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="panel controls" id="seedsPanel">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <h2 style="margin:0">Hạt giống 🌱</h2>
-          <!-- NÚT CHUYỂN NGƯỢC LÊN ĐẤT TRỒNG -->
           <button class="btn" id="btnGoToFarm" style="background:linear-gradient(180deg,#7cc576,#4b9a3a);font-size:12px;padding:6px 10px;">🚜 Lên Đất Trồng ⬆</button>
         </div>
-        <div class="seed-list" id="seedList">
-        </div>
+        <div class="seed-list" id="seedList"></div>
           
         <div style="height:10px"></div>
-
         <div>
-            <h2>Cửa hàng hạt giống 🏪🌱</h2>
-            <div class="muted" style="margin-bottom:10px;">Mua hạt giống cấp cao để kiếm lợi nhuận lớn hơn!</div>
-            <div id="shopList" class="seed-list">
-                    </div>
+          <h2>Cửa hàng hạt giống 🏪🌱</h2>
+          <div class="muted" style="margin-bottom:10px;">Mua hạt giống cấp cao để kiếm lợi nhuận lớn hơn!</div>
+          <div id="shopList" class="seed-list"></div>
         </div>
-        
-    </div>
-    <div style="height:10px"></div> 
+      </div>
 
-    <div class="panel controls">
+      <div style="height:10px"></div> 
+      <div class="panel controls">
         <h2>Cửa hàng Đặc biệt ✨</h2>
         <div class="muted" style="margin-bottom:10px;">Đổi vật phẩm đặc biệt tại đây.</div>
-        <div id="specialShopList" class="seed-list">                   </div>
-    </div>
-    
-</div>
+        <div id="specialShopList" class="seed-list"></div>
       </div>
+    </div>
+
+    <!-- 2. SIDEBAR CHĂN NUÔI (NẰM TRONG .right) -->
+    <div id="ranchRightSidebar" style="display:none;">
+      <div class="panel controls" id="animalControlPanel">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <h2 style="margin:0; color:#b45309;">Con Giống Đã Sở Hữu 🐾</h2>
+          <button class="btn" id="btnGoToBarnsTop" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:12px; padding:6px 10px;">🏡 Lên Chuồng ⬆</button>
+        </div>
+        <div class="seed-list" id="selectedAnimalDisplay"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="panel controls">
+        <h2 style="color:#b45309;">Cửa Hàng Con Giống 🐄🐑</h2>
+        <div class="muted" style="margin-bottom:10px;">Mở khóa các giống gia súc cao cấp:</div>
+        <div id="animalShopList" class="seed-list"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="panel controls">
+        <h2 style="color:#b45309;">Tiệm Thức Ăn Chăn Nuôi 🌾</h2>
+        <div class="muted" style="margin-bottom:10px;">Bổ sung thức ăn duy trì 100% tốc độ:</div>
+        <div id="specialRanchShopList" class="seed-list"></div>
+      </div>
+    </div>
+  </div>
+  <!-- ================= KẾT THÚC CỘT PHẢI ================= -->
 </div>
+
     
 <!-- POPUP GOM PHỐI GIỐNG NHANH 2 BƯỚC -->
 <div id="quickFusionModal" class="farm-modal-overlay">
@@ -1163,10 +1417,15 @@ body:not(.logged-out) .app {
 
     <div style="display: flex; flex-direction: column; gap: 10px;">
       <button class="btn" id="openGuideFromMenuBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        📖 Sổ Tay Hướng Dẫn
+        📖 Sổ Tay Nông Dân (Trồng Cây)
       </button>
 
-      <!-- NÚT GÓP Ý & ĐÁNH GIÁ (Đồng bộ font-size và padding) -->
+      <!-- NÚT MỚI: SỔ TAY CHUỒNG TRẠI CHĂN NUÔI -->
+      <button class="btn" id="openRanchGuideFromMenuBtn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(180deg, #f59e0b, #b45309);">
+        🤠 Sổ Tay Chuồng Trại (Chăn Nuôi)
+      </button>
+
+      <!-- NÚT GÓP Ý & ĐÁNH GIÁ -->
       <a href="https://forms.gle/BMTK3L1ThM4wnixt6" target="_blank" rel="noopener noreferrer" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; text-decoration: none; font-size: 13px; padding: 9px 12px; background: linear-gradient(180deg, #ff9800, #e65100);">
         ⭐ Góp Ý & Đánh Giá Game
       </a>
@@ -1253,6 +1512,64 @@ body:not(.logged-out) .app {
 
     <div class="farm-modal-actions" style="margin-top: 14px;">
       <button class="btn" id="closeSettingsBtn" style="width: 100%;">Đã hiểu, tiếp tục làm nông!</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP SỔ TAY CHUỒNG TRẠI CHĂN NUÔI -->
+<div id="ranchSettingsModal" class="farm-modal-overlay">
+  <div class="farm-modal-box settings-modal-box" style="border-color: #b45309;">
+    <div class="settings-modal-header" style="border-bottom-color: #f59e0b;">
+      <div class="farm-modal-icon">🤠</div>
+      <h3 style="color: #b45309;">Sổ Tay Chuồng Trại</h3>
+      <div class="muted-2">Cẩm nang hướng dẫn chăn nuôi & giao thương thực phẩm</div>
+    </div>
+
+    <div class="settings-modal-content">
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🐾 1. Con Giống & Chuồng Nuôi Vĩnh Viễn</h4>
+        <p>• Gia súc sau khi mua thả vào chuồng sẽ <strong>sống vĩnh viễn</strong> và liên tục tự động sản xuất theo vòng lặp!</p>
+        <p>• Ban đầu bạn sở hữu sẵn 2 giống cơ bản: <strong>🐔 Gà đẻ trứng</strong> và <strong>🦆 Vịt cỏ</strong>.</p>
+        <p>• Chọn giống muốn thả ở danh sách <em>Con Giống Đã Sở Hữu</em>, sau đó nhấp vào một ô chuồng trống để thả nuôi.</p>
+        <p>• Sử dụng nút <strong>Mở rộng chuồng (+2)</strong> để có thêm nhiều chuồng nuôi hơn (tối đa không giới hạn, chuồng có thanh cuộn gọn gàng).</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🌾 2. Thức Ăn Chăn Nuôi (Duy Trì Tốc Độ)</h4>
+        <p>• Mỗi con gia súc tiêu thụ <strong>1kg thức ăn/phút</strong> trong quá trình sản xuất.</p>
+        <p>• Nếu <strong>hết thức ăn (0kg)</strong>, gia súc vẫn sản xuất bình thường nhưng <strong>thời gian chu kỳ bị chậm 50%</strong>!</p>
+        <p>• Bổ sung thức ăn miễn phí bằng cách làm <em>Nhiệm Vụ Trại Hàng Ngày 🌾</em> hoặc mua tại <em>Tiệm Thức Ăn Chăn Nuôi</em> (các gói 50kg, 500kg, 1000kg).</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🥚 3. Thu Hoạch & Kho Thực Phẩm Gia Súc</h4>
+        <p>• Khi chu kỳ hoàn tất (có dấu ✓), nhấp vào chuồng để thu hoạch hoặc bấm nút <strong>Thu hoạch tất cả thực phẩm</strong>.</p>
+        <p>• Toàn bộ trứng, sữa bò, sữa dê, lông cừu, thịt xông khói... sẽ chuyển vào <strong>Kho Thực Phẩm Gia Súc 🥛🥩</strong>.</p>
+        <p>• Bạn có thể bấm <strong>Bán hết</strong> từng món trong kho để thu tiền tươi ngay lập tức.</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🚚 4. 10 Đơn Giao Thực Phẩm Lớn Mỗi Ngày</h4>
+        <p>• Mỗi ngày lúc <strong>00:00 nửa đêm</strong>, hệ thống tự động làm mới 10 đơn đặt hàng buôn với số lượng lớn.</p>
+        <p>• Tích lũy đủ thực phẩm yêu cầu trong kho và bấm <strong>Giao buôn</strong> để nhận về lượng xu thưởng cực khủng (cao hơn nhiều so với bán lẻ trực tiếp).</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🏪 5. Mở Khóa Con Giống Cao Cấp</h4>
+        <p>• Ghé <em>Cửa Hàng Con Giống 🐄🐑</em> để mở khóa thêm các loài thú quý: Cừu lấy lông, Bò sữa Hà Lan, Ong chúa, Bò Bison, Thiên nga tuyết cho đến <strong>Long Thú 🐉 (Divine)</strong>!</p>
+        <p>• Giống càng quý hiếm, sản phẩm làm ra càng có giá trị kinh tế cao vượt trội.</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🎖️ 6. Bảng Vinh Danh Chủ Trại</h4>
+        <p>• Chinh phục 10 mốc thành tựu chăn nuôi để mở khóa danh hiệu.</p>
+        <p>• Bấm <strong>⚡ Đeo Danh Hiệu</strong> để trưng bày danh hiệu lên huy hiệu đầu trang trại.</p>
+        <p>• Nhấp trực tiếp vào huy hiệu <em>Danh hiệu Trại</em> ở trên cùng để lướt nhanh xuống bảng thành tựu bất kỳ lúc nào!</p>
+      </div>
+    </div>
+
+    <div class="farm-modal-actions" style="margin-top: 14px;">
+      <button class="btn" id="closeRanchSettingsBtn" style="width: 100%; background: linear-gradient(180deg, #f59e0b, #b45309);">Đã hiểu, quay lại chăm sóc đàn gia súc!</button>
     </div>
   </div>
 </div>
@@ -1656,6 +1973,7 @@ const ORDER_LEVEL_RATES = {
     'Rare': 0.07,
     'Legendary': 0.03
 };
+
   
 // UI DOM References
 const farmEl = document.getElementById('farm');
@@ -1794,26 +2112,27 @@ function updateWater() {
     const elapsedMins = clampedElapsedMs / 60000;
     
     // Số lượng ô đang trồng
-    const plantedTilesCount = state.tiles.filter(t => t.planted).length;
+    const plantedTilesCount = (state.tiles || []).filter(t => t.planted).length;
     
     // Mức tiêu thụ nước (Lít)
-    // (Số ô đang trồng * Tỷ lệ tiêu thụ * Số phút trôi qua)
     const waterConsumption = plantedTilesCount * WATER_COST_RATE_PER_MIN * elapsedMins;
     
     if (waterConsumption > 0) {
-        // Trừ nước
         state.water = Math.max(0, state.water - waterConsumption);
     }
     
     // Cập nhật thời điểm lần cuối xử lý nước
     state.lastWaterUpdate = now;
-    renderWater();
     
-    // Nếu có tiles, render lại farm để cập nhật thanh tiến trình (nếu cần)
-    if (plantedTilesCount > 0) {
-        renderFarm(false);
+    // CHỈ VẼ LẠI GIAO DIỆN NƯỚC KHI ĐANG Ở TAB TRỒNG CÂY (TRÁNH LAG VÀ ĐÈ ICON BÊN GIA SÚC)
+    if (typeof activeTab === 'undefined' || activeTab === 'farm') {
+        renderWater();
+        if (plantedTilesCount > 0) {
+            renderFarm(false);
+        }
     }
 }
+
 function createEmptyTiles(rows, cols){
   const arr = [];
   for(let r=0;r<rows;r++){
@@ -1830,7 +2149,7 @@ function createEmptyTiles(rows, cols){
   return arr;
 }
 function findTile(id){ return state.tiles.find(t=>t.id===id); }
-function formatCoins(n){ return n + '₵'; }
+function formatCoins(n){ return Number(n || 0).toLocaleString('vi-VN') + '₵'; }
 // Thêm sau formatCoins(n)
 function formatWater(n){ return n + 'L'; }
 function getRandomTileId(tileIds) {
@@ -1840,11 +2159,28 @@ function getRandomTileId(tileIds) {
 function getOldCoinsKey() { return 'farmmini_old_coins_temp'; }
 // --- LOGIC FUNCTIONS (LOAD/SAVE/AUTH) ---
 
-function log(msg){
+// 1. TÁCH BIỆT LOG THEO TỪNG KHU VỰC
+function log(msg, type = 'farm') {
+  const timeStr = (new Date()).toLocaleTimeString();
   const p = document.createElement('div');
-  p.textContent = `${(new Date()).toLocaleTimeString()} — ${msg}`;
-  logEl.prepend(p);
+  p.textContent = `${timeStr} — ${msg}`;
+
+  if (type === 'ranch') {
+    // Chỉ ghi vào bảng Chăn nuôi
+    const logRanchEl = document.getElementById('logRanch');
+    if (logRanchEl) logRanchEl.prepend(p);
+  } else {
+    // Chỉ ghi vào bảng Trồng cây
+    const logFarmEl = document.getElementById('logFarm') || document.getElementById('log');
+    if (logFarmEl) logFarmEl.prepend(p);
+  }
 }
+
+// Hàm ghi riêng cho bên gia súc để gọi cho tiện
+function logRanch(msg) {
+  log(msg, 'ranch');
+}
+
 
 function save(){
   if (!currentUser || !currentStorageKey) return; // Chỉ lưu nếu đã đăng nhập
@@ -1872,7 +2208,23 @@ function save(){
     unlockedTitles: state.unlockedTitles,
     equippedTitle: state.equippedTitle,
     statsMigrated: state.statsMigrated, // <-- Cờ đánh dấu đã bù dữ liệu cũ hay chưa
-    lastWaterUpdate: state.lastWaterUpdate
+    lastWaterUpdate: state.lastWaterUpdate,
+
+    // 🐄 LƯU DỮ LIỆU KHU CHĂN NUÔI GIA SÚC:
+    barns: state.barns,
+    feed: state.feed,
+    selectedAnimal: state.selectedAnimal,
+    unlockedAnimals: state.unlockedAnimals,
+    foodInventory: state.foodInventory,
+    activeFoodOrders: state.activeFoodOrders,
+    lastFoodOrderReset: state.lastFoodOrderReset,
+    ranchEquippedTitle: state.ranchEquippedTitle,
+    unlockedRanchTitles: state.unlockedRanchTitles,
+    ranchStats: state.ranchStats,
+
+    // 🌾 LƯU DỮ LIỆU NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI:
+    dailyRanchQuests: state.dailyRanchQuests,
+    lastRanchQuestReset: state.lastRanchQuestReset
   }));
 }
 
@@ -1884,7 +2236,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (Đã bao gồm farmName, farmIcon, equippedTitle, stats...)
+    // 💡 Tái tạo initialState an toàn (Đã bao gồm đầy đủ dữ liệu Nông trại & Khu chăn nuôi)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -1904,8 +2256,8 @@ function load(){
         farmName: 'Trang trại của bạn',
         farmIcon: '🚜',
         // 🎖️ KHỞI TẠO MẶC ĐỊNH CHO TÀI KHOẢN MỚI:
-        equippedTitle: null, // Mặc định chưa đeo danh hiệu nào (là Nông Dân)
-        statsMigrated: false, // Mặc định chưa bù dữ liệu
+        equippedTitle: null,
+        statsMigrated: false,
         stats: {
             plantedCount: 0,
             harvestedCount: 0,
@@ -1917,6 +2269,31 @@ function load(){
             totalCoinsEarned: 0
         },
         unlockedTitles: [],
+
+        // 🐄 KHỞI TẠO MẶC ĐỊNH CHO KHU CHĂN NUÔI:
+        barns: [],
+        feed: 50,
+        selectedAnimal: 'chicken',
+        unlockedAnimals: ['chicken', 'duck'],
+        foodInventory: {},
+        activeFoodOrders: [],
+        lastFoodOrderReset: 0,
+        ranchEquippedTitle: null,
+        unlockedRanchTitles: [],
+        ranchStats: {
+            eggsCollected: 0,
+            milkCollected: 0,
+            woolCollected: 0,
+            feedUsed: 0,
+            foodOrdersCompleted: 0,
+            foodSoldDirectly: 0,
+            ranchCoinsEarned: 0
+        },
+
+        // 🌾 KHỞI TẠO MẶC ĐỊNH CHO NHIỆM VỤ CHĂN NUÔI:
+        dailyRanchQuests: [],
+        lastRanchQuestReset: 0,
+
         seeds: state.seeds,
         specialShopItems: state.specialShopItems
     }));
@@ -1939,11 +2316,11 @@ function load(){
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
-                // 🏡 KHÔI PHỤC TÊN & BIỂU TƯỢNG TRANG TRẠI (nếu acc cũ chưa có sẽ lấy mặc định):
+                // 🏡 KHÔI PHỤC TÊN & BIỂU TƯỢNG TRANG TRẠI:
                 state.farmName = parsed.farmName || 'Trang trại của bạn';
                 state.farmIcon = parsed.farmIcon || '🚜';
 
-                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU, CHỈ SỐ & CỜ MIGRATION:
+                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU & CHỈ SỐ NÔNG TRẠI:
                 state.stats = Object.assign({
                     plantedCount: 0,
                     harvestedCount: 0,
@@ -1956,8 +2333,40 @@ function load(){
                 }, parsed.stats || {});
                 state.unlockedTitles = Array.isArray(parsed.unlockedTitles) ? parsed.unlockedTitles : [];
                 state.equippedTitle = parsed.equippedTitle !== undefined ? parsed.equippedTitle : null;
-                // Nếu là acc cũ chưa từng có trường statsMigrated thì giữ false để hàm checkTitles bù công sức
                 state.statsMigrated = parsed.statsMigrated || false;
+
+                // 🐄 PHỤC HỒI DỮ LIỆU KHU CHĂN NUÔI:
+                state.feed = parsed.feed !== undefined ? parsed.feed : 50;
+                state.selectedAnimal = parsed.selectedAnimal || 'chicken';
+                state.unlockedAnimals = Array.isArray(parsed.unlockedAnimals) ? parsed.unlockedAnimals : ['chicken', 'duck'];
+                state.foodInventory = parsed.foodInventory || {};
+                state.activeFoodOrders = Array.isArray(parsed.activeFoodOrders) ? parsed.activeFoodOrders : [];
+                state.lastFoodOrderReset = parsed.lastFoodOrderReset || 0;
+                state.ranchEquippedTitle = parsed.ranchEquippedTitle !== undefined ? parsed.ranchEquippedTitle : null;
+                state.unlockedRanchTitles = Array.isArray(parsed.unlockedRanchTitles) ? parsed.unlockedRanchTitles : [];
+                state.ranchStats = Object.assign({
+                    eggsCollected: 0,
+                    milkCollected: 0,
+                    woolCollected: 0,
+                    feedUsed: 0,
+                    foodOrdersCompleted: 0,
+                    foodSoldDirectly: 0,
+                    ranchCoinsEarned: 0
+                }, parsed.ranchStats || {});
+
+                // 🌾 PHỤC HỒI DỮ LIỆU NHIỆM VỤ CHĂN NUÔI:
+                state.dailyRanchQuests = Array.isArray(parsed.dailyRanchQuests) ? parsed.dailyRanchQuests : [];
+                state.lastRanchQuestReset = parsed.lastRanchQuestReset || 0;
+
+                // Khôi phục chuồng (nếu acc cũ chưa có chuồng thì tạo 6 ô trống)
+                if (Array.isArray(parsed.barns) && parsed.barns.length > 0) {
+                    state.barns = parsed.barns;
+                } else {
+                    state.barns = [];
+                    for (let i = 0; i < 6; i++) {
+                        state.barns.push({ id:`barn-${i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+                    }
+                }
                 
                 state.selectedSeed = 'carrot'; 
                 
@@ -1967,12 +2376,21 @@ function load(){
         } catch(e){
             console.warn(`Could not load state for ${currentUser}, creating new.`);
             state = initialState;
+            // Tạo chuồng cho tài khoản hỏng/lỗi
+            state.barns = [];
+            for (let i = 0; i < 6; i++) {
+                state.barns.push({ id:`barn-${i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+            }
             isNewAccount = true; 
             save();
         }
     } else {
-        // Tên đăng nhập chưa có trong localStorage -> Tạo tài khoản mới
+        // Tên đăng nhập chưa có -> Tạo mới hoàn toàn
         state = initialState;
+        state.barns = [];
+        for (let i = 0; i < 6; i++) {
+            state.barns.push({ id:`barn-${i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+        }
         isNewAccount = true; 
         save();
     }
@@ -1988,7 +2406,7 @@ function load(){
         localStorage.removeItem(getOldCoinsKey());
     }
 
-    // Tự động cấp instanceId cho các đơn hàng cũ chưa có mã riêng
+    // Tự động cấp instanceId cho đơn hàng cũ chưa có mã riêng
     if (state.activeOrders && Array.isArray(state.activeOrders)) {
         state.activeOrders.forEach((o, idx) => {
             if (!o.instanceId) {
@@ -2000,6 +2418,11 @@ function load(){
     getTodayOrders(); 
     getTodayQuests();
     
+    // 🌾 LẤY & KHỞI TẠO NHIỆM VỤ CHĂN NUÔI HÔM NAY (NẾU ĐÃ SANG NGÀY MỚI)
+    if (typeof getTodayRanchQuests === 'function') {
+        getTodayRanchQuests();
+    }
+
     // Trừ nước theo thời gian AFK
     updateWater();
 
@@ -2021,12 +2444,22 @@ function load(){
     renderInventory();
     renderOrders();
     renderFusionChallenges();
-    renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu
-    renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
+    renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu nông trại
+    renderEquippedTitle(); // 🎖️ Render huy hiệu nông trại đang đeo
     renderFusionPanel();
     updateLoginStatusUI();
 
-    // 🏆 ĐỒNG BỘ CÁC THỬ THÁCH ĐÃ HOÀN THÀNH TỪ TRƯỚC ĐỂ TRÁNH BỊ SPAM THÔNG BÁO KHI LOAD GAME
+    // 🐄 RENDER DỮ LIỆU KHU CHĂN NUÔI NẾU HÀM TỒN TẠI
+    if (typeof renderBarns === 'function') renderBarns();
+    if (typeof renderRanchQuests === 'function') renderRanchQuests(); // 🌾 Render danh sách nhiệm vụ chăn nuôi
+    if (typeof renderAnimalShop === 'function') renderAnimalShop();
+    if (typeof renderSelectedAnimalDisplay === 'function') renderSelectedAnimalDisplay();
+    if (typeof renderFoodInventory === 'function') renderFoodInventory();
+    if (typeof renderFoodOrders === 'function') renderFoodOrders();
+    if (typeof renderRanchTitles === 'function') renderRanchTitles();
+    if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
+
+    // 🏆 ĐỒNG BỘ CÁC THỬ THÁCH ĐÃ HOÀN THÀNH TỪ TRƯỚC
     if (typeof FUSION_CHALLENGES !== 'undefined') {
         notifiedChallenges = new Set(
             FUSION_CHALLENGES.filter(c => c.check().isComplete).map(c => c.id)
@@ -2034,17 +2467,15 @@ function load(){
     }
     
     if (isNewAccount) {
-        // Tài khoản tạo mới toanh: Đặt luôn cờ = true để bắt đầu cày từ 0, KHÔNG bù tự động
         state.statsMigrated = true;
         save();
         log(`Chào mừng ${currentUser}! Đã tạo tài khoản mới.`);
     } else {
-        // Tài khoản cũ: Chạy kiểm tra & bù dữ liệu cũ 1 lần duy nhất khi đăng nhập
         checkTitles(true);
-        log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
+        if (typeof checkRanchTitles === 'function') checkRanchTitles();
+        log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
 }
-
 
 function login(username){
   if (username && username.trim().length >= 3){
@@ -2070,21 +2501,22 @@ function updateLoginStatusUI(){
   if(currentUser){
     loginStatusBtn.textContent = `🧑‍🌾 ${currentUser}`;
     loginStatusBtn.title = 'Mở Menu Quản Lý';
-    // Cập nhật Coin và Water
-    coinsEl.textContent = '💰 ' + state.coins;
-    waterAmountEl.textContent = '💧 ' + formatWater(Math.floor(state.water)); // NEW
-    waterAmountEl.title = `Nước: ${Math.floor(state.water)}L. Tiêu thụ: ${WATER_COST_RATE_PER_MIN}L/ô/phút.`;
+    coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
     
+    // Chỉ cập nhật hiển thị nước nếu đang ở tab farm
+    if (typeof activeTab === 'undefined' || activeTab === 'farm') {
+      waterAmountEl.textContent = '💧 ' + formatWater(Math.floor(state.water));
+      waterAmountEl.title = `Nước: ${Math.floor(state.water)}L. Tiêu thụ: ${WATER_COST_RATE_PER_MIN}L/ô/phút.`;
+    }
   } else {
-    // ...
     coinsEl.textContent = '💰 ???';
-    waterAmountEl.textContent = '💧 ???'; // NEW
+    waterAmountEl.textContent = '💧 ???';
     farmEl.innerHTML = '<div class="muted" style="text-align:center; padding: 20px;">Vui lòng đăng nhập để xem trang trại.</div>';
-    // ...
-    dailyQuestsListEl.innerHTML = '<div class="muted">Đăng nhập để xem nhiệm vụ.</div>'; // NEW
+    dailyQuestsListEl.innerHTML = '<div class="muted">Đăng nhập để xem nhiệm vụ.</div>';
     timeToResetEl.textContent = '???';
   }
 }
+
 
 
 // --- RENDERING FUNCTIONS ---
@@ -2094,10 +2526,8 @@ function renderSeeds(){
 
   seedListEl.innerHTML = '';
   
-  // Lọc chỉ những hạt giống đã được mở khóa
   const availableSeeds = Object.values(state.seeds).filter(s => state.unlockedSeeds.includes(s.id));
   
-  // Phân loại hạt giống theo cấp độ
   const categorizedSeeds = {
     'Common': [],
     'Uncommon': [],
@@ -2137,16 +2567,19 @@ function renderSeeds(){
         div.dataset.seed = s.id;
         div.dataset.level = s.level; 
         
+        // Định dạng giá trồng và giá bán
+        const costStr = Number(s.cost).toLocaleString('vi-VN');
+        const valStr = Number(s.value).toLocaleString('vi-VN');
+
         div.innerHTML = `<div class="emoji">${s.emoji}</div>
           <div class="meta">
             <div style="font-weight:700">${s.name} <span class="muted">(${s.time}s)</span></div>
-            <div class="muted">Giá: ${s.cost} • Bán: ${s.value}</div>
+            <div class="muted">Giá: ${costStr} • Bán: ${valStr}</div>
           </div>`;
         
         div.onclick = ()=>{ 
           if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
 
-          // 🎵 PHÁT ÂM THANH CHỌN HẠT GIỐNG
           if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
             SoundEngine.selectSeed();
           }
@@ -2273,7 +2706,7 @@ function renderFarm(logIfSlow = true){
     el.onclick = ()=> onTileClick(tile.id);
     farmEl.appendChild(el);
   });
-  coinsEl.textContent = '💰 ' + state.coins;
+  coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
 }
 
 function renderTileInfo(id){
@@ -2333,7 +2766,6 @@ function renderShop(){
 
   shopListEl.innerHTML = '';
 
-  // Lọc ra hạt giống cần bán trong Cửa hàng: PHẢI là Uncommon/Rare VÀ KHÔNG phải là Fusion Seed
   const shopSeeds = Object.values(state.seeds).filter(s => s.level !== 'Common' && !s.fusion);
   
   const levelMap = {
@@ -2341,7 +2773,6 @@ function renderShop(){
     'Rare': '💎 Hiếm'
   };
   
-  // Phân loại theo cấp độ
   const categorizedShop = {
     'Uncommon': shopSeeds.filter(s => s.level === 'Uncommon'),
     'Rare': shopSeeds.filter(s => s.level === 'Rare')
@@ -2350,7 +2781,6 @@ function renderShop(){
   for (const level in categorizedShop) {
     const seeds = categorizedShop[level];
     if (seeds.length > 0) {
-      // Thêm tiêu đề cấp độ
       const header = document.createElement('h3');
       header.style.fontSize = '14px';
       header.style.margin = '10px 0 5px 0';
@@ -2364,15 +2794,20 @@ function renderShop(){
         shopItem.className = 'row' + ' seed'; 
         shopItem.dataset.level = s.level;
 
+        // Định dạng các giá tiền hiển thị
+        const costStr = Number(s.cost).toLocaleString('vi-VN');
+        const valStr = Number(s.value).toLocaleString('vi-VN');
+        const priceStr = Number(s.shopPrice).toLocaleString('vi-VN');
+
         shopItem.innerHTML = `
           <div class="emoji">${s.emoji}</div>
           <div class="meta" style="flex:1">
             <div style="font-weight:700">${s.name} ${isUnlocked ? ' (Đã mở khóa)' : ''}</div>
-            <div class="muted">Giá trồng: ${s.cost}₵ | Lợi nhuận: ${s.value}₵</div>
+            <div class="muted">Giá trồng: ${costStr}₵ | Lợi nhuận: ${valStr}₵</div>
           </div>
           ${isUnlocked 
             ? `<button class="btn secondary" disabled>Đã sở hữu</button>` 
-            : `<button class="btn" onclick="buySeeds('${s.id}')">Mua ${s.shopPrice}₵</button>`
+            : `<button class="btn" onclick="buySeeds('${s.id}')">Mua ${priceStr}₵</button>`
           }
         `;
         shopListEl.appendChild(shopItem);
@@ -2390,27 +2825,25 @@ function renderSpecialShop(){
     const item = state.specialShopItems[itemId];
 
     const shopItem = document.createElement('div');
-    shopItem.className = 'row seed'; // Sử dụng lại style seed
+    shopItem.className = 'row seed';
     
-    // Đặt màu viền dựa trên loại vật phẩm
     let borderColor = '';
     let emoji = '';
     let itemDetail = '';
     let clickAction = '';
     
     if (item.type === 'coin') {
-        borderColor = '#f1c232'; // Vàng cho Coin
+        borderColor = '#f1c232';
         emoji = '💸';
-        itemDetail = `Nhận ngay: ${item.value}₵`;
+        itemDetail = `Nhận ngay: ${Number(item.value).toLocaleString('vi-VN')}₵`;
         clickAction = `buySpecialItem('${itemId}')`;
     } else if (item.type === 'water') {
-        borderColor = '#4a86e8'; // Xanh dương cho Water (NEW)
+        borderColor = '#4a86e8';
         emoji = '💦';
-        itemDetail = `Nhận ngay: ${item.value}L Nước`;
-        // HÀNH ĐỘNG MỚI: Gọi hàm buyWater(amount, cost)
+        itemDetail = `Nhận ngay: ${Number(item.value).toLocaleString('vi-VN')}L Nước`;
         clickAction = `buyWater(${item.value}, ${item.cost})`;
     } else if (item.type === 'ssm') {
-        borderColor = '#674ea7'; // Tím cho SSM
+        borderColor = '#674ea7';
         emoji = '✨';
         itemDetail = `Vật phẩm: ${item.value} SSM`;
         clickAction = `buySpecialItem('${itemId}')`;
@@ -2424,7 +2857,7 @@ function renderSpecialShop(){
         <div style="font-weight:700">${item.name}</div>
         <div class="muted">${itemDetail}</div>
       </div>
-      <button class="btn" onclick="${clickAction}">Mua ${item.cost}₵</button>
+      <button class="btn" onclick="${clickAction}">Mua ${Number(item.cost).toLocaleString('vi-VN')}₵</button>
     `;
     specialShopListEl.appendChild(shopItem);
   }
@@ -2545,21 +2978,19 @@ function renderFusionPanel(){
     if (match) {
         const resultSeed = match.resultSeed;
         const recipeGroup = fusionRecipes[match.group];
-        const isSpecialLevel = match.group === 'Mythic' || match.group === 'Divine'; // NEW: Bắt cả Divine
+        const isSpecialLevel = match.group === 'Mythic' || match.group === 'Divine';
         
-        let costDisplay = recipeGroup.cost === 0 ? 'Miễn phí' : `${recipeGroup.cost}₵`;
+        let costDisplay = recipeGroup.cost === 0 ? 'Miễn phí' : `${Number(recipeGroup.cost).toLocaleString('vi-VN')}₵`;
         let successDisplay = `${recipeGroup.successRate * 100}% thành công`;
 
         let ingredientsDetails = '';
         
         if (isSpecialLevel) {
-            // Logic cho cả MYTHIC và DIVINE
             ingredientsDetails = match.recipe.ingredients.map(req => {
                 const seed = state.seeds[req.id];
                 return `<strong>x${req.qty} ${seed.name} ${seed.emoji}</strong>`;
             }).join(' + ');
             
-            // NEW: Tính chi phí nước cho cấp độ đặc biệt
             let waterCostText = match.group === 'Divine' ? ' (15L nước)' : ' (10L nước)';
             let buttonText = `Thực hiện Phối Giống ${match.group}`;
 
@@ -2571,7 +3002,6 @@ function renderFusionPanel(){
                 <button class="btn secondary" onclick="selectedFusionTiles = []; renderFusionPanel();" style="margin-left: 8px;">Hủy chọn (${selectedFusionTiles.length} ô)</button>
             `;
         } else {
-            // Logic cũ (Legendary, Rare, Uncommon)
             const seed1 = state.seeds[match.recipe.ingredients[0]];
             const seed2 = state.seeds[match.recipe.ingredients[1]];
             
@@ -2584,7 +3014,6 @@ function renderFusionPanel(){
             `;
         }
     } else {
-        // Không khớp công thức hoặc chưa đủ ô
         let statusText = selectedFusionTiles.length < 2 
             ? `Đã chọn ${selectedFusionTiles.length} ô. Chọn thêm.`
             : `Không tìm thấy công thức phối giống nào khớp với ${selectedFusionTiles.length} ô đã chọn.`;
@@ -2594,7 +3023,7 @@ function renderFusionPanel(){
             <button class="btn secondary" onclick="selectedFusionTiles = []; renderFusionPanel();" style="margin-left: 8px;">Hủy tất cả</button>
         `;
     }
-    // Đảm bảo các ô đang chọn có style
+    
     selectedFusionTiles.forEach(id => {
         const el = document.querySelector(`.tile[data-id="${id}"]`);
         if (el) el.classList.add('selected-fusion');
@@ -2619,19 +3048,14 @@ function renderRecipeTable(){
         else if (nextLevel === 'Mythic') baseLevel = 'Legendary + Rare/Uncommon'; 
         else if (nextLevel === 'Divine') baseLevel = 'Mythic + Legendary'; 
 
-        const cost = recipeGroup.cost ? `${recipeGroup.cost}₵` : 'Miễn phí';
+        // Định dạng chi phí phối giống
+        const cost = recipeGroup.cost ? `${Number(recipeGroup.cost).toLocaleString('vi-VN')}₵` : 'Miễn phí';
         const rate = recipeGroup.successRate * 100;
 
-        // TIÊU ĐỀ CẤP ĐỘ: 
-        // 1. margin-left/right âm (-14px) để bù trừ padding của panel cha.
-        // 2. width: auto; (mặc định) kết hợp với box-sizing: border-box để ngăn tràn ngang.
-        // 3. text-align: left; để căn trái.
-        // 4. padding: 0 14px 5px 14px; để văn bản có lớp đệm an toàn.
         html += `<h3 style="font-size: 14px; margin: 10px -14px 5px -14px; padding: 0 14px 5px 14px; border-bottom: 1px solid #eee; text-align: left; box-sizing: border-box; color:${nextLevel === 'Mythic' ? '#ff00ff' : nextLevel === 'Divine' ? '#990000' : '#1b2a19'}">
                     Phối cây ${baseLevel} (${rate}% - ${cost}) → ${nextLevel}
                 </h3>`;
         
-        // Chi tiết công thức: Xóa padding-left để bám sát lề trái của panel.
         html += `<div style="font-size: 13px;">`; 
         recipeGroup.recipes.forEach(recipe => {
             const resultSeed = state.seeds[recipe.result];
@@ -2655,10 +3079,13 @@ function renderRecipeTable(){
                 ingredientsDisplay = `<strong>${ingredient1.emoji} + ${ingredient2.emoji}</strong>`;
             }
 
-            // Dòng chi tiết công thức: Không có padding-left để bám sát lề trái của panel.
+            // Định dạng giá trồng và giá bán
+            const formattedCost = Number(resultSeed.cost).toLocaleString('vi-VN');
+            const formattedValue = Number(resultSeed.value).toLocaleString('vi-VN');
+
             html += `<div style="padding: 3px 0; color: ${color};">
                         ${status} ${ingredientsDisplay} → ${resultSeed.name} ${resultSeed.emoji} 
-                        (Trồng: ${resultSeed.cost}₵/Bán: ${resultSeed.value}₵)
+                        (Trồng: ${formattedCost}₵/Bán: ${formattedValue}₵)
                     </div>`;
         });
         html += `</div>`;
@@ -2871,16 +3298,15 @@ function buySpecialItem(itemId) {
   if (item.type === 'water') return;
 
   if (state.coins < item.cost) {
-    alert(`Không đủ tiền mua ${item.name}. Cần ${item.cost}₵.`);
+    alert(`Không đủ tiền mua ${item.name}. Cần ${Number(item.cost).toLocaleString('vi-VN')}₵.`);
     return;
   }
 
   showFarmConfirm(
     'Mua Vật Phẩm',
-    `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost}₵</span> chứ?`,
+    `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${Number(item.cost).toLocaleString('vi-VN')}₵</span> chứ?`,
     '💸',
     () => {
-      // 🎵 PHÁT ÂM THANH MUA ĐỒ SHOP ĐẶC BIỆT
       if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
         SoundEngine.specialBuy();
       }
@@ -2889,20 +3315,19 @@ function buySpecialItem(itemId) {
       let logMsg = '';
       if (item.type === 'coin') {
         state.coins += item.value;
-        logMsg = `Đã mua ${item.name}. Nhận thêm +${item.value}₵.`;
+        logMsg = `Đã mua ${item.name}. Nhận thêm +${Number(item.value).toLocaleString('vi-VN')}₵.`;
         
-        // Hiện thông báo nổi trên đầu màn hình
         showTopToast(
           'Nạp Tiền Thành Công', 
-          `Đã cộng <strong style="color:#b35e00;">+${item.value.toLocaleString('vi-VN')}₵</strong> vào số dư ví!`, 
+          `Đã cộng <strong style="color:#b35e00;">+${Number(item.value).toLocaleString('vi-VN')}₵</strong> vào số dư ví!`, 
           '💰'
         );
       } else {
-        logMsg = `Đã mua ${item.name} với giá ${item.cost}₵.`;
+        logMsg = `Đã mua ${item.name} với giá ${Number(item.cost).toLocaleString('vi-VN')}₵.`;
       }
       log(logMsg);
       save();
-      renderFarm();
+      renderFarm(false);
       renderSpecialShop();
     }
   );
@@ -2912,16 +3337,15 @@ function buyWater(amount, cost) {
   if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
 
   if (state.coins < cost) {
-    alert(`Không đủ tiền mua nước. Cần ${cost}₵.`);
+    alert(`Không đủ tiền mua nước. Cần ${Number(cost).toLocaleString('vi-VN')}₵.`);
     return;
   }
 
   showFarmConfirm(
     'Tiếp Thêm Nước 💧',
-    `Bạn có chắc muốn mua <strong>${amount}L Nước</strong> với giá <span style="color:#b35e00;font-weight:bold;">${cost}₵</span> không?`,
+    `Bạn có chắc muốn mua <strong>${Number(amount).toLocaleString('vi-VN')}L Nước</strong> với giá <span style="color:#b35e00;font-weight:bold;">${Number(cost).toLocaleString('vi-VN')}₵</span> không?`,
     '💦',
     () => {
-      // 🎵 PHÁT ÂM THANH MUA NƯỚC SHOP ĐẶC BIỆT
       if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
         SoundEngine.specialBuy();
       }
@@ -2929,10 +3353,9 @@ function buyWater(amount, cost) {
       state.coins -= cost;
       state.water += amount;
       
-      const logMsg = `Đã mua ${amount}L nước với giá ${cost}₵.`;
+      const logMsg = `Đã mua ${amount}L nước với giá ${Number(cost).toLocaleString('vi-VN')}₵.`;
       log(logMsg);
       
-      // Hiện thông báo nổi trên đầu màn hình
       showTopToast(
         'Bổ Sung Nước Thành Công', 
         `Đã cộng <strong style="color:#1976d2;">+${amount}L Nước</strong> vào bồn chứa tưới cây!`, 
@@ -2940,7 +3363,7 @@ function buyWater(amount, cost) {
       );
 
       save();
-      renderFarm();
+      renderFarm(false);
       renderWater();
     }
   );
@@ -2958,9 +3381,11 @@ function buySeeds(seedId) {
     return;
   }
 
+  const formattedPrice = Number(seed.shopPrice).toLocaleString('vi-VN');
+
   if (state.coins < seed.shopPrice) {
-    log(`Không đủ tiền mua hạt ${seed.name}. Cần ${seed.shopPrice}₵.`);
-    alert(`Không đủ tiền mua hạt ${seed.name}. Cần ${seed.shopPrice}₵.`);
+    log(`Không đủ tiền mua hạt ${seed.name}. Cần ${formattedPrice}₵.`);
+    alert(`Không đủ tiền mua hạt ${seed.name}. Cần ${formattedPrice}₵.`);
     return;
   }
 
@@ -3469,15 +3894,19 @@ usernameInput.addEventListener('keypress', function (e) {
       login(usernameInput.value);
   }
 });
-// Quản lý Popup Menu Tài Khoản & Hướng Dẫn
+// Quản lý Popup Menu Tài Khoản, Hướng Dẫn Trồng Cây & Hướng Dẫn Chăn Nuôi
 const userMenuModal = document.getElementById('userMenuModal');
 const userMenuGreeting = document.getElementById('userMenuGreeting');
 const openGuideFromMenuBtn = document.getElementById('openGuideFromMenuBtn');
+const openRanchGuideFromMenuBtn = document.getElementById('openRanchGuideFromMenuBtn'); // Nút mới
 const logoutFromMenuBtn = document.getElementById('logoutFromMenuBtn');
 const closeUserMenuBtn = document.getElementById('closeUserMenuBtn');
 
 const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+
+const ranchSettingsModal = document.getElementById('ranchSettingsModal'); // Modal mới
+const closeRanchSettingsBtn = document.getElementById('closeRanchSettingsBtn');
 
 // Khi bấm vào nút chứa Tên người dùng / Icon Nông Dân
 loginStatusBtn.onclick = () => {
@@ -3494,11 +3923,19 @@ if (closeUserMenuBtn) {
   closeUserMenuBtn.onclick = () => userMenuModal.classList.remove('open');
 }
 
-// Bấm "Sổ Tay Hướng Dẫn" từ menu
+// Bấm "Sổ Tay Nông Dân (Trồng Cây)" từ menu
 if (openGuideFromMenuBtn) {
   openGuideFromMenuBtn.onclick = () => {
-    userMenuModal.classList.remove('open'); // Đóng menu
-    settingsModal.classList.add('open');   // Mở sổ tay hướng dẫn
+    userMenuModal.classList.remove('open');
+    settingsModal.classList.add('open');
+  };
+}
+
+// Bấm "Sổ Tay Chuồng Trại (Chăn Nuôi)" từ menu
+if (openRanchGuideFromMenuBtn) {
+  openRanchGuideFromMenuBtn.onclick = () => {
+    userMenuModal.classList.remove('open');
+    ranchSettingsModal.classList.add('open');
   };
 }
 
@@ -3510,10 +3947,17 @@ if (logoutFromMenuBtn) {
   };
 }
 
-// Đóng Sổ tay hướng dẫn
+// Đóng Sổ tay hướng dẫn Trồng Cây
 if (closeSettingsBtn) {
   closeSettingsBtn.onclick = () => {
     settingsModal.classList.remove('open');
+  };
+}
+
+// Đóng Sổ tay hướng dẫn Chăn Nuôi
+if (closeRanchSettingsBtn) {
+  closeRanchSettingsBtn.onclick = () => {
+    ranchSettingsModal.classList.remove('open');
   };
 }
 
@@ -3525,19 +3969,42 @@ window.addEventListener('click', (e) => {
   if (e.target === settingsModal) {
     settingsModal.classList.remove('open');
   }
+  if (e.target === ranchSettingsModal) {
+    ranchSettingsModal.classList.remove('open');
+  }
 });
 
 
 
-// Trong setInterval (1000ms):
-setInterval(()=>{
-  if(currentUser){
-    updateWater(); 
-    renderFarm(false); 
-    renderQuests(); 
-    renderOrders(); // Cập nhật trạng thái đơn hàng (để hiện nút Giao hàng)
+// VÒNG LẶP CHÍNH DUY NHẤT: Điều phối mượt mà theo từng Tab
+setInterval(() => {
+  if (currentUser) {
+    if (typeof activeTab === 'undefined' || activeTab === 'farm') {
+      // Khi đang ở tab Trồng Cây
+      updateWater(); 
+      renderFarm(false); 
+      renderQuests(); 
+      renderOrders();
+    } else if (activeTab === 'ranch') {
+      // Khi đang ở tab Chăn Nuôi
+      if (state.barns) {
+        const activeCount = state.barns.filter(b => b.occupied).length;
+        if (activeCount > 0) {
+          const feedLoss = (activeCount * 1) / 60; // 1kg/phút/con
+          state.feed = Math.max(0, (state.feed || 0) - feedLoss);
+          if (!state.ranchStats) state.ranchStats = {};
+          state.ranchStats.feedUsed = (state.ranchStats.feedUsed || 0) + feedLoss;
+        }
+        renderFeedResource();
+        renderBarns();
+        // 🌾 Cập nhật thời gian đếm ngược & trạng thái nhiệm vụ chăn nuôi mỗi giây
+        if (typeof renderRanchQuests === 'function') {
+          renderRanchQuests();
+        }
+      }
+    }
+    updateLoginStatusUI(); 
   }
-  updateLoginStatusUI(); 
 }, 1000);
 
 // Autosave occasionally
@@ -4082,7 +4549,7 @@ function checkTitles(isInitialLogin = false) {
   if (!currentUser) return;
   if (!state.unlockedTitles) state.unlockedTitles = [];
 
-  // Chỉ chạy bù công sức nếu là acc cũ chưa có cờ
+  // Bù công sức nếu là tài khoản cũ chưa có cờ
   migrateLegacyStatsIfNeeded();
 
   const newlyUnlocked = [];
@@ -4096,18 +4563,17 @@ function checkTitles(isInitialLogin = false) {
     }
   });
 
-  // Tự động cập nhật lại bảng danh hiệu ngay lập tức trên màn hình
   renderTitles();
 
   if (newlyUnlocked.length > 0) {
     save();
 
-    // Hiện thông báo nổ ra lần lượt
+    // Hiện thông báo nổi Toast trên đầu màn hình (tự tắt sau 3s)
     newlyUnlocked.forEach((titleObj, idx) => {
       setTimeout(() => {
         showTopToast(
-          isInitialLogin ? '🎖️ DANH HIỆU ĐÃ ĐẠT ĐƯỢC!' : '🎖️ MỞ KHÓA DANH HIỆU MỚI!',
-          `Bạn vừa được công nhận: <strong>${titleObj.title}</strong>`,
+          isInitialLogin ? '🎖️ DANH HIỆU ĐÃ ĐẠT ĐƯỢC!' : '🎖️ ĐỦ ĐIỀU KIỆN ĐẠT DANH HIỆU!',
+          `Chúc mừng bạn vừa mở khóa: <strong>${titleObj.title}</strong>! Hãy vào Bảng Vinh Danh để đeo.`,
           titleObj.icon
         );
         if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
@@ -4117,6 +4583,7 @@ function checkTitles(isInitialLogin = false) {
     });
   }
 }
+
 
 
 // ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
@@ -4613,6 +5080,1068 @@ window.addEventListener('click', (e) => {
   }
 });
 
+  // ==========================================================================
+// MÃ NGUỒN TÍCH HỢP: KHU CHĂN NUÔI GIA SÚC (RANCH ENGINE)
+// ==========================================================================
+
+// 1. CẤU HÌNH GIA SÚC & THỰC PHẨM
+const ANIMALS_DB = {
+  chicken: { id:'chicken', name:'Gà đẻ trứng', emoji:'🐔', level:'Common', foodName:'Trứng gà', foodEmoji:'🥚', time:25, buyPrice:100, foodValue:16, shopPrice:0 },
+  duck: { id:'duck', name:'Vịt cỏ', emoji:'🦆', level:'Common', foodName:'Trứng vịt', foodEmoji:'🥚', time:30, buyPrice:140, foodValue:22, shopPrice:0 },
+  sheep: { id:'sheep', name:'Cừu lấy lông', emoji:'🐑', level:'Uncommon', foodName:'Bó len cừu', foodEmoji:'🧶', time:45, buyPrice:250, foodValue:45, shopPrice:300 },
+  pig: { id:'pig', name:'Heo thịt', emoji:'🐖', level:'Uncommon', foodName:'Thịt xông khói', foodEmoji:'🥓', time:50, buyPrice:320, foodValue:60, shopPrice:400 },
+  goat: { id:'goat', name:'Dê núi', emoji:'🐐', level:'Uncommon', foodName:'Sữa dê tươi', foodEmoji:'🥛', time:40, buyPrice:280, foodValue:52, shopPrice:350 },
+  cow: { id:'cow', name:'Bò sữa Hà Lan', emoji:'🐄', level:'Rare', foodName:'Sữa bò tươi', foodEmoji:'🥛', time:70, buyPrice:600, foodValue:130, shopPrice:800 },
+  camel: { id:'camel', name:'Lạc đà', emoji:'🐪', level:'Rare', foodName:'Sữa lạc đà', foodEmoji:'🍯', time:85, buyPrice:750, foodValue:170, shopPrice:950 },
+  horse: { id:'horse', name:'Ngựa bạch', emoji:'🐎', level:'Rare', foodName:'Móng ngựa may mắn', foodEmoji:'🧲', time:90, buyPrice:800, foodValue:190, shopPrice:1100 },
+  bee_queen: { id:'bee_queen', name:'Ong chúa', emoji:'🐝', level:'Legendary', foodName:'Mật ong thượng hạng', foodEmoji:'🍯', time:130, buyPrice:1500, foodValue:380, shopPrice:2200 },
+  bison: { id:'bison', name:'Bò Bison', emoji:'🦬', level:'Legendary', foodName:'Phô mai Bison', foodEmoji:'🧀', time:150, buyPrice:1800, foodValue:480, shopPrice:2600 },
+  swan: { id:'swan', name:'Thiên nga tuyết', emoji:'🦢', level:'Mythic', foodName:'Lông vũ pha lê', foodEmoji:'🪶', time:220, buyPrice:3500, foodValue:1100, shopPrice:5000 },
+  dragon_pet: { id:'dragon_pet', name:'Long thú', emoji:'🐉', level:'Divine', foodName:'Ngọc rồng lửa', foodEmoji:'🔮', time:360, buyPrice:8000, foodValue:2800, shopPrice:12000 }
+};
+
+// 2. 10 ĐƠN HÀNG THỰC PHẨM QUY MÔ LỚN
+const FOOD_ORDERS_TEMPLATE = [
+  { id:'FO1', customer:'Chuỗi siêu thị FreshMart', required:[{animalId:'chicken', qty:40}, {animalId:'duck', qty:25}], reward:1600 },
+  { id:'FO2', customer:'Tiệm bánh ngọt Paris', required:[{animalId:'chicken', qty:60}, {animalId:'cow', qty:15}], reward:2800 },
+  { id:'FO3', customer:'Nhà máy dệt Len Ấm', required:[{animalId:'sheep', qty:35}], reward:2200 },
+  { id:'FO4', customer:'Nhà hàng Nướng Than Hồng', required:[{animalId:'pig', qty:30}, {animalId:'duck', qty:30}], reward:3200 },
+  { id:'FO5', customer:'Trung tâm Dưỡng sinh', required:[{animalId:'goat', qty:30}, {animalId:'cow', qty:20}], reward:3800 },
+  { id:'FO6', customer:'Khách sạn 5 sao Grand', required:[{animalId:'cow', qty:30}, {animalId:'bee_queen', qty:10}], reward:6500 },
+  { id:'FO7', customer:'Đoàn lữ hành Sa mạc', required:[{animalId:'camel', qty:20}, {animalId:'horse', qty:15}], reward:5400 },
+  { id:'FO8', customer:'Hiệp hội Hoàng gia Gourmet', required:[{animalId:'bison', qty:15}, {animalId:'bee_queen', qty:15}], reward:9800 },
+  { id:'FO9', customer:'Tuần lễ Thời trang Haute Couture', required:[{animalId:'swan', qty:8}, {animalId:'sheep', qty:50}], reward:12500 },
+  { id:'FO10', customer:'Thần điện Tối cao Atlantis', required:[{animalId:'dragon_pet', qty:4}, {animalId:'bison', qty:20}], reward:20000 }
+];
+
+// 3. 10 DANH HIỆU KHU CHĂN NUÔI
+const RANCH_TITLES = [
+  { id:'rt_egg', title:'Thợ Nhặt Trứng 🥚', desc:'Thu hoạch 80 quả trứng các loại', icon:'🥚', check: () => { const c = state.ranchStats?.eggsCollected || 0; return { cur:c, max:80, done:c>=80, text:`${Math.min(c,80)}/80 quả` }; } },
+  { id:'rt_milk', title:'Vua Sữa Tươi 🥛', desc:'Thu hoạch 60 bình sữa từ bò hoặc dê', icon:'🥛', check: () => { const c = state.ranchStats?.milkCollected || 0; return { cur:c, max:60, done:c>=60, text:`${Math.min(c,60)}/60 bình` }; } },
+  { id:'rt_feed', title:'Chuyên Gia Dinh Dưỡng 🌾', desc:'Tiêu thụ hoặc mua 150kg thức ăn', icon:'🌾', check: () => { const c = Math.floor(state.ranchStats?.feedUsed || 0); return { cur:c, max:150, done:c>=150, text:`${Math.min(c,150)}/150 kg` }; } },
+  { id:'rt_barns', title:'Chủ Trang Trại Mở Rộng 🏡', desc:'Sở hữu từ 8 ô chuồng gia súc trở lên', icon:'🏡', check: () => { const c = (state.barns||[]).length; return { cur:c, max:8, done:c>=8, text:`${Math.min(c,8)}/8 chuồng` }; } },
+  { id:'rt_delivery', title:'Tài Xế Thực Phẩm 🚚', desc:'Hoàn thành 10 đơn hàng thực phẩm lớn', icon:'🚚', check: () => { const c = state.ranchStats?.foodOrdersCompleted || 0; return { cur:c, max:10, done:c>=10, text:`${Math.min(c,10)}/10 đơn` }; } },
+  { id:'rt_wool', title:'Thợ Cắt Lông Cừu 🧶', desc:'Thu hoạch 40 bó len cừu', icon:'🧶', check: () => { const c = state.ranchStats?.woolCollected || 0; return { cur:c, max:40, done:c>=40, text:`${Math.min(c,40)}/40 bó` }; } },
+  { id:'rt_zoo', title:'Nhà Động Vật Học 📖', desc:'Mở khóa 6 loài gia súc khác nhau', icon:'📖', check: () => { const c = (state.unlockedAnimals||[]).length; return { cur:c, max:6, done:c>=6, text:`${Math.min(c,6)}/6 loài` }; } },
+  { id:'rt_mythic', title:'Thuần Hóa Thần Thú 🐉', desc:'Mở khóa Thiên Nga Tuyết hoặc Long Thú', icon:'🐉', check: () => { const has = (state.unlockedAnimals||[]).some(x => x==='swan'||x==='dragon_pet'); return { cur:has?1:0, max:1, done:has, text:has?'Đã có':'Chưa có' }; } },
+  { id:'rt_wholesale', title:'Thương Gia Bán Buôn 🧺', desc:'Bán trực tiếp 100 món từ kho thực phẩm', icon:'🧺', check: () => { const c = state.ranchStats?.foodSoldDirectly || 0; return { cur:c, max:100, done:c>=100, text:`${Math.min(c,100)}/100 món` }; } },
+  { id:'rt_tycoon', title:'Đại Gia Trại Gia Súc 👑', desc:'Kiếm được 25.000 xu từ chăn nuôi', icon:'👑', check: () => { const c = state.ranchStats?.ranchCoinsEarned || 0; return { cur:c, max:25000, done:c>=25000, text:`${Math.min(c,25000).toLocaleString('vi-VN')}/25.000₵` }; } }
+];
+
+// ==========================================================================
+// NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI (THƯỞNG THỨC ĂN 🌾)
+// ==========================================================================
+const RANCH_QUEST_DEFINITIONS = [
+  // Cấp Dễ
+  { id: 'rq_harvest_chicken', type: 'harvest_food', animalId: 'chicken', required: 8, reward: 25, level: 'Dễ', desc: 'Thu hoạch 8 quả Trứng gà' },
+  { id: 'rq_harvest_duck', type: 'harvest_food', animalId: 'duck', required: 6, reward: 25, level: 'Dễ', desc: 'Thu hoạch 6 quả Trứng vịt' },
+  { id: 'rq_harvest_any_15', type: 'harvest_food_any', required: 15, reward: 35, level: 'Dễ', desc: 'Thu hoạch 15 lần thực phẩm bất kỳ' },
+
+  // Cấp Trung Bình
+  { id: 'rq_harvest_sheep', type: 'harvest_food', animalId: 'sheep', required: 5, reward: 40, level: 'Vừa', desc: 'Thu hoạch 5 bó Len cừu' },
+  { id: 'rq_harvest_pig', type: 'harvest_food', animalId: 'pig', required: 4, reward: 45, level: 'Vừa', desc: 'Thu hoạch 4 phần Thịt xông khói' },
+  { id: 'rq_harvest_goat', type: 'harvest_food', animalId: 'goat', required: 5, reward: 40, level: 'Vừa', desc: 'Thu hoạch 5 bình Sữa dê' },
+  { id: 'rq_deliver_orders_2', type: 'deliver_food_order', required: 2, reward: 50, level: 'Vừa', desc: 'Hoàn tất 2 đơn giao thực phẩm lớn' },
+
+  // Cấp Khó
+  { id: 'rq_harvest_cow', type: 'harvest_food', animalId: 'cow', required: 5, reward: 70, level: 'Khó', desc: 'Thu hoạch 5 bình Sữa bò Hà Lan' },
+  { id: 'rq_deliver_orders_4', type: 'deliver_food_order', required: 4, reward: 90, level: 'Khó', desc: 'Hoàn tất 4 đơn giao thực phẩm lớn' },
+  { id: 'rq_harvest_any_35', type: 'harvest_food_any', required: 35, reward: 120, level: 'Khó', desc: 'Thu hoạch 35 phần thực phẩm các loại' }
+];
+
+// Lấy danh sách nhiệm vụ hôm nay (tự động reset vào nửa đêm)
+function getTodayRanchQuests() {
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+  const todayMidnightMs = todayMidnight.getTime();
+
+  if (!state.dailyRanchQuests || state.dailyRanchQuests.length === 0 || !state.lastRanchQuestReset || state.lastRanchQuestReset < todayMidnightMs) {
+    state.dailyRanchQuests = RANCH_QUEST_DEFINITIONS.map(q => ({
+      ...q,
+      current: 0,
+      completed: false
+    }));
+    state.lastRanchQuestReset = todayMidnightMs;
+    save();
+  }
+  return state.dailyRanchQuests;
+}
+
+// Render danh sách nhiệm vụ chăn nuôi
+function renderRanchQuests() {
+  if (!currentUser) return;
+  getTodayRanchQuests();
+
+  const container = document.getElementById('dailyRanchQuestsList');
+  const timerEl = document.getElementById('timeToRanchQuestReset');
+  if (!container) return;
+
+  // Tính thời gian đến 00:00 ngày tiếp theo
+  const now = new Date();
+  const nextReset = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  const diff = Math.max(0, nextReset.getTime() - Date.now());
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  if (timerEl) timerEl.textContent = `${h}h ${m}m ${s}s`;
+
+  container.innerHTML = '';
+
+  // Ưu tiên: Chưa nhận (sẵn sàng) -> Chưa đủ -> Đã nhận
+  const sorted = [...state.dailyRanchQuests].sort((a, b) => {
+    const prio = q => (q.completed === true ? 0 : q.completed === 'claimed' ? 2 : 1);
+    return prio(a) - prio(b);
+  });
+
+  sorted.forEach(q => {
+    const isReady = q.completed === true;
+    const isClaimed = q.completed === 'claimed';
+
+    const div = document.createElement('div');
+    div.className = 'quest-item' + (isReady ? ' quest-ready' : isClaimed ? ' quest-completed' : '');
+
+    let statusText = '';
+    if (isClaimed) statusText = 'Đã nhận ✅';
+    else if (isReady) statusText = 'Sẵn sàng!';
+    else statusText = `${Math.min(q.current, q.required)}/${q.required}`;
+
+    div.innerHTML = `
+      <div>
+        <strong>${q.desc}</strong>
+        <span class="muted-2">(${q.level})</span>
+      </div>
+      <div class="row" style="align-items:center;">
+        <div class="quest-progress" style="color:#d97706;">${statusText}</div>
+        <button class="btn ${isReady ? '' : 'secondary'}" 
+          style="${isReady ? 'background:linear-gradient(180deg,#f59e0b,#b45309); color:#fff;' : ''}"
+          ${isReady ? '' : 'disabled'}
+          onclick="claimRanchQuestReward('${q.id}')">
+          +${q.reward} 🌾
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Nhận thưởng thức ăn
+function claimRanchQuestReward(questId) {
+  if (!currentUser) return;
+  const quest = (state.dailyRanchQuests || []).find(q => q.id === questId);
+  if (!quest || quest.completed !== true) return;
+
+  state.feed = (state.feed || 0) + quest.reward;
+  quest.completed = 'claimed';
+
+  if (typeof logRanch === 'function') {
+    logRanch(`Nhận thưởng nhiệm vụ [${quest.desc}]: +${quest.reward}kg Thức Ăn 🌾.`);
+  }
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+
+  save();
+  renderFeedResource();
+  renderRanchQuests();
+
+  showTopToast(
+    'NHẬN THỨC ĂN THÀNH CÔNG',
+    `Đã cộng <strong style="color:#d97706;">+${quest.reward}kg Thức Ăn</strong> vào kho!`,
+    '🌾'
+  );
+}
+
+// Kiểm tra tiến trình nhiệm vụ chăn nuôi
+function checkRanchQuestProgress(type, data = {}) {
+  if (!currentUser || !state.dailyRanchQuests) return;
+  let updated = false;
+
+  state.dailyRanchQuests.forEach(q => {
+    if (q.completed === true || q.completed === 'claimed') return;
+
+    let match = false;
+    if (q.type === type) {
+      if (type === 'harvest_food') {
+        if (q.animalId === data.animalId) match = true;
+      } else if (type === 'harvest_food_any') {
+        match = true;
+      } else if (type === 'deliver_food_order') {
+        match = true;
+      }
+    }
+
+    if (match) {
+      q.current++;
+      updated = true;
+      if (q.current >= q.required) {
+        q.completed = true;
+        if (typeof logRanch === 'function') {
+          logRanch(`🌾 Nhiệm vụ hoàn thành: "${q.desc}"! Hãy bấm nhận thưởng.`);
+        }
+      }
+    }
+  });
+
+  if (updated) {
+    save();
+    renderRanchQuests();
+  }
+}
+
+// Khởi tạo ô chuồng ban đầu nếu chưa có
+function initBarnsState() {
+  if (!state.barns || state.barns.length === 0) {
+    state.barns = [];
+    for (let i = 0; i < 6; i++) {
+      state.barns.push({ id:`barn-${i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+    }
+  }
+  if (!state.feed && state.feed !== 0) state.feed = 50;
+  if (!state.unlockedAnimals) state.unlockedAnimals = ['chicken', 'duck'];
+  if (!state.selectedAnimal) state.selectedAnimal = 'chicken';
+  if (!state.foodInventory) state.foodInventory = {};
+  if (!state.activeFoodOrders) state.activeFoodOrders = [];
+  if (!state.unlockedRanchTitles) state.unlockedRanchTitles = [];
+  if (!state.ranchStats) {
+    state.ranchStats = { eggsCollected:0, milkCollected:0, woolCollected:0, feedUsed:0, foodOrdersCompleted:0, foodSoldDirectly:0, ranchCoinsEarned:0 };
+  }
+
+  // Khởi tạo danh sách & thời gian reset nhiệm vụ chăn nuôi
+  if (!state.dailyRanchQuests) state.dailyRanchQuests = [];
+  if (!state.lastRanchQuestReset) state.lastRanchQuestReset = 0;
+  if (typeof getTodayRanchQuests === 'function') {
+    getTodayRanchQuests();
+  }
+}
+
+// 4. CHUYỂN ĐỔI TAB GIAO DIỆN
+let activeTab = 'farm';
+
+// 2. SỬA HÀM CHUYỂN TAB: Ẩn/Hiện chuẩn xác từng khung
+function switchView(tab) {
+  activeTab = tab;
+  const isFarm = tab === 'farm';
+
+  // 1. Cột Trái (Left)
+  const farmContainer = document.getElementById('farmContainer');
+  const ranchContainer = document.getElementById('ranchContainer');
+  if (farmContainer) farmContainer.style.display = isFarm ? 'block' : 'none';
+  if (ranchContainer) ranchContainer.style.display = isFarm ? 'none' : 'block';
+
+  // 2. Cột Phải (Right)
+  const farmSidebar = document.getElementById('farmRightSidebar');
+  const ranchSidebar = document.getElementById('ranchRightSidebar');
+  if (farmSidebar) farmSidebar.style.display = isFarm ? 'block' : 'none';
+  if (ranchSidebar) ranchSidebar.style.display = isFarm ? 'none' : 'block';
+
+  // 3. Nút bấm chuyển tab
+  const btnToRanch = document.getElementById('btnGoToRanch');
+  const btnToFarm = document.getElementById('btnGoToFarmTab');
+  if (btnToRanch) btnToRanch.style.display = isFarm ? 'inline-block' : 'none';
+  if (btnToFarm) btnToFarm.style.display = isFarm ? 'none' : 'inline-block';
+
+  // 4. Header tài nguyên
+  if (isFarm) {
+    renderWater();
+  } else {
+    initBarnsState();
+    renderRanchView();
+  }
+}
+
+
+
+document.getElementById('btnGoToRanch').onclick = () => switchView('ranch');
+document.getElementById('btnGoToFarmTab').onclick = () => switchView('farm');
+
+// 5. RENDER TOÀN BỘ KHU CHĂN NUÔI
+function renderRanchView() {
+  renderFeedResource();
+  renderBarns();
+  // 🌾 Gọi vẽ bảng nhiệm vụ chăn nuôi ngay khi vừa chuyển sang tab Trại
+  if (typeof renderRanchQuests === 'function') {
+    renderRanchQuests();
+  }
+  renderAnimalShop();
+  renderSelectedAnimalDisplay();
+  renderFoodInventory();
+  renderFoodOrders();
+  renderRanchTitles();
+  renderSpecialRanchShop();
+}
+
+function renderFeedResource() {
+  const waterEl = document.getElementById('waterAmount');
+  if (activeTab === 'ranch') {
+    waterEl.textContent = '🌾 ' + Math.floor(state.feed) + 'kg';
+    waterEl.title = 'Thức ăn chăn nuôi. Tiêu thụ 1kg/phút/con. Hết thức ăn giảm 50% tốc độ.';
+    waterEl.style.color = state.feed > 0 ? '#1b2a19' : '#ff0000';
+  } else {
+    renderWater();
+  }
+}
+
+// Render Lưới chuồng nuôi
+function renderBarns() {
+  const container = document.getElementById('ranchBarns');
+  container.innerHTML = '';
+
+  state.barns.forEach(barn => {
+    const el = document.createElement('div');
+    el.className = 'tile barn-tile' + (barn.occupied ? ' barn-active' : '');
+    
+    if (!barn.occupied) {
+      el.innerHTML = `<div style="font-size:28px">🛖</div><div class="muted">Chuồng trống</div>`;
+    } else {
+      const animal = ANIMALS_DB[barn.animalId];
+      const ready = Date.now() >= barn.cycleEnd;
+      const progressPct = Math.min(100, Math.floor(((Date.now() - barn.cycleStart) / (barn.cycleEnd - barn.cycleStart)) * 100));
+
+      el.innerHTML = `
+        <div class="seed-emoji">${animal.emoji}</div>
+        <div class="seed-name">${animal.name}${ready ? ' ✓' : ''}</div>
+        <div class="progress"><i style="width:${ready ? 100 : progressPct}%"></i></div>
+      `;
+    }
+
+    el.onclick = () => onBarnClick(barn.id);
+    container.appendChild(el);
+  });
+}
+
+  // Hiển thị tất cả giống gia súc cơ bản và các con đã mở khóa
+function renderSelectedAnimalDisplay() {
+  const container = document.getElementById('selectedAnimalDisplay');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!state.unlockedAnimals || state.unlockedAnimals.length === 0) {
+    state.unlockedAnimals = ['chicken', 'duck'];
+  }
+
+  // Lấy danh sách các giống đã mở khóa
+  const ownedAnimals = state.unlockedAnimals
+    .map(id => ANIMALS_DB[id])
+    .filter(Boolean);
+
+  if (ownedAnimals.length === 0) {
+    container.innerHTML = '<div class="muted">Chưa sở hữu con giống nào.</div>';
+    return;
+  }
+
+  ownedAnimals.forEach(animal => {
+    const isSelected = state.selectedAnimal === animal.id;
+    const div = document.createElement('div');
+    div.className = 'seed' + (isSelected ? ' active' : '');
+    div.dataset.level = animal.level;
+
+    div.innerHTML = `
+      <div class="emoji">${animal.emoji}</div>
+      <div class="meta">
+        <div style="font-weight:700">${animal.name} <span class="muted">(${animal.time}s)</span></div>
+        <div class="muted">Thả nuôi: ${animal.buyPrice}₵ • Sản phẩm: ${animal.foodEmoji} ${animal.foodName} (${animal.foodValue}₵)</div>
+      </div>
+      <div>
+        <span style="font-size:11px; font-weight:700; color:${isSelected ? '#d97706' : '#8a8f94'};">
+          ${isSelected ? '★ Đang Chọn' : 'Nhấp để chọn'}
+        </span>
+      </div>
+    `;
+
+    // Nhấp vào con giống để chọn thả nuôi
+    div.onclick = () => {
+      state.selectedAnimal = animal.id;
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+        SoundEngine.selectSeed();
+      } else if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+        SoundEngine.click();
+      }
+      save();
+      renderSelectedAnimalDisplay();
+      renderAnimalShop();
+      if (typeof logRanch === 'function') {
+        logRanch(`Đã chọn con giống: ${animal.name} ${animal.emoji} để thả vào chuồng.`);
+      }
+    };
+
+    container.appendChild(div);
+  });
+}
+
+function onBarnClick(barnId) {
+  const barn = state.barns.find(b => b.id === barnId);
+  if (!barn) return;
+
+  if (!barn.occupied) {
+    const animal = ANIMALS_DB[state.selectedAnimal];
+    if (state.coins < animal.buyPrice) {
+      alert(`Không đủ tiền mua con giống ${animal.name}. Cần ${animal.buyPrice}₵.`);
+      return;
+    }
+
+    showFarmConfirm(
+      'Thả Nuôi Gia Súc',
+      `Thả 1 con <strong>${animal.name} ${animal.emoji}</strong> vào chuồng với giá <strong>${animal.buyPrice}₵</strong>?<br><small style="color:#2e7d32;">(Con vật sống vĩnh viễn và tự động sản xuất liên tục!)</small>`,
+      animal.emoji,
+      () => {
+        state.coins -= animal.buyPrice;
+        barn.occupied = true;
+        barn.animalId = animal.id;
+
+        const rate = state.feed > 0 ? 1.0 : 0.5;
+        const dur = animal.time / rate;
+        barn.cycleStart = Date.now();
+        barn.cycleEnd = Date.now() + dur * 1000;
+
+        // Ghi nhật ký riêng cho khu chăn nuôi
+        if (typeof logRanch === 'function') {
+          logRanch(`Đã thả nuôi ${animal.name} ${animal.emoji} (-${animal.buyPrice}₵). Chu kỳ sản xuất: ${dur.toFixed(0)}s.`);
+        }
+
+        // Âm thanh thao tác
+        if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+          SoundEngine.click();
+        }
+
+        save();
+        renderBarns();
+        renderBarnInfo(barn.id);
+        renderFeedResource();
+        coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+        showTopToast('ĐÃ THẢ GIA SÚC', `Chuồng nuôi đã đón <strong>${animal.name}</strong>!`, animal.emoji);
+      }
+    );
+  } else {
+    renderBarnInfo(barn.id);
+  }
+}
+
+
+function renderBarnInfo(barnId) {
+  const barn = state.barns.find(b => b.id === barnId);
+  const infoEl = document.getElementById('barnInfo');
+  if (!barn || !barn.occupied) {
+    infoEl.innerHTML = `Ô chuồng đang trống. Bấm vào để thả con giống <strong>${ANIMALS_DB[state.selectedAnimal].name}</strong>.`;
+    return;
+  }
+
+  const animal = ANIMALS_DB[barn.animalId];
+  const ready = Date.now() >= barn.cycleEnd;
+  const remain = Math.max(0, Math.ceil((barn.cycleEnd - Date.now()) / 1000));
+
+  infoEl.innerHTML = `
+    <div><strong>${animal.name}</strong> ${animal.emoji} (Vĩnh viễn trong chuồng)</div>
+    <div class="muted">Sản phẩm: <strong>${animal.foodName} ${animal.foodEmoji}</strong> (Giá bán lẻ: ${animal.foodValue}₵)</div>
+    <div class="muted">Trạng thái: <strong>${ready ? 'Đã sản xuất xong! Chờ thu hoạch' : `Đang sản xuất (${remain}s)`}</strong></div>
+    <div style="margin-top:8px;">
+      ${ready 
+        ? `<button class="btn" style="background:linear-gradient(180deg,#f59e0b,#b45309);" onclick="harvestBarn('${barn.id}')">Thu hoạch ${animal.foodEmoji} & Tiếp tục vòng lặp</button>` 
+        : `<button class="btn secondary" disabled>Đang sản xuất...</button>`
+      }
+    </div>
+  `;
+}
+
+// Thu hoạch chuồng đơn lẻ (VÒNG LẶP TIẾP DIỄN)
+function harvestBarn(barnId) {
+  const barn = state.barns.find(b => b.id === barnId);
+  if (!barn || !barn.occupied || Date.now() < barn.cycleEnd) return;
+
+  const animal = ANIMALS_DB[barn.animalId];
+  state.foodInventory[animal.id] = (state.foodInventory[animal.id] || 0) + 1;
+
+  // Cập nhật thống kê danh hiệu chăn nuôi
+  if (!state.ranchStats) state.ranchStats = {};
+  if (animal.id === 'chicken' || animal.id === 'duck') state.ranchStats.eggsCollected = (state.ranchStats.eggsCollected || 0) + 1;
+  else if (animal.id === 'cow' || animal.id === 'goat') state.ranchStats.milkCollected = (state.ranchStats.milkCollected || 0) + 1;
+  else if (animal.id === 'sheep') state.ranchStats.woolCollected = (state.ranchStats.woolCollected || 0) + 1;
+
+  // 🌾 CẬP NHẬT TIẾN ĐỘ NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI
+  if (typeof checkRanchQuestProgress === 'function') {
+    checkRanchQuestProgress('harvest_food', { animalId: animal.id });
+    checkRanchQuestProgress('harvest_food_any');
+  }
+
+  // LẶP LẠI CHU KỲ MỚI NGAY LẬP TỨC
+  const rate = state.feed > 0 ? 1.0 : 0.5;
+  barn.cycleStart = Date.now();
+  barn.cycleEnd = Date.now() + (animal.time / rate) * 1000;
+
+  // Ghi nhật ký riêng vào bảng chăn nuôi
+  if (typeof logRanch === 'function') {
+    logRanch(`Thu hoạch +1 ${animal.foodName} ${animal.foodEmoji} từ ${animal.name}. Bắt đầu chu kỳ mới!`);
+  }
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) SoundEngine.harvest();
+
+  save();
+  renderBarns();
+  renderFoodInventory();
+  renderFoodOrders();
+  renderBarnInfo(barn.id);
+  checkRanchTitles();
+}
+
+// Thu hoạch toàn bộ thực phẩm đã xong
+document.getElementById('btnCollectAllFood').onclick = () => {
+  let count = 0;
+  state.barns.forEach(barn => {
+    if (barn.occupied && Date.now() >= barn.cycleEnd) {
+      const animal = ANIMALS_DB[barn.animalId];
+      state.foodInventory[animal.id] = (state.foodInventory[animal.id] || 0) + 1;
+
+      if (!state.ranchStats) state.ranchStats = {};
+      if (animal.id === 'chicken' || animal.id === 'duck') state.ranchStats.eggsCollected = (state.ranchStats.eggsCollected || 0) + 1;
+      else if (animal.id === 'cow' || animal.id === 'goat') state.ranchStats.milkCollected = (state.ranchStats.milkCollected || 0) + 1;
+      else if (animal.id === 'sheep') state.ranchStats.woolCollected = (state.ranchStats.woolCollected || 0) + 1;
+
+      // 🌾 CẬP NHẬT TIẾN ĐỘ NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI CHO TỪNG Ô
+      if (typeof checkRanchQuestProgress === 'function') {
+        checkRanchQuestProgress('harvest_food', { animalId: animal.id });
+        checkRanchQuestProgress('harvest_food_any');
+      }
+
+      const rate = state.feed > 0 ? 1.0 : 0.5;
+      barn.cycleStart = Date.now();
+      barn.cycleEnd = Date.now() + (animal.time / rate) * 1000;
+      count++;
+    }
+  });
+
+  if (count > 0) {
+    // Ghi nhật ký tổng hợp vào bảng chăn nuôi
+    if (typeof logRanch === 'function') {
+      logRanch(`Thu hoạch toàn bộ: gom thành công thực phẩm từ ${count} ô chuồng.`);
+    }
+
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) SoundEngine.harvest();
+    save();
+    renderBarns();
+    renderFoodInventory();
+    renderFoodOrders();
+    checkRanchTitles();
+    showTopToast('BỘI THU THỰC PHẨM', `Đã gom xong sản phẩm từ <strong>${count}</strong> ô chuồng!`, '🥛');
+  } else {
+    alert('Chưa có con gia súc nào sản xuất xong thực phẩm!');
+  }
+};
+
+// Mở rộng thêm 2 ô chuồng
+document.getElementById('btnExpandBarns').onclick = () => {
+  if (state.coins < 250) { alert('Không đủ tiền mở rộng chuồng. Cần 250₵!'); return; }
+  state.coins -= 250;
+  const cur = state.barns.length;
+  state.barns.push({ id:`barn-${cur}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+  state.barns.push({ id:`barn-${cur+1}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+
+  // Ghi nhật ký mở rộng vào bảng chăn nuôi
+  if (typeof logRanch === 'function') {
+    logRanch(`Mở rộng khu chuồng nuôi: +2 ô mới (Tổng: ${cur + 2} chuồng) (-250₵).`);
+  }
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.click) SoundEngine.click();
+
+  save();
+  renderBarns();
+  coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+  checkRanchTitles();
+  showTopToast('MỞ RỘNG CHUỒNG', 'Đã xây thêm +2 ô chuồng mới!', '🏡');
+};
+
+
+function renderAnimalShop() {
+  const container = document.getElementById('animalShopList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // 1. Loại bỏ 2 giống cơ bản ('chicken' và 'duck') khỏi cửa hàng
+  const shopAnimals = Object.values(ANIMALS_DB).filter(
+    animal => animal.id !== 'chicken' && animal.id !== 'duck'
+  );
+
+  shopAnimals.forEach(animal => {
+    const isUnlocked = state.unlockedAnimals.includes(animal.id);
+
+    const div = document.createElement('div');
+    // KHÔNG gán class active ở đây (bỏ hoàn toàn hiệu ứng chọn)
+    div.className = 'seed';
+    div.dataset.level = animal.level;
+
+    div.innerHTML = `
+      <div class="emoji">${animal.emoji}</div>
+      <div class="meta" style="flex:1;">
+        <div style="font-weight:700">${animal.name} <span class="muted">(${animal.level})</span></div>
+        <div class="muted">Thực phẩm: ${animal.foodEmoji} ${animal.foodName} | Bán lẻ: ${animal.foodValue}₵</div>
+      </div>
+      <div>
+        ${isUnlocked 
+          ? `<button class="btn secondary" style="font-size:11px; padding:6px 10px; min-width:82px;" disabled>Đã sở hữu</button>`
+          : `<button class="btn" 
+                     style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:11px; padding:6px 10px; min-width:82px;" 
+                     onclick="buyAnimalSpecies('${animal.id}')">
+                     Mua ${animal.shopPrice.toLocaleString('vi-VN')}₵
+             </button>`
+        }
+      </div>
+    `;
+
+    // Không gán sự kiện click chọn trên hàng này nữa
+    container.appendChild(div);
+  });
+}
+
+
+
+function chooseAnimal(animalId) {
+  state.selectedAnimal = animalId;
+  save();
+  renderAnimalShop();
+  renderSelectedAnimalDisplay();
+}
+
+function buyAnimalSpecies(animalId) {
+  const animal = ANIMALS_DB[animalId];
+  if (state.coins < animal.shopPrice) {
+    alert(`Không đủ tiền mở khóa loài ${animal.name}. Cần ${animal.shopPrice}₵!`);
+    return;
+  }
+
+  showFarmConfirm(
+    'Mở Khóa Con Giống',
+    `Mở khóa loài <strong>${animal.name} ${animal.emoji}</strong> với giá <strong>${animal.shopPrice}₵</strong>?`,
+    animal.emoji,
+    () => {
+      state.coins -= animal.shopPrice;
+      state.unlockedAnimals.push(animalId);
+      state.selectedAnimal = animalId;
+      save();
+      renderAnimalShop();
+      renderSelectedAnimalDisplay();
+      coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+      checkRanchTitles();
+      showTopToast('MỞ KHÓA THÀNH CÔNG', `Đã sở hữu giống <strong>${animal.name}</strong>!`, animal.emoji);
+    }
+  );
+}
+
+// 7. KHO THỰC PHẨM & BÁN LẺ
+function renderFoodInventory() {
+  const container = document.getElementById('foodInventoryList');
+  container.innerHTML = '';
+  const entries = Object.entries(state.foodInventory).filter(([, q]) => q > 0);
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Kho thực phẩm trống. Thu hoạch từ chuồng để tích lũy!</div>';
+    return;
+  }
+
+  entries.forEach(([animalId, qty]) => {
+    const animal = ANIMALS_DB[animalId];
+    const div = document.createElement('div');
+    div.className = 'seed';
+    div.dataset.level = animal.level;
+    div.innerHTML = `
+      <div class="emoji">${animal.foodEmoji}</div>
+      <div class="meta">
+        <div style="font-weight:700">${animal.foodName}</div>
+        <div class="muted">Bán lẻ trực tiếp: ${animal.foodValue}₵/phần</div>
+      </div>
+      <div style="font-weight:700; margin-right:8px;">x${qty}</div>
+      <button class="btn secondary" style="font-size:12px; padding:6px 10px;" onclick="sellFoodItem('${animalId}')">Bán hết</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function sellFoodItem(animalId) {
+  const qty = state.foodInventory[animalId] || 0;
+  if (qty <= 0) return;
+
+  const animal = ANIMALS_DB[animalId];
+  const totalVal = qty * animal.foodValue;
+  state.coins += totalVal;
+  state.foodInventory[animalId] = 0;
+
+  // Cập nhật thống kê danh hiệu khu chăn nuôi
+  if (!state.ranchStats) state.ranchStats = {};
+  state.ranchStats.foodSoldDirectly = (state.ranchStats.foodSoldDirectly || 0) + qty;
+  state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + totalVal;
+
+  // Ghi nhật ký riêng vào bảng Hoạt động Chăn nuôi
+  if (typeof logRanch === 'function') {
+    logRanch(`Bán lẻ kho: x${qty} ${animal.foodName} ${animal.foodEmoji}. Thu về +${totalVal.toLocaleString('vi-VN')}₵.`);
+  }
+
+  // Âm thanh nhận tiền
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+
+  save();
+  renderFoodInventory();
+  renderFoodOrders();
+  coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+  checkRanchTitles();
+  showTopToast(
+    'ĐÃ BÁN THỰC PHẨM', 
+    `Bán x${qty} ${animal.foodName}, thu về <strong style="color:#b35e00;">+${totalVal.toLocaleString('vi-VN')}₵</strong>!`, 
+    '💰'
+  );
+}
+
+
+// 8. 10 ĐƠN HÀNG THỰC PHẨM LỚN MỖI NGÀY
+function getDailyFoodOrders() {
+  const RESET_MS = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  if (!state.activeFoodOrders || state.activeFoodOrders.length === 0 || now - state.lastFoodOrderReset >= RESET_MS) {
+    state.activeFoodOrders = JSON.parse(JSON.stringify(FOOD_ORDERS_TEMPLATE)).map((o, idx) => ({
+      ...o,
+      orderKey: `food_order_${now}_${idx}`,
+      status: 'active'
+    }));
+    state.lastFoodOrderReset = now;
+    save();
+  }
+  return state.activeFoodOrders;
+}
+
+function renderFoodOrders() {
+  getDailyFoodOrders();
+  const container = document.getElementById('foodOrderList');
+  container.innerHTML = '';
+
+  const RESET_MS = 24 * 60 * 60 * 1000;
+  const diff = Math.max(0, state.lastFoodOrderReset + RESET_MS - Date.now());
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  document.getElementById('timeToFoodOrdersReset').textContent = `${h} giờ ${m} phút`;
+
+  state.activeFoodOrders.forEach(order => {
+    const isCompleted = order.status === 'completed';
+    let isReady = true;
+    let reqHtml = '';
+
+    order.required.forEach(r => {
+      const animal = ANIMALS_DB[r.animalId];
+      const has = state.foodInventory[r.animalId] || 0;
+      if (has < r.qty) isReady = false;
+      reqHtml += `
+        <div style="font-size:12px; color:${has >= r.qty ? '#2e7d32' : '#b35e00'}; font-weight:600; margin-left:8px;">
+          ${animal.foodEmoji} ${animal.foodName}: ${has}/${r.qty} ${has >= r.qty ? '✓' : ''}
+        </div>
+      `;
+    });
+
+    const isOrderReady = isReady && !isCompleted;
+    const div = document.createElement('div');
+    div.className = 'quest-item' + (isOrderReady ? ' order-ready' : isCompleted ? ' quest-completed' : '');
+    div.innerHTML = `
+      <div>
+        <strong style="font-size:14px;">${order.customer}</strong>
+        ${reqHtml}
+      </div>
+      <div class="row" style="align-items:center;">
+        <div class="quest-progress">${isCompleted ? 'Đã giao ✅' : isOrderReady ? 'Đủ hàng 📦' : 'Chưa đủ'}</div>
+        <button class="btn ${isOrderReady ? '' : 'secondary'}" 
+          style="${isOrderReady ? 'background:linear-gradient(180deg,#ff9800,#e65100);' : ''}"
+          ${isOrderReady ? '' : 'disabled'}
+          onclick="deliverFoodOrder('${order.orderKey}')">
+          Giao buôn +${order.reward.toLocaleString('vi-VN')}₵
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function deliverFoodOrder(orderKey) {
+  const order = state.activeFoodOrders.find(o => o.orderKey === orderKey && o.status === 'active');
+  if (!order) return;
+
+  // 1. Kiểm tra an toàn: đảm bảo kho đủ hàng trước khi trừ
+  const canDeliver = order.required.every(r => (state.foodInventory[r.animalId] || 0) >= r.qty);
+  if (!canDeliver) {
+    alert(`Không đủ thực phẩm trong kho để giao đơn cho ${order.customer}!`);
+    return;
+  }
+
+  // 2. Trừ thực phẩm trong kho
+  order.required.forEach(r => {
+    state.foodInventory[r.animalId] -= r.qty;
+    if (state.foodInventory[r.animalId] < 0) state.foodInventory[r.animalId] = 0;
+  });
+
+  // 3. Đánh dấu hoàn thành và cộng xu
+  order.status = 'completed';
+  state.coins += order.reward;
+
+  // 4. Cập nhật thống kê danh hiệu chăn nuôi
+  if (!state.ranchStats) state.ranchStats = {};
+  state.ranchStats.foodOrdersCompleted = (state.ranchStats.foodOrdersCompleted || 0) + 1;
+  state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + order.reward;
+
+  // 5. 🌾 CẬP NHẬT TIẾN ĐỘ NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI (GIAO ĐƠN BUÔN)
+  if (typeof checkRanchQuestProgress === 'function') {
+    checkRanchQuestProgress('deliver_food_order');
+  }
+
+  // 6. Ghi nhật ký riêng vào bảng Hoạt động Chăn nuôi
+  if (typeof logRanch === 'function') {
+    logRanch(`Giao đơn buôn: Hoàn tất đơn cho [${order.customer}]. Nhận thưởng +${order.reward.toLocaleString('vi-VN')}₵ 🚚.`);
+  }
+
+  // Âm thanh nhận xu
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+
+  save();
+  renderFoodInventory();
+  renderFoodOrders();
+  coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
+  checkRanchTitles();
+  showTopToast(
+    'HOÀN THÀNH ĐƠN HÀNG', 
+    `Giao buôn thành công cho <strong>${order.customer}</strong>! Nhận <strong style="color:#b35e00;">+${order.reward.toLocaleString('vi-VN')}₵</strong>`, 
+    '🚚'
+  );
+}
+
+
+// 9. CỬA HÀNG ĐẶC BIỆT CHĂN NUÔI (3 GÓI THỨC ĂN)
+function renderSpecialRanchShop() {
+  const container = document.getElementById('specialRanchShopList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const items = {
+    feed_50kg: { name: 'Bao Thức Ăn (50kg)', value: 50, cost: 200, type: 'feed' },
+    feed_500kg: { name: 'Bao Thức Ăn (500kg)', value: 500, cost: 1800, type: 'feed' },
+    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', value: 1000, cost: 3400, type: 'feed' }
+  };
+
+  Object.entries(items).forEach(([k, item]) => {
+    const div = document.createElement('div');
+    div.className = 'row seed';
+    div.style.borderLeft = '5px solid #ff9800';
+    div.innerHTML = `
+      <div class="emoji">🌾</div>
+      <div class="meta" style="flex:1;">
+        <div style="font-weight:700">${item.name}</div>
+        <div class="muted">Nạp ngay +${item.value.toLocaleString('vi-VN')}kg thức ăn</div>
+      </div>
+      <button class="btn" style="background:linear-gradient(180deg,#f59e0b,#b45309); min-width:90px;" onclick="buyRanchFeed('${k}')">
+        Mua ${item.cost.toLocaleString('vi-VN')}₵
+      </button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+
+function buyRanchFeed(k) {
+  const feedPackages = {
+    feed_50kg: { name: 'Bao Thức Ăn (50kg)', amount: 50, cost: 200 },
+    feed_500kg: { name: 'Bao Thức Ăn (500kg)', amount: 500, cost: 1800 },
+    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', amount: 1000, cost: 3400 }
+  };
+
+  const item = feedPackages[k];
+  if (!item) return;
+
+  if (state.coins < item.cost) {
+    alert(`Không đủ tiền mua ${item.name}. Cần ${item.cost.toLocaleString('vi-VN')}₵!`);
+    return;
+  }
+
+  showFarmConfirm(
+    'Mua Thức Ăn Chăn Nuôi',
+    `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost.toLocaleString('vi-VN')}₵</span>?`,
+    '🌾',
+    () => {
+      // 1. Trừ tiền và nạp thức ăn
+      state.coins -= item.cost;
+      state.feed = (state.feed || 0) + item.amount;
+
+      // 2. Ghi nhật ký vào bảng chăn nuôi
+      if (typeof logRanch === 'function') {
+        logRanch(`Mua vật phẩm: ${item.name} (-${item.cost.toLocaleString('vi-VN')}₵). Đã nạp +${item.amount.toLocaleString('vi-VN')}kg thức ăn.`);
+      }
+
+      // 3. Âm thanh phản hồi
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
+        SoundEngine.specialBuy();
+      } else if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+        SoundEngine.click();
+      }
+
+      save();
+      renderFeedResource();
+      coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
+
+      showTopToast(
+        'NẠP THỨC ĂN THÀNH CÔNG',
+        `Đã nạp <strong style="color:#2e7d32;">+${item.amount.toLocaleString('vi-VN')}kg</strong> thức ăn vào kho trại!`,
+        '🌾'
+      );
+    }
+  );
+}
+
+
+// 10. DANH HIỆU KHU CHĂN NUÔI
+function renderRanchTitles() {
+  const container = document.getElementById('ranchBadgeList');
+  if (!container) return;
+  container.innerHTML = '';
+  let unlocked = 0;
+
+  RANCH_TITLES.forEach(t => {
+    const res = t.check();
+    const isUnlocked = (state.unlockedRanchTitles || []).includes(t.id);
+    const isEquipped = state.ranchEquippedTitle === t.id;
+    if (isUnlocked) unlocked++;
+
+    const pct = Math.min(100, Math.floor((res.cur / res.max) * 100));
+    const card = document.createElement('div');
+    card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+    card.innerHTML = `
+      <div class="badge-icon">${t.icon}</div>
+      <div class="badge-info">
+        <div class="badge-title">${t.title}</div>
+        <div class="badge-desc">${t.desc}</div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:#657e62; margin-top:4px;">
+          <span>${res.text}</span><span>${pct}%</span>
+        </div>
+        <div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${pct}%;"></div></div>
+        ${isUnlocked ? `<button class="badge-action-btn ${isEquipped ? 'btn-equipped' : 'btn-equip'}" onclick="toggleEquipRanchTitle('${t.id}')">${isEquipped ? '★ Đang Đeo (Gỡ)' : '⚡ Đeo Danh Hiệu'}</button>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.getElementById('ranchBadgeCounter').textContent = `Đã đạt: ${unlocked}/10`;
+  renderEquippedRanchTitleBadge();
+}
+
+function renderEquippedRanchTitleBadge() {
+  const badgeEl = document.getElementById('ranchEquippedBadge');
+  if (!badgeEl) return;
+
+  if (!state.ranchEquippedTitle) {
+    badgeEl.innerHTML = `<span>🤠</span> <span>Chủ Trang Trại</span>`;
+    badgeEl.title = 'Chưa đeo danh hiệu trại. Nhấp để chuyển nhanh tới bảng danh hiệu!';
+  } else {
+    const t = RANCH_TITLES.find(x => x.id === state.ranchEquippedTitle);
+    if (t) {
+      badgeEl.innerHTML = `<span>${t.icon}</span> <span>${t.title.replace(t.icon,'').trim()}</span>`;
+      badgeEl.title = `Danh hiệu trại đang đeo: ${t.title}\nNhấp để chuyển nhanh tới bảng danh hiệu!`;
+    }
+  }
+
+  // Bấm vào khung danh hiệu để tự động cuộn xuống Bảng Vinh Danh Chủ Trại
+  badgeEl.onclick = () => {
+    const panel = document.getElementById('ranchAchievementsPanel');
+    if (panel) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+}
+
+function toggleEquipRanchTitle(titleId) {
+  if (state.ranchEquippedTitle === titleId) {
+    state.ranchEquippedTitle = null;
+    showTopToast('THÁO DANH HIỆU', 'Quay lại làm <strong>Chủ Trang Trại</strong>.', '🤠');
+  } else {
+    state.ranchEquippedTitle = titleId;
+    const t = RANCH_TITLES.find(x => x.id === titleId);
+    showTopToast('ĐÃ ĐEO DANH HIỆU', `Đang mang danh hiệu: <strong>${t.title}</strong>!`, t.icon);
+  }
+  save();
+  renderRanchTitles();
+}
+
+function checkRanchTitles() {
+  if (!currentUser) return;
+  if (!state.unlockedRanchTitles) state.unlockedRanchTitles = [];
+
+  const newlyUnlockedRanch = [];
+
+  RANCH_TITLES.forEach(t => {
+    const res = t.check();
+    if (res.done && !state.unlockedRanchTitles.includes(t.id)) {
+      state.unlockedRanchTitles.push(t.id);
+      newlyUnlockedRanch.push(t);
+      if (typeof logRanch === 'function') {
+        logRanch(`🎖️ Đạt danh hiệu chăn nuôi mới: [${t.title}].`);
+      }
+    }
+  });
+
+  renderRanchTitles();
+
+  if (newlyUnlockedRanch.length > 0) {
+    save();
+
+    // Hiện thông báo nổi Toast trên đầu màn hình (tự tắt sau 3s)
+    newlyUnlockedRanch.forEach((titleObj, idx) => {
+      setTimeout(() => {
+        showTopToast(
+          '🤠🎖️ ĐỦ ĐIỀU KIỆN DANH HIỆU TRẠI!',
+          `Chúc mừng bạn vừa mở khóa: <strong>${titleObj.title}</strong>! Hãy vào bảng danh hiệu để đeo.`,
+          titleObj.icon
+        );
+        if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
+          SoundEngine.fanfareChallenge();
+        }
+      }, idx * 3200);
+    });
+  }
+}
+
+
+// Cuộn nhanh
+document.getElementById('btnScrollToAnimals').onclick = () => {
+  document.getElementById('animalControlPanel').scrollIntoView({ behavior:'smooth' });
+};
+document.getElementById('btnGoToBarnsTop').onclick = () => {
+  document.getElementById('ranchBarns').scrollIntoView({ behavior:'smooth' });
+};
+
+// Điều hướng nhanh xuống Kho & Đơn hàng (Trồng cây)
+const btnGoToFarmOrders = document.getElementById('btnGoToFarmOrders');
+const farmInventorySection = document.getElementById('farmInventorySection');
+const btnBackToFarmTop = document.getElementById('btnBackToFarmTop');
+
+if (btnGoToFarmOrders && farmInventorySection) {
+  btnGoToFarmOrders.onclick = () => {
+    farmInventorySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+if (btnBackToFarmTop && farmSection) {
+  btnBackToFarmTop.onclick = () => {
+    farmSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
+
+// Điều hướng nhanh xuống Kho & Đơn hàng (Chăn nuôi)
+const btnGoToRanchOrders = document.getElementById('btnGoToRanchOrders');
+const ranchInventorySection = document.getElementById('ranchInventorySection');
+const btnBackToBarnsTop = document.getElementById('btnBackToBarnsTop');
+const ranchBarnsEl = document.getElementById('ranchBarns');
+
+if (btnGoToRanchOrders && ranchInventorySection) {
+  btnGoToRanchOrders.onclick = () => {
+    ranchInventorySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+if (btnBackToBarnsTop && ranchBarnsEl) {
+  btnBackToBarnsTop.onclick = () => {
+    ranchBarnsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
 </script>
 </body>
-  </html>
+</html>
