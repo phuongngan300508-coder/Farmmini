@@ -837,6 +837,58 @@ body:not(.logged-out) .app {
   border: 1px solid #fcd34d;
 }
 
+  /* Nút bấm & Tiêu đề trang trại có thể đổi tên */
+.farm-title-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  transition: all 0.2s ease;
+}
+.farm-title-wrapper:hover {
+  background: rgba(106, 168, 79, 0.15);
+}
+.farm-edit-icon {
+  font-size: 14px;
+  color: #6aa84f;
+  background: #eaf5e7;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px dashed #6aa84f;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Danh sách chọn nhanh Emoji gợi ý trong popup */
+.emoji-picker-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px 0 16px 0;
+}
+.emoji-opt-btn {
+  background: #ffffff;
+  border: 1px solid #d5e4cf;
+  border-radius: 8px;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.1s ease, border-color 0.2s ease;
+}
+.emoji-opt-btn:hover {
+  transform: scale(1.15);
+  border-color: #6aa84f;
+  background: #f4faef;
+}
+
   </style>
 </head>
 <body>
@@ -882,7 +934,11 @@ body:not(.logged-out) .app {
       
             <div class="panel">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
-    <h2 style="margin:0;">Trang trại của bạn 🚜</h2>
+    <!-- TIÊU ĐỀ TRANG TRẠI CÓ THỂ ĐỔI TÊN & ICON -->
+<div class="farm-title-wrapper" id="farmTitleBtn" title="Nhấp để đổi tên & biểu tượng trang trại">
+  <h2 style="margin:0;" id="farmTitleText">Trang trại của bạn 🚜</h2>
+  <span class="farm-edit-icon">✏️</span>
+</div>
     
     <!-- Cụm nhãn 'Danh hiệu:' đi kèm khung hiển thị -->
     <div style="display:flex; align-items:center; gap:6px;">
@@ -1159,7 +1215,7 @@ body:not(.logged-out) .app {
         </p>
         <p>• Cấp cao (<em>Mythic, Divine</em>) yêu cầu nhiều ô cây chín và tốn thêm nước để thực hiện.</p>
       </div>
-
+      
             <div class="guide-section">
         <h4>🎖️ 4. Bảng Vinh Danh & Danh Hiệu</h4>
         <p>• Hoàn thành các cột mốc thực tế (gieo hạt, gặt hái, giao hàng, lai giống, tích lũy tiền...) để mở khóa <strong>10 Danh hiệu</strong> cao quý.</p>
@@ -1172,7 +1228,6 @@ body:not(.logged-out) .app {
         <p>• 🚀 <strong>Tiện ích di chuyển nhanh:</strong> Nhấp trực tiếp vào <strong>khung Danh hiệu</strong> ở góc trên trang trại để màn hình tự động lướt xuống ngay khu vực Bảng Vinh Danh & Danh Hiệu!</p>
         <p>• <strong>Tự động ghi nhận:</strong> Các thành tích, nông sản và giống cây bạn đã tích lũy từ trước được tự động quét và trao huy hiệu ngay khi đăng nhập.</p>
       </div>
-
 
       <div class="guide-section">
         <h4>🏆 5. Thử Thách Nhà Lai Tạo Cây</h4>
@@ -1208,6 +1263,44 @@ body:not(.logged-out) .app {
   <div class="farm-toast-body">
     <div class="farm-toast-title" id="toastTitle">Thông báo</div>
     <div class="farm-toast-msg" id="toastMsg">Đã cộng vào tài khoản!</div>
+  </div>
+</div>
+
+  <!-- POPUP ĐỔI TÊN & BIỂU TƯỢNG TRANG TRẠI PHONG CÁCH NÔNG TRẠI -->
+<div id="renameFarmModal" class="farm-modal-overlay">
+  <div class="farm-modal-box" style="max-width: 340px; text-align: left;">
+    <div style="text-align: center; margin-bottom: 12px;">
+      <div class="farm-modal-icon" style="font-size: 38px;">🏡</div>
+      <h3 style="margin: 0; color: #5c3a21;">Đặt Tên Trang Trại</h3>
+      <p class="muted-2" style="font-size: 13px; margin: 4px 0 0 0;">Gắn biển tên mới cho khu vườn của bạn</p>
+    </div>
+
+    <!-- Nhập tên trang trại -->
+    <label style="font-size: 13px; font-weight: 700; color: #435340;">Tên trang trại:</label>
+    <input type="text" id="farmNameInput" maxlength="30" placeholder="VD: Nông Trại Vui Vẻ" 
+           style="width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1.5px solid #c9d8c3; border-radius: 8px; box-sizing: border-box; font-size: 14px; font-weight: 600; outline: none; background: #ffffff;">
+
+    <!-- Chọn hoặc tự nhập Icon -->
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <label style="font-size: 13px; font-weight: 700; color: #435340;">Biểu tượng:</label>
+      <input type="text" id="farmIconInput" maxlength="4" style="width: 65px; text-align: center; font-size: 18px; padding: 4px; border: 1.5px solid #c9d8c3; border-radius: 8px; background: #ffffff;" value="🚜">
+    </div>
+
+    <!-- Biểu tượng gợi ý nhanh -->
+    <div class="emoji-picker-row">
+      <button type="button" class="emoji-opt-btn" data-emoji="🚜">🚜</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🌾">🌾</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🏡">🏡</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🌻">🌻</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🌽">🌽</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🍓">🍓</button>
+      <button type="button" class="emoji-opt-btn" data-emoji="🐄">🐄</button>
+    </div>
+
+    <div class="farm-modal-actions" style="margin-top: 14px;">
+      <button class="btn secondary" id="cancelRenameBtn">Hủy</button>
+      <button class="btn" id="saveRenameBtn" style="background: linear-gradient(180deg, #6aa84f, #3e8a33);">Lưu Tên Mới</button>
+    </div>
   </div>
 </div>
 
@@ -1247,6 +1340,9 @@ let state = {
   activeOrders: [],
   lastOrderReset: 0,
   fusionRewardClaimed: null, // Lưu ID mốc đã nhận: 'mythic_all', 'divine_all', hoặc 'all_seeds'
+  // 🏡 TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
+  farmName: 'Trang trại của bạn',
+  farmIcon: '🚜',
   // 🎖️ BỔ SUNG CƠ CHẾ DANH HIỆU:
   equippedTitle: null,      // ID danh hiệu đang đeo (null = mặc định Nông Dân)
   stats: {
@@ -1768,6 +1864,9 @@ function save(){
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
     fusionRewardClaimed: state.fusionRewardClaimed,
+    // 🏡 LƯU TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
+    farmName: state.farmName || 'Trang trại của bạn',
+    farmIcon: state.farmIcon || '🚜',
     // 🎖️ LƯU DỮ LIỆU DANH HIỆU, CHỈ SỐ, CỜ MIGRATION & DANH HIỆU ĐANG ĐEO:
     stats: state.stats,
     unlockedTitles: state.unlockedTitles,
@@ -1785,7 +1884,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (Đã bao gồm equippedTitle, stats, statsMigrated, unlockedTitles)
+    // 💡 Tái tạo initialState an toàn (Đã bao gồm farmName, farmIcon, equippedTitle, stats...)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -1801,6 +1900,9 @@ function load(){
         activeOrders: [], 
         lastOrderReset: 0, 
         fusionRewardClaimed: null,
+        // 🏡 MẶC ĐỊNH TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
+        farmName: 'Trang trại của bạn',
+        farmIcon: '🚜',
         // 🎖️ KHỞI TẠO MẶC ĐỊNH CHO TÀI KHOẢN MỚI:
         equippedTitle: null, // Mặc định chưa đeo danh hiệu nào (là Nông Dân)
         statsMigrated: false, // Mặc định chưa bù dữ liệu
@@ -1837,6 +1939,10 @@ function load(){
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
+                // 🏡 KHÔI PHỤC TÊN & BIỂU TƯỢNG TRANG TRẠI (nếu acc cũ chưa có sẽ lấy mặc định):
+                state.farmName = parsed.farmName || 'Trang trại của bạn';
+                state.farmIcon = parsed.farmIcon || '🚜';
+
                 // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU, CHỈ SỐ & CỜ MIGRATION:
                 state.stats = Object.assign({
                     plantedCount: 0,
@@ -1899,6 +2005,12 @@ function load(){
 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
     document.body.classList.remove('logged-out');
+
+    // 🏡 HIỂN THỊ TIÊU ĐỀ TRANG TRẠI VỪA TẢI
+    if (typeof renderFarmHeaderTitle === 'function') {
+        renderFarmHeaderTitle();
+    }
+
     renderSeeds();
     renderFarm();
     renderShop(); 
@@ -4425,6 +4537,79 @@ const SoundEngine = {
 document.addEventListener('click', (e) => {
   if (e.target.closest('button') || e.target.closest('.btn') || e.target.closest('.wizard-crop-card')) {
     SoundEngine.click();
+  }
+});
+
+  // Cập nhật tên và icon trang trại lên giao diện
+function renderFarmHeaderTitle() {
+  const titleEl = document.getElementById('farmTitleText');
+  if (!titleEl) return;
+  const name = state.farmName || 'Trang trại của bạn';
+  const icon = state.farmIcon || '🚜';
+  titleEl.textContent = `${name} ${icon}`;
+}
+
+// Xử lý Popup Đổi Tên Trang Trại
+const renameFarmModal = document.getElementById('renameFarmModal');
+const farmTitleBtn = document.getElementById('farmTitleBtn');
+const farmNameInput = document.getElementById('farmNameInput');
+const farmIconInput = document.getElementById('farmIconInput');
+const cancelRenameBtn = document.getElementById('cancelRenameBtn');
+const saveRenameBtn = document.getElementById('saveRenameBtn');
+
+if (farmTitleBtn) {
+  farmTitleBtn.onclick = () => {
+    if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+    farmNameInput.value = state.farmName || 'Trang trại của bạn';
+    farmIconInput.value = state.farmIcon || '🚜';
+    renameFarmModal.classList.add('open');
+  };
+}
+
+if (cancelRenameBtn) {
+  cancelRenameBtn.onclick = () => {
+    renameFarmModal.classList.remove('open');
+  };
+}
+
+// Bấm nhanh vào emoji gợi ý
+document.querySelectorAll('.emoji-opt-btn').forEach(btn => {
+  btn.onclick = () => {
+    farmIconInput.value = btn.dataset.emoji;
+  };
+});
+
+// Lưu tên và icon mới
+if (saveRenameBtn) {
+  saveRenameBtn.onclick = () => {
+    const newName = farmNameInput.value.trim();
+    const newIcon = farmIconInput.value.trim() || '🚜';
+
+    if (!newName) {
+      alert('Vui lòng nhập tên trang trại!');
+      farmNameInput.focus();
+      return;
+    }
+
+    state.farmName = newName;
+    state.farmIcon = newIcon;
+
+    save();
+    renderFarmHeaderTitle();
+    renameFarmModal.classList.remove('open');
+
+    // Thông báo nổi và âm thanh
+    showTopToast('ĐỔI TÊN THÀNH CÔNG', `Đã đổi tên thành: <strong>${newName} ${newIcon}</strong>`, newIcon);
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+      SoundEngine.selectSeed();
+    }
+  };
+}
+
+// Đóng modal khi bấm ra vùng mờ bên ngoài
+window.addEventListener('click', (e) => {
+  if (e.target === renameFarmModal) {
+    renameFarmModal.classList.remove('open');
   }
 });
 
