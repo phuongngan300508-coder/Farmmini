@@ -1754,10 +1754,11 @@ function save(){
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
     fusionRewardClaimed: state.fusionRewardClaimed,
-    // 🎖️ LƯU DỮ LIỆU DANH HIỆU, CHỈ SỐ & DANH HIỆU ĐANG ĐEO:
+    // 🎖️ LƯU DỮ LIỆU DANH HIỆU, CHỈ SỐ, CỜ MIGRATION & DANH HIỆU ĐANG ĐEO:
     stats: state.stats,
     unlockedTitles: state.unlockedTitles,
-    equippedTitle: state.equippedTitle, // <-- LƯU DANH HIỆU ĐANG ĐEO (null hoặc ID danh hiệu)
+    equippedTitle: state.equippedTitle,
+    statsMigrated: state.statsMigrated, // <-- Cờ đánh dấu đã bù dữ liệu cũ hay chưa
     lastWaterUpdate: state.lastWaterUpdate
   }));
 }
@@ -1770,7 +1771,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (Đã bao gồm equippedTitle, stats, unlockedTitles)
+    // 💡 Tái tạo initialState an toàn (Đã bao gồm equippedTitle, stats, statsMigrated, unlockedTitles)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -1788,6 +1789,7 @@ function load(){
         fusionRewardClaimed: null,
         // 🎖️ KHỞI TẠO MẶC ĐỊNH CHO TÀI KHOẢN MỚI:
         equippedTitle: null, // Mặc định chưa đeo danh hiệu nào (là Nông Dân)
+        statsMigrated: false, // Mặc định chưa bù dữ liệu
         stats: {
             plantedCount: 0,
             harvestedCount: 0,
@@ -1821,7 +1823,7 @@ function load(){
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
-                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU & DANH HIỆU ĐANG ĐEO:
+                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU, CHỈ SỐ & CỜ MIGRATION:
                 state.stats = Object.assign({
                     plantedCount: 0,
                     harvestedCount: 0,
@@ -1834,6 +1836,8 @@ function load(){
                 }, parsed.stats || {});
                 state.unlockedTitles = Array.isArray(parsed.unlockedTitles) ? parsed.unlockedTitles : [];
                 state.equippedTitle = parsed.equippedTitle !== undefined ? parsed.equippedTitle : null;
+                // Nếu là acc cũ chưa từng có trường statsMigrated thì giữ false để hàm checkTitles bù công sức
+                state.statsMigrated = parsed.statsMigrated || false;
                 
                 state.selectedSeed = 'carrot'; 
                 
@@ -1892,9 +1896,7 @@ function load(){
     renderOrders();
     renderFusionChallenges();
     renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu
-renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
-checkTitles(true); // 🎖️ TỰ ĐỘNG QUÉT DỮ LIỆU CŨ VÀ BẬT THÔNG BÁO KHI VÀO ACC
- // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
+    renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
     renderFusionPanel();
     updateLoginStatusUI();
 
@@ -1906,8 +1908,13 @@ checkTitles(true); // 🎖️ TỰ ĐỘNG QUÉT DỮ LIỆU CŨ VÀ BẬT THÔN
     }
     
     if (isNewAccount) {
+        // Tài khoản tạo mới toanh: Đặt luôn cờ = true để bắt đầu cày từ 0, KHÔNG bù tự động
+        state.statsMigrated = true;
+        save();
         log(`Chào mừng ${currentUser}! Đã tạo tài khoản mới.`);
     } else {
+        // Tài khoản cũ: Chạy kiểm tra & bù dữ liệu cũ 1 lần duy nhất khi đăng nhập
+        checkTitles(true);
         log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
     }
 }
@@ -3887,8 +3894,8 @@ function renderTitles() {
   renderEquippedTitle();
 }
 
-// HÀM KHÔI PHỤC TIẾN ĐỘ TỪ DỮ LIỆU CŨ NẾU LẦN ĐẦU CẬP NHẬT TÍNH NĂNG
-function inferStatsFromExistingData() {
+// HÀM BÙ ĐẮP TIẾN ĐỘ DÀNH RIÊNG CHO ACC TẠO TRƯỚC BẢN UPDATE
+function migrateLegacyStatsIfNeeded() {
   if (!state.stats) {
     state.stats = {
       plantedCount: 0,
@@ -3902,20 +3909,22 @@ function inferStatsFromExistingData() {
     };
   }
 
-  // 1. Ước tính từ các hạt giống đã mở khóa (trừ 5 hạt mặc định)
+  // Nếu tài khoản này đã được bù công sức rồi thì bỏ qua vĩnh viễn
+  if (state.statsMigrated) return;
+
+  // 1. Bù số lần lai tạo từ số giống fusion đã mở khóa
   const defaultSeeds = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
   const advancedSeeds = (state.unlockedSeeds || []).filter(id => !defaultSeeds.includes(id));
   const fusionSeeds = advancedSeeds.filter(id => state.seeds[id] && state.seeds[id].fusion);
 
-  // Suy luận số lần phối giống thành công và tổng số lần phối từ số giống lai tạo đã có
   if (state.stats.fusionSuccessCount < fusionSeeds.length) {
     state.stats.fusionSuccessCount = fusionSeeds.length;
   }
   if (state.stats.fusionTryCount < state.stats.fusionSuccessCount) {
-    state.stats.fusionTryCount = state.stats.fusionSuccessCount * 2; // ước tính tối thiểu
+    state.stats.fusionTryCount = state.stats.fusionSuccessCount * 2;
   }
 
-  // 2. Ước tính số lượng đã thu hoạch từ nông sản hiện có trong kho hàng
+  // 2. Bù số lượng đã thu hoạch từ nông sản đang trữ trong kho
   let currentInventorySum = 0;
   if (state.inventory) {
     Object.values(state.inventory).forEach(qty => {
@@ -3926,25 +3935,29 @@ function inferStatsFromExistingData() {
     state.stats.harvestedCount = currentInventorySum;
   }
 
-  // 3. Ước tính số lần gieo hạt tối thiểu bằng số lượng đã thu hoạch + số ô đang trồng
+  // 3. Bù số lần gieo hạt tối thiểu (kho + các ô đang trồng)
   const plantedOnFarm = (state.tiles || []).filter(t => t.planted).length;
   if (state.stats.plantedCount < (state.stats.harvestedCount + plantedOnFarm)) {
     state.stats.plantedCount = state.stats.harvestedCount + plantedOnFarm;
   }
 
-  // 4. Ước tính tổng tiền kiếm được từ số dư ví hiện tại
+  // 4. Bù tổng tiền kiếm được từ số dư ví hiện có
   if (state.stats.totalCoinsEarned < state.coins) {
     state.stats.totalCoinsEarned = state.coins;
   }
+
+  // Đóng cờ đánh dấu: Acc này đã được bù công sức, sau này chỉ tính theo hành động thực tế
+  state.statsMigrated = true;
+  save();
 }
 
-// HÀM KIỂM TRA, MỞ KHÓA VÀ TỰ ĐỘNG THÔNG BÁO TỪNG DANH HIỆU
+// HÀM KIỂM TRA REAL-TIME: Tự cập nhật giao diện ngay lập tức khi đang chơi
 function checkTitles(isInitialLogin = false) {
   if (!currentUser) return;
   if (!state.unlockedTitles) state.unlockedTitles = [];
 
-  // Khôi phục chỉ số từ dữ liệu thực tế
-  inferStatsFromExistingData();
+  // Chỉ chạy bù công sức nếu là acc cũ chưa có cờ
+  migrateLegacyStatsIfNeeded();
 
   const newlyUnlocked = [];
 
@@ -3957,11 +3970,13 @@ function checkTitles(isInitialLogin = false) {
     }
   });
 
+  // Tự động cập nhật lại bảng danh hiệu ngay lập tức trên màn hình
+  renderTitles();
+
   if (newlyUnlocked.length > 0) {
     save();
-    renderTitles();
 
-    // Xếp hàng hiện thông báo từng danh hiệu giãn cách nhau 3.2 giây để người chơi nhìn rõ
+    // Hiện thông báo nổ ra lần lượt
     newlyUnlocked.forEach((titleObj, idx) => {
       setTimeout(() => {
         showTopToast(
@@ -4401,4 +4416,4 @@ document.addEventListener('click', (e) => {
 
 </script>
 </body>
-</html>
+  </html>
