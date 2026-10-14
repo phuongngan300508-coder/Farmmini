@@ -1892,7 +1892,9 @@ function load(){
     renderOrders();
     renderFusionChallenges();
     renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu
-    renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
+renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
+checkTitles(true); // 🎖️ TỰ ĐỘNG QUÉT DỮ LIỆU CŨ VÀ BẬT THÔNG BÁO KHI VÀO ACC
+ // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
     renderFusionPanel();
     updateLoginStatusUI();
 
@@ -3885,39 +3887,96 @@ function renderTitles() {
   renderEquippedTitle();
 }
 
-// Kiểm tra và chúc mừng khi mở khóa danh hiệu mới
-function checkTitles() {
+// HÀM KHÔI PHỤC TIẾN ĐỘ TỪ DỮ LIỆU CŨ NẾU LẦN ĐẦU CẬP NHẬT TÍNH NĂNG
+function inferStatsFromExistingData() {
+  if (!state.stats) {
+    state.stats = {
+      plantedCount: 0,
+      harvestedCount: 0,
+      fusionSuccessCount: 0,
+      fusionTryCount: 0,
+      ordersCompleted: 0,
+      questsClaimed: 0,
+      cropsSold: 0,
+      totalCoinsEarned: 0
+    };
+  }
+
+  // 1. Ước tính từ các hạt giống đã mở khóa (trừ 5 hạt mặc định)
+  const defaultSeeds = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
+  const advancedSeeds = (state.unlockedSeeds || []).filter(id => !defaultSeeds.includes(id));
+  const fusionSeeds = advancedSeeds.filter(id => state.seeds[id] && state.seeds[id].fusion);
+
+  // Suy luận số lần phối giống thành công và tổng số lần phối từ số giống lai tạo đã có
+  if (state.stats.fusionSuccessCount < fusionSeeds.length) {
+    state.stats.fusionSuccessCount = fusionSeeds.length;
+  }
+  if (state.stats.fusionTryCount < state.stats.fusionSuccessCount) {
+    state.stats.fusionTryCount = state.stats.fusionSuccessCount * 2; // ước tính tối thiểu
+  }
+
+  // 2. Ước tính số lượng đã thu hoạch từ nông sản hiện có trong kho hàng
+  let currentInventorySum = 0;
+  if (state.inventory) {
+    Object.values(state.inventory).forEach(qty => {
+      if (typeof qty === 'number') currentInventorySum += qty;
+    });
+  }
+  if (state.stats.harvestedCount < currentInventorySum) {
+    state.stats.harvestedCount = currentInventorySum;
+  }
+
+  // 3. Ước tính số lần gieo hạt tối thiểu bằng số lượng đã thu hoạch + số ô đang trồng
+  const plantedOnFarm = (state.tiles || []).filter(t => t.planted).length;
+  if (state.stats.plantedCount < (state.stats.harvestedCount + plantedOnFarm)) {
+    state.stats.plantedCount = state.stats.harvestedCount + plantedOnFarm;
+  }
+
+  // 4. Ước tính tổng tiền kiếm được từ số dư ví hiện tại
+  if (state.stats.totalCoinsEarned < state.coins) {
+    state.stats.totalCoinsEarned = state.coins;
+  }
+}
+
+// HÀM KIỂM TRA, MỞ KHÓA VÀ TỰ ĐỘNG THÔNG BÁO TỪNG DANH HIỆU
+function checkTitles(isInitialLogin = false) {
   if (!currentUser) return;
   if (!state.unlockedTitles) state.unlockedTitles = [];
 
-  let hasNew = false;
+  // Khôi phục chỉ số từ dữ liệu thực tế
+  inferStatsFromExistingData();
+
+  const newlyUnlocked = [];
+
   FARM_TITLES.forEach(t => {
     const res = t.check();
     if (res.done && !state.unlockedTitles.includes(t.id)) {
       state.unlockedTitles.push(t.id);
-      hasNew = true;
-      
-      // Bật Toast vinh danh
-      showTopToast(
-        '🎖️ MỞ KHÓA DANH HIỆU MỚI!',
-        `Bạn vừa đạt được danh hiệu: <strong>${t.title}</strong>`,
-        t.icon
-      );
-
-      // Phát âm thanh chiến thắng
-      if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
-        SoundEngine.fanfareChallenge();
-      }
-
+      newlyUnlocked.push(t);
       log(`🎖️ Chúc mừng! Mở khóa danh hiệu mới: [${t.title}].`);
     }
   });
 
-  if (hasNew) {
+  if (newlyUnlocked.length > 0) {
     save();
     renderTitles();
+
+    // Xếp hàng hiện thông báo từng danh hiệu giãn cách nhau 3.2 giây để người chơi nhìn rõ
+    newlyUnlocked.forEach((titleObj, idx) => {
+      setTimeout(() => {
+        showTopToast(
+          isInitialLogin ? '🎖️ DANH HIỆU ĐÃ ĐẠT ĐƯỢC!' : '🎖️ MỞ KHÓA DANH HIỆU MỚI!',
+          `Bạn vừa được công nhận: <strong>${titleObj.title}</strong>`,
+          titleObj.icon
+        );
+        if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
+          SoundEngine.fanfareChallenge();
+        }
+      }, idx * 3200);
+    });
   }
 }
+
 
 // ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
 const FUSION_CHALLENGES = [
