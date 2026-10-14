@@ -644,6 +644,199 @@ body:not(.logged-out) .app {
   font-size: 14px;
 }
 
+  /* ================= KHU VỰC DANH HIỆU ================= */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+@media (max-width: 600px) {
+  .badge-grid { grid-template-columns: 1fr; }
+}
+.badge-card {
+  background: #ffffff;
+  border: 1px solid #dce8d5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.badge-card.locked {
+  background: #f8faf7;
+  opacity: 0.65;
+  filter: grayscale(0.85);
+}
+.badge-card.unlocked {
+  border: 2px solid #ffb300;
+  background: #fffdf5;
+  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.18);
+}
+.badge-card.unlocked::after {
+  content: '✓ ĐÃ ĐẠT';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #d97706;
+  background: #fef3c7;
+  padding: 1px 5px;
+  border-radius: 6px;
+}
+.badge-icon {
+  font-size: 28px;
+  min-width: 36px;
+  text-align: center;
+}
+.badge-info {
+  flex: 1;
+}
+.badge-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #2b3b2a;
+  margin-bottom: 2px;
+}
+.badge-desc {
+  font-size: 11px;
+  color: #657e62;
+  line-height: 1.3;
+}
+.badge-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #e5ede2;
+  border-radius: 6px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+.badge-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6aa84f, #3e8a33);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+.badge-card.unlocked .badge-progress-fill {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+  /* Khung huy hiệu danh hiệu hiển thị trên Trang trại */
+.active-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.active-title-badge:hover {
+  transform: translateY(-1px);
+}
+
+/* Các kiểu màu riêng biệt cho từng danh hiệu */
+.title-style-default {
+  background: #f1f8ed;
+  color: #3b6e22;
+  border: 1.5px solid #8cb87c;
+}
+.title-style-t_plant_master {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  color: #1b5e20;
+  border: 1.5px solid #4caf50;
+  box-shadow: 0 2px 10px rgba(76, 175, 80, 0.25);
+}
+.title-style-t_harvest_king {
+  background: linear-gradient(135deg, #fffde7, #fff9c4);
+  color: #f57f17;
+  border: 1.5px solid #fbc02d;
+  box-shadow: 0 2px 10px rgba(251, 192, 45, 0.3);
+}
+.title-style-t_fusion_novice {
+  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+  color: #6a1b9a;
+  border: 1.5px solid #ab47bc;
+  box-shadow: 0 2px 10px rgba(171, 71, 188, 0.25);
+}
+.title-style-t_fusion_master {
+  background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+  color: #311b92;
+  border: 1.5px solid #7e57c2;
+  box-shadow: 0 2px 10px rgba(126, 87, 194, 0.3);
+}
+.title-style-t_order_runner {
+  background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+  color: #004d40;
+  border: 1.5px solid #26a69a;
+  box-shadow: 0 2px 10px rgba(38, 166, 154, 0.25);
+}
+.title-style-t_water_keeper {
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+  color: #01579b;
+  border: 1.5px solid #29b6f6;
+  box-shadow: 0 2px 10px rgba(41, 182, 246, 0.3);
+}
+.title-style-t_seed_collector_1 {
+  background: linear-gradient(135deg, #efebe9, #d7ccc8);
+  color: #3e2723;
+  border: 1.5px solid #8d6e63;
+  box-shadow: 0 2px 8px rgba(141, 110, 99, 0.25);
+}
+.title-style-t_seed_collector_2 {
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  color: #006064;
+  border: 1.5px solid #00acc1;
+  box-shadow: 0 2px 10px rgba(0, 172, 193, 0.3);
+}
+.title-style-t_market_merchant {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  color: #e65100;
+  border: 1.5px solid #ff9800;
+  box-shadow: 0 2px 10px rgba(255, 152, 0, 0.3);
+}
+.title-style-t_tycoon {
+  background: linear-gradient(135deg, #fff8e1, #ffecb3);
+  color: #b78103;
+  border: 2px solid #ffb300;
+  box-shadow: 0 0 14px rgba(255, 179, 0, 0.45);
+  animation: glowGold 2s infinite alternate;
+}
+@keyframes glowGold {
+  from { box-shadow: 0 0 6px rgba(255, 179, 0, 0.3); }
+  to { box-shadow: 0 0 14px rgba(255, 179, 0, 0.65); }
+}
+
+/* Nút thao tác Đeo / Tháo danh hiệu trong thẻ */
+.badge-action-btn {
+  margin-top: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.badge-action-btn.btn-equip {
+  background: linear-gradient(180deg, #6aa84f, #3e8a33);
+  color: #fff;
+}
+.badge-action-btn.btn-equipped {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
   </style>
 </head>
 <body>
@@ -688,7 +881,17 @@ body:not(.logged-out) .app {
     
       
             <div class="panel">
-  <h2>Trang trại của bạn 🚜</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
+    <h2 style="margin:0;">Trang trại của bạn 🚜</h2>
+    
+    <!-- Cụm nhãn 'Danh hiệu:' đi kèm khung hiển thị -->
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span class="muted-2" style="font-size:12px; font-weight:700;">Danh hiệu:</span>
+      <div id="farmEquippedBadge" class="active-title-badge title-style-default" title="Nhấp để chuyển nhanh tới bảng danh hiệu">
+        <span>🧑‍🌾</span> <span>Nông Dân</span>
+      </div>
+    </div>
+  </div>
   <div class="muted-2" style="margin-bottom:10px">Click 1 ô để <strong>trồng</strong>, click ô đã trồng để xem chi tiết hoặc thu hoạch.</div>
 
   <div id="farm" class="farm-grid" aria-label="Farm grid">
@@ -732,6 +935,17 @@ body:not(.logged-out) .app {
   <div id="fusionChallengeList" class="quest-list"></div>
 </div>
 <div style="height:10px"></div>
+      
+            <!-- KHU VỰC DANH HIỆU NÔNG DÂN -->
+      <div class="panel controls" id="achievementsPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 style="margin:0;">Bảng Vinh Danh & Danh Hiệu 🎖️</h2>
+          <span id="badgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+        </div>
+        <div class="muted-2" style="margin-bottom:10px">Tích lũy các thành tựu nông nghiệp để khắc tên lên Bảng Vàng!</div>
+        <div id="badgeList" class="badge-grid"></div>
+      </div>
+      <div style="height:10px"></div>
 
             <div class="panel" id="questPanel">
         <h2>Nhiệm vụ Hàng ngày 💧</h2>
@@ -1015,11 +1229,25 @@ let state = {
   dailyQuests: [], // NEW: Nhiệm vụ hàng ngày (sẽ được tạo khi load)
   lastQuestReset: 0, // NEW: Thời điểm reset nhiệm vụ
   // NEW: Inventory (Kho hàng) - Lưu số lượng sản phẩm đã thu hoạch
-    inventory: {},   
+  inventory: {},   
   activeOrders: [],
   lastOrderReset: 0,
   fusionRewardClaimed: null, // Lưu ID mốc đã nhận: 'mythic_all', 'divine_all', hoặc 'all_seeds'
- seeds: {
+  // 🎖️ BỔ SUNG CƠ CHẾ DANH HIỆU:
+  equippedTitle: null,      // ID danh hiệu đang đeo (null = mặc định Nông Dân)
+  stats: {
+    plantedCount: 0,
+    harvestedCount: 0,
+    fusionSuccessCount: 0,
+    fusionTryCount: 0,
+    ordersCompleted: 0,
+    questsClaimed: 0,
+    cropsSold: 0,
+    totalCoinsEarned: 0
+  },
+  unlockedTitles: [],
+  
+  seeds: {
     // ===========================================
     // 🌱 CẤP BÌNH THƯỜNG (COMMON) - Mặc định có sẵn
     // ===========================================
@@ -1515,18 +1743,21 @@ function save(){
   
   localStorage.setItem(currentStorageKey, JSON.stringify({
     coins: state.coins,
-    water: state.water, // NEW
+    water: state.water,
     rows: state.rows,
     cols: state.cols,
     tiles: state.tiles,
     unlockedSeeds: state.unlockedSeeds,
-    dailyQuests: state.dailyQuests, // NEW
-    lastQuestReset: state.lastQuestReset, // NEW
-    // ĐÃ THÊM 3 TRƯỜNG BỊ THIẾU
-        inventory: state.inventory,
+    dailyQuests: state.dailyQuests,
+    lastQuestReset: state.lastQuestReset,
+    inventory: state.inventory,
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
-    fusionRewardClaimed: state.fusionRewardClaimed, // THÊM DÒNG NÀY
+    fusionRewardClaimed: state.fusionRewardClaimed,
+    // 🎖️ LƯU DỮ LIỆU DANH HIỆU, CHỈ SỐ & DANH HIỆU ĐANG ĐEO:
+    stats: state.stats,
+    unlockedTitles: state.unlockedTitles,
+    equippedTitle: state.equippedTitle, // <-- LƯU DANH HIỆU ĐANG ĐEO (null hoặc ID danh hiệu)
     lastWaterUpdate: state.lastWaterUpdate
   }));
 }
@@ -1539,7 +1770,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (CHÚ Ý: Đã bao gồm Inventory/Orders/ResetTime/FusionReward)
+    // 💡 Tái tạo initialState an toàn (Đã bao gồm equippedTitle, stats, unlockedTitles)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -1554,7 +1785,20 @@ function load(){
         inventory: {}, 
         activeOrders: [], 
         lastOrderReset: 0, 
-        fusionRewardClaimed: null, // Mốc thử thách phối giống đã nhận (mặc định null)
+        fusionRewardClaimed: null,
+        // 🎖️ KHỞI TẠO MẶC ĐỊNH CHO TÀI KHOẢN MỚI:
+        equippedTitle: null, // Mặc định chưa đeo danh hiệu nào (là Nông Dân)
+        stats: {
+            plantedCount: 0,
+            harvestedCount: 0,
+            fusionSuccessCount: 0,
+            fusionTryCount: 0,
+            ordersCompleted: 0,
+            questsClaimed: 0,
+            cropsSold: 0,
+            totalCoinsEarned: 0
+        },
+        unlockedTitles: [],
         seeds: state.seeds,
         specialShopItems: state.specialShopItems
     }));
@@ -1571,12 +1815,25 @@ function load(){
                 
                 state = initialState;
                 state = Object.assign(state, parsed);
-                // Đảm bảo các trường này được tải lên từ parsed nếu chúng tồn tại
+                
                 if(parsed.inventory) state.inventory = parsed.inventory;
                 if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
-                // Tải trạng thái nhận thưởng thử thách phối giống
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
+                
+                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU & DANH HIỆU ĐANG ĐEO:
+                state.stats = Object.assign({
+                    plantedCount: 0,
+                    harvestedCount: 0,
+                    fusionSuccessCount: 0,
+                    fusionTryCount: 0,
+                    ordersCompleted: 0,
+                    questsClaimed: 0,
+                    cropsSold: 0,
+                    totalCoinsEarned: 0
+                }, parsed.stats || {});
+                state.unlockedTitles = Array.isArray(parsed.unlockedTitles) ? parsed.unlockedTitles : [];
+                state.equippedTitle = parsed.equippedTitle !== undefined ? parsed.equippedTitle : null;
                 
                 state.selectedSeed = 'carrot'; 
                 
@@ -1607,7 +1864,7 @@ function load(){
         localStorage.removeItem(getOldCoinsKey());
     }
 
-    // Tự động cấp instanceId cho các đơn hàng cũ chưa có mã riêng để không bị lỗi trùng đơn
+    // Tự động cấp instanceId cho các đơn hàng cũ chưa có mã riêng
     if (state.activeOrders && Array.isArray(state.activeOrders)) {
         state.activeOrders.forEach((o, idx) => {
             if (!o.instanceId) {
@@ -1633,7 +1890,9 @@ function load(){
     renderQuests();
     renderInventory();
     renderOrders();
-    renderFusionChallenges(); // Hiển thị bảng thử thách phối giống
+    renderFusionChallenges();
+    renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu
+    renderEquippedTitle(); // 🎖️ Render huy hiệu đang đeo lên tiêu đề Nông Trại
     renderFusionPanel();
     updateLoginStatusUI();
 
@@ -1650,8 +1909,6 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
     }
 }
-
-
 
 
 function login(username){
@@ -2393,6 +2650,7 @@ function renderOrders() {
   // Thêm vào khu vực GAME LOGIC FUNCTIONS
 
 // Bán tất cả sản phẩm của một loại từ kho
+// Bán tất cả sản phẩm của một loại từ kho
 function sellFromInventory(seedId) {
     if (!currentUser) return;
     const qty = state.inventory[seedId] || 0;
@@ -2402,6 +2660,12 @@ function sellFromInventory(seedId) {
     const totalValue = qty * seed.value;
     state.coins += totalValue;
     state.inventory[seedId] = 0;
+
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Số nông sản đã bán & Tổng tiền kiếm được
+    if (!state.stats) state.stats = {};
+    state.stats.cropsSold = (state.stats.cropsSold || 0) + qty;
+    state.stats.totalCoinsEarned = (state.stats.totalCoinsEarned || 0) + totalValue;
+    checkTitles();
 
     log(`Đã bán x${qty} ${seed.name} trực tiếp. Nhận +${totalValue}₵.`);
     save();
@@ -2449,12 +2713,19 @@ function completeOrder(orderInstanceId) {
     state.coins += order.reward;
     order.status = 'completed';
 
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Đơn hàng hoàn thành & Tổng tiền kiếm được
+    if (!state.stats) state.stats = {};
+    state.stats.ordersCompleted = (state.stats.ordersCompleted || 0) + 1;
+    state.stats.totalCoinsEarned = (state.stats.totalCoinsEarned || 0) + order.reward;
+    checkTitles();
+
     log(`Hoàn thành đơn hàng ${order.customer}. Nhận +${order.reward}₵.`);
     save();
     renderFarm();
     renderInventory();
     renderOrders();
 }
+
 
   
 function buySpecialItem(itemId) {
@@ -2559,9 +2830,12 @@ function buySeeds(seedId) {
   }
 
   // Mua hạt giống (Mở khóa)
-    state.coins -= seed.shopPrice;
+  state.coins -= seed.shopPrice;
   state.unlockedSeeds.push(seedId);
   state.selectedSeed = seedId;
+
+  // 🎖️ KIỂM TRA DANH HIỆU: Mở khóa hạt giống (Nhà Thực Vật Học & Bách Khoa Nông Học)
+  checkTitles();
   
   log(`Đã mua và mở khóa ${seed.name} (${seed.shopPrice}₵). Đã chọn để trồng.`);
   save();
@@ -2569,7 +2843,7 @@ function buySeeds(seedId) {
   renderFarm();
   renderShop();
   renderFusionChallenges();
-  checkAndNotifyChallengeCompletion(); // <-- BỔ SUNG DÒNG NÀY
+  checkAndNotifyChallengeCompletion();
 }
 
 function onTileClick(id){
@@ -2607,6 +2881,11 @@ function onTileClick(id){
     tile.growUntil = Date.now() + adjustedTime * 1000;
     tile.isFusionResult = false; 
 
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Số lần gieo mầm
+    if (!state.stats) state.stats = {};
+    state.stats.plantedCount = (state.stats.plantedCount || 0) + 1;
+    checkTitles();
+
     // 🎵 PHÁT ÂM THANH GIEO HẠT / TRỒNG CÂY
     if (typeof SoundEngine !== 'undefined' && SoundEngine.plant) {
       SoundEngine.plant();
@@ -2638,8 +2917,7 @@ function onTileClick(id){
   }
 }
 
-
-// Thay thế khối 'Thu hoạch theo ô' hiện tại bằng khối này
+// Thu hoạch theo ô
 function harvestTile(id) {
     if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
     const tile = findTile(id);
@@ -2653,6 +2931,11 @@ function harvestTile(id) {
     }
     state.inventory[seed.id]++;
     // ===============================================
+
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Số lượng cây thu hoạch (+1)
+    if (!state.stats) state.stats = {};
+    state.stats.harvestedCount = (state.stats.harvestedCount || 0) + 1;
+    checkTitles();
 
     // 🎵 PHÁT ÂM THANH THU HOẠCH 1 Ô
     if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) {
@@ -2683,8 +2966,7 @@ function harvestTile(id) {
     renderFusionPanel();
 }
 
-
-// Khối 'Thu hoạch tất cả'
+// Thu hoạch tất cả
 function harvestAllTiles() {
     if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
     
@@ -2721,6 +3003,11 @@ function harvestAllTiles() {
     });
 
     if (harvestedCount > 0) {
+        // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Cộng dồn toàn bộ số cây vừa gặt
+        if (!state.stats) state.stats = {};
+        state.stats.harvestedCount = (state.stats.harvestedCount || 0) + harvestedCount;
+        checkTitles();
+
         // 🎵 PHÁT ÂM THANH THU HOẠCH TẤT CẢ
         if (typeof SoundEngine !== 'undefined' && SoundEngine.harvest) {
             SoundEngine.harvest();
@@ -2741,7 +3028,6 @@ function harvestAllTiles() {
         tileInfoEl.textContent = 'Không có cây nào đã chín để thu hoạch.';
     }
 }
-
 
 function speedUpTile(id){
   if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
@@ -2778,6 +3064,7 @@ function selectFusionTile(id){
 }
 
 // Sửa đổi doCrossBreed để hoạt động với tất cả cấp độ
+// Sửa đổi doCrossBreed để cập nhật chỉ số danh hiệu phối giống & mở khóa hạt giống
 function doCrossBreed(){
     if (selectedFusionTiles.length === 0) return;
     
@@ -2826,6 +3113,11 @@ function doCrossBreed(){
         log(`Trừ ${COST}₵ chi phí phối giống.`);
     }
 
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Đếm số lần thực hiện lai tạo (Bậc Thầy Đột Biến)
+    if (!state.stats) state.stats = {};
+    state.stats.fusionTryCount = (state.stats.fusionTryCount || 0) + 1;
+    checkTitles();
+
     // 4. Kiểm tra tỉ lệ thành công
     const success = Math.random() < recipeGroup.successRate;
 
@@ -2845,6 +3137,9 @@ function doCrossBreed(){
     });
     
     if (success) {
+        // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Đếm số lần phối giống thành công (Bàn Tay Lai Tạo)
+        state.stats.fusionSuccessCount = (state.stats.fusionSuccessCount || 0) + 1;
+
         // 🎵 PHÁT ÂM THANH PHỐI GIỐNG THÀNH CÔNG
         SoundEngine.fusionSuccess();
 
@@ -2870,9 +3165,11 @@ function doCrossBreed(){
                 state.unlockedSeeds.push(resultSeed.id);
                 log(`Đã mở khóa hạt giống ${resultSeed.name} vĩnh viễn.`);
                 renderFusionChallenges();
-                checkAndNotifyChallengeCompletion(); // <-- BỔ SUNG DÒNG NÀY
+                checkAndNotifyChallengeCompletion();
             }
 
+            // 🎖️ KIỂM TRA DANH HIỆU: Mở khóa hạt giống mới & Phối thành công
+            checkTitles();
 
         } else {
             log('Lỗi nội bộ: Không thể tìm thấy ô để trồng cây mới.');
@@ -2892,8 +3189,7 @@ function doCrossBreed(){
     renderRecipeTable();
 }
 
-  
-// Hàm nhận thưởng nhiệm vụ (Sau buyWater)
+// Hàm nhận thưởng nhiệm vụ (Cập nhật chỉ số Người Hứng Mưa)
 function claimQuestReward(questId) {
     if (!currentUser) return;
     const quest = state.dailyQuests.find(q => q.id === questId);
@@ -2911,6 +3207,11 @@ function claimQuestReward(questId) {
     // Thêm nước và đánh dấu đã nhận
     state.water += quest.reward;
     quest.completed = 'claimed'; // Đánh dấu đã nhận thưởng
+
+    // 🎖️ CẬP NHẬT CHỈ SỐ DANH HIỆU: Đếm số nhiệm vụ nước đã hoàn thành (Người Hứng Mưa)
+    if (!state.stats) state.stats = {};
+    state.stats.questsClaimed = (state.stats.questsClaimed || 0) + 1;
+    checkTitles();
     
     log(`Nhận thưởng: +${quest.reward}L nước từ nhiệm vụ "${quest.desc}"`);
     save();
@@ -3355,6 +3656,268 @@ applyStep2Btn.onclick = () => {
   renderFusionPanel();
   showStep1();
 };
+
+  // ===========================================
+// 🎖️ 10 DANH HIỆU THÀNH TỰU NÔNG TRẠI
+// ===========================================
+const FARM_TITLES = [
+  {
+    id: 't_plant_master',
+    title: 'Gieo Mầm Chăm Chỉ 🌱',
+    desc: 'Gieo hạt đủ 100 lần trên ruộng',
+    icon: '🌱',
+    check: () => {
+      const cur = state.stats?.plantedCount || 0;
+      return { cur, max: 100, done: cur >= 100, text: `${Math.min(cur, 100)}/100 lần` };
+    }
+  },
+  {
+    id: 't_harvest_king',
+    title: 'Đại Nông Bội Thu 🌾',
+    desc: 'Thu hoạch đạt mốc 150 nông sản các loại',
+    icon: '🌾',
+    check: () => {
+      const cur = state.stats?.harvestedCount || 0;
+      return { cur, max: 150, done: cur >= 150, text: `${Math.min(cur, 150)}/150 cây` };
+    }
+  },
+  {
+    id: 't_fusion_novice',
+    title: 'Bàn Tay Lai Tạo 🧪',
+    desc: 'Phối giống thành công 10 lần giống cây mới',
+    icon: '🧪',
+    check: () => {
+      const cur = state.stats?.fusionSuccessCount || 0;
+      return { cur, max: 10, done: cur >= 10, text: `${Math.min(cur, 10)}/10 lần` };
+    }
+  },
+  {
+    id: 't_fusion_master',
+    title: 'Bậc Thầy Đột Biến 🧬',
+    desc: 'Thực hiện 25 lần lai tạo bất kể thành bại',
+    icon: '🧬',
+    check: () => {
+      const cur = state.stats?.fusionTryCount || 0;
+      return { cur, max: 25, done: cur >= 25, text: `${Math.min(cur, 25)}/25 lần` };
+    }
+  },
+  {
+    id: 't_order_runner',
+    title: 'Tài Xế Giao Hàng 🚚',
+    desc: 'Hoàn thành và bàn giao 10 đơn hàng khách',
+    icon: '🚚',
+    check: () => {
+      const cur = state.stats?.ordersCompleted || 0;
+      return { cur, max: 10, done: cur >= 10, text: `${Math.min(cur, 10)}/10 đơn` };
+    }
+  },
+  {
+    id: 't_water_keeper',
+    title: 'Người Hứng Mưa 💧',
+    desc: 'Nhận thưởng 15 nhiệm vụ tích lũy nước tưới',
+    icon: '💧',
+    check: () => {
+      const cur = state.stats?.questsClaimed || 0;
+      return { cur, max: 15, done: cur >= 15, text: `${Math.min(cur, 15)}/15 nv` };
+    }
+  },
+  {
+    id: 't_seed_collector_1',
+    title: 'Nhà Thực Vật Học 📖',
+    desc: 'Mở khóa được 20 giống cây khác nhau',
+    icon: '📖',
+    check: () => {
+      const cur = (state.unlockedSeeds || []).length;
+      return { cur, max: 20, done: cur >= 20, text: `${Math.min(cur, 20)}/20 hạt` };
+    }
+  },
+  {
+    id: 't_seed_collector_2',
+    title: 'Bách Khoa Nông Học 🌿',
+    desc: 'Mở khóa được 40 giống cây khác nhau',
+    icon: '🌿',
+    check: () => {
+      const cur = (state.unlockedSeeds || []).length;
+      return { cur, max: 40, done: cur >= 40, text: `${Math.min(cur, 40)}/40 hạt` };
+    }
+  },
+  {
+    id: 't_market_merchant',
+    title: 'Thương Gia Nông Sản 🧺',
+    desc: 'Bán trực tiếp 100 sản phẩm từ kho hàng',
+    icon: '🧺',
+    check: () => {
+      const cur = state.stats?.cropsSold || 0;
+      return { cur, max: 100, done: cur >= 100, text: `${Math.min(cur, 100)}/100 cái` };
+    }
+  },
+  {
+    id: 't_tycoon',
+    title: 'Phú Hộ Đất Đai 💰',
+    desc: 'Tích lũy tổng doanh thu đạt 20.000 xu',
+    icon: '👑',
+    check: () => {
+      const cur = state.stats?.totalCoinsEarned || 0;
+      return { cur, max: 20000, done: cur >= 20000, text: `${Math.min(cur, 20000).toLocaleString('vi-VN')}/20.000₵` };
+    }
+  }
+];
+
+  // Render khu vực danh hiệu
+function renderEquippedTitle() {
+  const badgeEl = document.getElementById('farmEquippedBadge');
+  if (!badgeEl) return;
+
+  // Xóa sạch các class kiểu dáng cũ
+  badgeEl.className = 'active-title-badge';
+
+  if (!state.equippedTitle) {
+    // Mặc định: Nông Dân
+    badgeEl.classList.add('title-style-default');
+    badgeEl.innerHTML = `<span>🧑‍🌾</span> <span>Nông Dân</span>`;
+    badgeEl.title = 'Chưa đeo danh hiệu. Mặc định là Nông Dân.';
+  } else {
+    const titleObj = FARM_TITLES.find(t => t.id === state.equippedTitle);
+    if (titleObj) {
+      badgeEl.classList.add(`title-style-${titleObj.id}`);
+      // Lấy tên danh hiệu (bỏ icon thừa nếu có để hiển thị gọn đẹp)
+      const cleanTitle = titleObj.title.replace(titleObj.icon, '').trim();
+      badgeEl.innerHTML = `<span>${titleObj.icon}</span> <span>${cleanTitle}</span>`;
+      badgeEl.title = `Danh hiệu đang đeo: ${titleObj.title}\nNhấp để mở bảng danh hiệu.`;
+    } else {
+      badgeEl.classList.add('title-style-default');
+      badgeEl.innerHTML = `<span>🧑‍🌾</span> <span>Nông Dân</span>`;
+    }
+  }
+
+  badgeEl.onclick = () => {
+    const panel = document.getElementById('achievementsPanel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
+
+
+// Hàm đeo / tháo danh hiệu
+function toggleEquipTitle(titleId) {
+  if (!currentUser) return;
+  if (!state.unlockedTitles.includes(titleId)) {
+    alert('Bạn chưa mở khóa danh hiệu này!');
+    return;
+  }
+
+  const titleObj = FARM_TITLES.find(t => t.id === titleId);
+
+  if (state.equippedTitle === titleId) {
+    // Tháo danh hiệu -> quay về mặc định
+    state.equippedTitle = null;
+    log(`Đã tháo danh hiệu. Trở lại làm [🧑‍🌾 Nông Dân].`);
+    showTopToast('ĐÃ THÁO DANH HIỆU', 'Bạn đã quay về danh xưng <strong>Nông Dân</strong>.', '🧑‍🌾');
+  } else {
+    // Đeo danh hiệu mới
+    state.equippedTitle = titleId;
+    log(`Đã đeo danh hiệu: [${titleObj.title}]!`);
+    showTopToast('ĐÃ ĐEO DANH HIỆU', `Bạn đang mang danh xưng <strong>${titleObj.title}</strong>!`, titleObj.icon);
+    
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+      SoundEngine.selectSeed();
+    }
+  }
+
+  save();
+  renderTitles();
+  renderEquippedTitle();
+}
+
+// Render toàn bộ thẻ danh hiệu trong bảng thành tựu
+function renderTitles() {
+  if (!currentUser) return;
+  const listEl = document.getElementById('badgeList');
+  const countEl = document.getElementById('badgeCounter');
+  if (!listEl) return;
+
+  if (!state.unlockedTitles) state.unlockedTitles = [];
+  if (!state.stats) {
+    state.stats = { plantedCount:0, harvestedCount:0, fusionSuccessCount:0, fusionTryCount:0, ordersCompleted:0, questsClaimed:0, cropsSold:0, totalCoinsEarned:0 };
+  }
+
+  listEl.innerHTML = '';
+  let unlockedTotal = 0;
+
+  FARM_TITLES.forEach(t => {
+    const res = t.check();
+    const isUnlocked = state.unlockedTitles.includes(t.id);
+    const isEquipped = state.equippedTitle === t.id;
+    if (isUnlocked) unlockedTotal++;
+
+    const pct = Math.min(100, Math.floor((res.cur / res.max) * 100));
+
+    // Nút hành động đeo/tháo
+    let actionBtnHtml = '';
+    if (isUnlocked) {
+      if (isEquipped) {
+        actionBtnHtml = `<button class="badge-action-btn btn-equipped" onclick="toggleEquipTitle('${t.id}')">★ Đang Đeo (Gỡ)</button>`;
+      } else {
+        actionBtnHtml = `<button class="badge-action-btn btn-equip" onclick="toggleEquipTitle('${t.id}')">⚡ Đeo Danh Hiệu</button>`;
+      }
+    }
+
+    const card = document.createElement('div');
+    card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+    card.innerHTML = `
+      <div class="badge-icon">${t.icon}</div>
+      <div class="badge-info">
+        <div class="badge-title">${t.title}</div>
+        <div class="badge-desc">${t.desc}</div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:#657e62; margin-top:4px;">
+          <span>${res.text}</span>
+          <span>${pct}%</span>
+        </div>
+        <div class="badge-progress-bar">
+          <div class="badge-progress-fill" style="width:${pct}%;"></div>
+        </div>
+        ${actionBtnHtml}
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+
+  if (countEl) countEl.textContent = `Đã đạt: ${unlockedTotal}/${FARM_TITLES.length}`;
+  renderEquippedTitle();
+}
+
+// Kiểm tra và chúc mừng khi mở khóa danh hiệu mới
+function checkTitles() {
+  if (!currentUser) return;
+  if (!state.unlockedTitles) state.unlockedTitles = [];
+
+  let hasNew = false;
+  FARM_TITLES.forEach(t => {
+    const res = t.check();
+    if (res.done && !state.unlockedTitles.includes(t.id)) {
+      state.unlockedTitles.push(t.id);
+      hasNew = true;
+      
+      // Bật Toast vinh danh
+      showTopToast(
+        '🎖️ MỞ KHÓA DANH HIỆU MỚI!',
+        `Bạn vừa đạt được danh hiệu: <strong>${t.title}</strong>`,
+        t.icon
+      );
+
+      // Phát âm thanh chiến thắng
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
+        SoundEngine.fanfareChallenge();
+      }
+
+      log(`🎖️ Chúc mừng! Mở khóa danh hiệu mới: [${t.title}].`);
+    }
+  });
+
+  if (hasNew) {
+    save();
+    renderTitles();
+  }
+}
 
 // ĐỊNH NGHĨA 3 MỐC THỬ THÁCH
 const FUSION_CHALLENGES = [
