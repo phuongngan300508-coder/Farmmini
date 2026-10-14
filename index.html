@@ -5100,19 +5100,49 @@ const ANIMALS_DB = {
   dragon_pet: { id:'dragon_pet', name:'Long thú', emoji:'🐉', level:'Divine', foodName:'Ngọc rồng lửa', foodEmoji:'🔮', time:360, buyPrice:8000, foodValue:2800, shopPrice:12000 }
 };
 
-// 2. 10 ĐƠN HÀNG THỰC PHẨM QUY MÔ LỚN
-const FOOD_ORDERS_TEMPLATE = [
-  { id:'FO1', customer:'Chuỗi siêu thị FreshMart', required:[{animalId:'chicken', qty:40}, {animalId:'duck', qty:25}], reward:1600 },
-  { id:'FO2', customer:'Tiệm bánh ngọt Paris', required:[{animalId:'chicken', qty:60}, {animalId:'cow', qty:15}], reward:2800 },
-  { id:'FO3', customer:'Nhà máy dệt Len Ấm', required:[{animalId:'sheep', qty:35}], reward:2200 },
-  { id:'FO4', customer:'Nhà hàng Nướng Than Hồng', required:[{animalId:'pig', qty:30}, {animalId:'duck', qty:30}], reward:3200 },
-  { id:'FO5', customer:'Trung tâm Dưỡng sinh', required:[{animalId:'goat', qty:30}, {animalId:'cow', qty:20}], reward:3800 },
-  { id:'FO6', customer:'Khách sạn 5 sao Grand', required:[{animalId:'cow', qty:30}, {animalId:'bee_queen', qty:10}], reward:6500 },
-  { id:'FO7', customer:'Đoàn lữ hành Sa mạc', required:[{animalId:'camel', qty:20}, {animalId:'horse', qty:15}], reward:5400 },
-  { id:'FO8', customer:'Hiệp hội Hoàng gia Gourmet', required:[{animalId:'bison', qty:15}, {animalId:'bee_queen', qty:15}], reward:9800 },
-  { id:'FO9', customer:'Tuần lễ Thời trang Haute Couture', required:[{animalId:'swan', qty:8}, {animalId:'sheep', qty:50}], reward:12500 },
-  { id:'FO10', customer:'Thần điện Tối cao Atlantis', required:[{animalId:'dragon_pet', qty:4}, {animalId:'bison', qty:20}], reward:20000 }
+ // 2. KHO 30 MẪU ĐƠN HÀNG THỰC PHẨM QUY MÔ LỚN
+const FOOD_ORDERS_POOL = [
+  // --- NHÓM 1: CƠ BẢN & GIA CẦM (Gà, Vịt) ---
+  { id:'FO01', customer:'Chuỗi siêu thị FreshMart', required:[{animalId:'chicken', qty:40}, {animalId:'duck', qty:25}], reward:1600 },
+  { id:'FO02', customer:'Tiệm Bánh Mì Trứng Ốp La', required:[{animalId:'chicken', qty:50}], reward:1100 },
+  { id:'FO03', customer:'Lò Trứng Muối Gia Truyền', required:[{animalId:'duck', qty:45}], reward:1300 },
+  { id:'FO04', customer:'Bếp Ăn Trường Học Thành Phố', required:[{animalId:'chicken', qty:60}, {animalId:'duck', qty:30}], reward:2100 },
+  { id:'FO05', customer:'Xưởng Mì Sợi Tươi Hoàng Kim', required:[{animalId:'chicken', qty:75}], reward:1650 },
+
+  // --- NHÓM 2: TRUNG CẤP (Cừu, Heo, Dê) ---
+  { id:'FO06', customer:'Nhà Máy Dệt Len Mùa Đông', required:[{animalId:'sheep', qty:35}], reward:2200 },
+  { id:'FO07', customer:'Nhà Hàng Nướng Than Hồng', required:[{animalId:'pig', qty:30}, {animalId:'duck', qty:30}], reward:3200 },
+  { id:'FO08', customer:'Xưởng Xúc Xích Đức Thượng Hạng', required:[{animalId:'pig', qty:40}], reward:3100 },
+  { id:'FO09', customer:'Trại Dưỡng Lão An Nhiên', required:[{animalId:'goat', qty:30}], reward:2000 },
+  { id:'FO10', customer:'Hội Quán Thời Trang Len Dạ', required:[{animalId:'sheep', qty:45}], reward:2700 },
+  { id:'FO11', customer:'Tiệm Bánh Nướng Thơm Béo', required:[{animalId:'pig', qty:25}, {animalId:'chicken', qty:40}], reward:2800 },
+  { id:'FO12', customer:'Trạm Phục Hồi Thể Lực', required:[{animalId:'goat', qty:35}, {animalId:'duck', qty:25}], reward:2900 },
+
+  // --- NHÓM 3: CAO CẤP (Bò Sữa, Lạc Đà, Ngựa Bạch) ---
+  { id:'FO13', customer:'Tiệm Bánh Ngọt Paris', required:[{animalId:'chicken', qty:60}, {animalId:'cow', qty:15}], reward:3600 },
+  { id:'FO14', customer:'Công Ty Sữa Tươi Thanh Trùng', required:[{animalId:'cow', qty:35}], reward:5800 },
+  { id:'FO15', customer:'Trung Tâm Dưỡng Sinh Hoàng Gia', required:[{animalId:'goat', qty:30}, {animalId:'cow', qty:20}], reward:5400 },
+  { id:'FO16', customer:'Đoàn Lữ Hành Vượt Sa Mạc', required:[{animalId:'camel', qty:20}, {animalId:'horse', qty:15}], reward:7800 },
+  { id:'FO17', customer:'Học Viện Kỵ Binh Quý Tộc', required:[{animalId:'horse', qty:25}], reward:6200 },
+  { id:'FO18', customer:'Thương Nhân Con Đường Tơ Lụa', required:[{animalId:'camel', qty:28}], reward:6100 },
+  { id:'FO19', customer:'Hội Thi Ngựa Thể Thao', required:[{animalId:'horse', qty:18}, {animalId:'cow', qty:15}], reward:6800 },
+  { id:'FO20', customer:'Xưởng Kem Phô Mai Tươi', required:[{animalId:'cow', qty:25}, {animalId:'goat', qty:25}], reward:5900 },
+
+  // --- NHÓM 4: HUYỀN THOẠI & QUÝ TỘC (Ong Chúa, Bò Bison) ---
+  { id:'FO21', customer:'Khách Sạn 5 Sao Grand Palace', required:[{animalId:'cow', qty:30}, {animalId:'bee_queen', qty:12}], reward:10500 },
+  { id:'FO22', customer:'Hiệp Hội Hoàng Gia Gourmet', required:[{animalId:'bison', qty:15}, {animalId:'bee_queen', qty:15}], reward:16500 },
+  { id:'FO23', customer:'Hầm Rượu Vang & Phô Mai Cổ Điển', required:[{animalId:'bison', qty:22}], reward:13800 },
+  { id:'FO24', customer:'Tiệm Trà Dược Liệu Quý', required:[{animalId:'bee_queen', qty:20}, {animalId:'camel', qty:15}], reward:13200 },
+  { id:'FO25', customer:'Bàn Tiệc Ngoại Giao Quốc Tế', required:[{animalId:'bison', qty:14}, {animalId:'pig', qty:30}], reward:11200 },
+
+  // --- NHÓM 5: THẦN THOẠI (Thiên Nga Tuyết, Long Thú) ---
+  { id:'FO26', customer:'Tuần Lễ Thời Trang Haute Couture', required:[{animalId:'swan', qty:8}, {animalId:'sheep', qty:50}], reward:14500 },
+  { id:'FO27', customer:'Dạ Tiệc Vũ Hội Mùa Đông', required:[{animalId:'swan', qty:12}], reward:17000 },
+  { id:'FO28', customer:'Thần Điện Tối Cao Atlantis', required:[{animalId:'dragon_pet', qty:4}, {animalId:'bison', qty:20}], reward:26500 },
+  { id:'FO29', customer:'Hội Giả Kim Thuật Tinh Tú', required:[{animalId:'dragon_pet', qty:3}, {animalId:'bee_queen', qty:15}], reward:18500 },
+  { id:'FO30', customer:'Đại Yến Tiệc Long Vương Đăng Quang', required:[{animalId:'dragon_pet', qty:5}, {animalId:'swan', qty:6}], reward:28000 }
 ];
+
 
 // 3. 10 DANH HIỆU KHU CHĂN NUÔI
 const RANCH_TITLES = [
@@ -5791,34 +5821,72 @@ function sellFoodItem(animalId) {
 }
 
 
-// 8. 10 ĐƠN HÀNG THỰC PHẨM LỚN MỖI NGÀY
+// 8. RANDOM 10 ĐƠN TỪ KHO 30 MẪU VÀO ĐÚNG 00:00 NỬA ĐÊM
 function getDailyFoodOrders() {
-  const RESET_MS = 24 * 60 * 60 * 1000;
-  const now = Date.now();
-  if (!state.activeFoodOrders || state.activeFoodOrders.length === 0 || now - state.lastFoodOrderReset >= RESET_MS) {
-    state.activeFoodOrders = JSON.parse(JSON.stringify(FOOD_ORDERS_TEMPLATE)).map((o, idx) => ({
-      ...o,
-      orderKey: `food_order_${now}_${idx}`,
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+  const todayMidnightMs = todayMidnight.getTime();
+
+  // Reset nếu chưa có đơn hoặc ngày reset cũ diễn ra trước 0h hôm nay
+  if (!state.activeFoodOrders || state.activeFoodOrders.length === 0 || !state.lastFoodOrderReset || state.lastFoodOrderReset < todayMidnightMs) {
+    // Thuật toán xáo trộn ngẫu nhiên 30 đơn
+    const shuffledPool = [...FOOD_ORDERS_POOL].sort(() => 0.5 - Math.random());
+    
+    // Lấy đúng 10 đơn ngẫu nhiên đầu tiên
+    const pickedOrders = shuffledPool.slice(0, 10);
+
+    state.activeFoodOrders = pickedOrders.map((o, idx) => ({
+      ...JSON.parse(JSON.stringify(o)),
+      orderKey: `food_order_${todayMidnightMs}_${idx}_${o.id}`,
       status: 'active'
     }));
-    state.lastFoodOrderReset = now;
+
+    state.lastFoodOrderReset = todayMidnightMs;
     save();
   }
   return state.activeFoodOrders;
 }
 
+// 8. RENDER 10 ĐƠN HÀNG THỰC PHẨM VỚI THỨ TỰ ƯU TIÊN CHUẨN
 function renderFoodOrders() {
   getDailyFoodOrders();
   const container = document.getElementById('foodOrderList');
+  if (!container) return;
   container.innerHTML = '';
 
-  const RESET_MS = 24 * 60 * 60 * 1000;
-  const diff = Math.max(0, state.lastFoodOrderReset + RESET_MS - Date.now());
+  // Tính thời gian đếm ngược chính xác tới 00:00:00 ngày mai
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  const diff = Math.max(0, nextMidnight.getTime() - Date.now());
   const h = Math.floor(diff / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
-  document.getElementById('timeToFoodOrdersReset').textContent = `${h} giờ ${m} phút`;
+  const s = Math.floor((diff % 60000) / 1000);
 
-  state.activeFoodOrders.forEach(order => {
+  const timerEl = document.getElementById('timeToFoodOrdersReset');
+  if (timerEl) {
+    timerEl.textContent = `${h} giờ ${m} phút ${s} giây`;
+  }
+
+  // --- SẮP XẾP 2 TẦNG: TRẠNG THÁI + GIÁ TIỀN TĂNG DẦN ---
+  const sortedOrders = [...state.activeFoodOrders].sort((a, b) => {
+    const getPrio = o => {
+      if (o.status === 'completed') return 2;
+      const isReady = o.required.every(r => (state.foodInventory[r.animalId] || 0) >= r.qty);
+      return isReady ? 0 : 1;
+    };
+
+    const prioA = getPrio(a);
+    const prioB = getPrio(b);
+
+    if (prioA !== prioB) {
+      return prioA - prioB;
+    }
+
+    // Giá thấp đứng trước, giá cao đứng sau
+    return (a.reward || 0) - (b.reward || 0);
+  });
+
+  sortedOrders.forEach(order => {
     const isCompleted = order.status === 'completed';
     let isReady = true;
     let reqHtml = '';
@@ -5856,58 +5924,60 @@ function renderFoodOrders() {
   });
 }
 
+
+// HÀM GIAO ĐƠN BUÔN (TỰ ĐỘNG CẬP NHẬT LẠI VỊ TRÍ XUỐNG ĐÁY NGAY LẬP TỨC)
 function deliverFoodOrder(orderKey) {
   const order = state.activeFoodOrders.find(o => o.orderKey === orderKey && o.status === 'active');
   if (!order) return;
 
-  // 1. Kiểm tra an toàn: đảm bảo kho đủ hàng trước khi trừ
+  // 1. Kiểm tra an toàn
   const canDeliver = order.required.every(r => (state.foodInventory[r.animalId] || 0) >= r.qty);
   if (!canDeliver) {
     alert(`Không đủ thực phẩm trong kho để giao đơn cho ${order.customer}!`);
     return;
   }
 
-  // 2. Trừ thực phẩm trong kho
+  // 2. Trừ hàng trong kho
   order.required.forEach(r => {
     state.foodInventory[r.animalId] -= r.qty;
     if (state.foodInventory[r.animalId] < 0) state.foodInventory[r.animalId] = 0;
   });
 
-  // 3. Đánh dấu hoàn thành và cộng xu
+  // 3. Đổi trạng thái & cộng tiền
   order.status = 'completed';
   state.coins += order.reward;
 
-  // 4. Cập nhật thống kê danh hiệu chăn nuôi
+  // 4. Cập nhật thống kê danh hiệu
   if (!state.ranchStats) state.ranchStats = {};
   state.ranchStats.foodOrdersCompleted = (state.ranchStats.foodOrdersCompleted || 0) + 1;
   state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + order.reward;
 
-  // 5. 🌾 CẬP NHẬT TIẾN ĐỘ NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI (GIAO ĐƠN BUÔN)
+  // 5. Cập nhật nhiệm vụ chăn nuôi
   if (typeof checkRanchQuestProgress === 'function') {
     checkRanchQuestProgress('deliver_food_order');
   }
 
-  // 6. Ghi nhật ký riêng vào bảng Hoạt động Chăn nuôi
   if (typeof logRanch === 'function') {
     logRanch(`Giao đơn buôn: Hoàn tất đơn cho [${order.customer}]. Nhận thưởng +${order.reward.toLocaleString('vi-VN')}₵ 🚚.`);
   }
 
-  // Âm thanh nhận xu
   if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
     SoundEngine.coinReward();
   }
 
   save();
   renderFoodInventory();
-  renderFoodOrders();
+  renderFoodOrders(); // Render lại -> đơn vừa giao sẽ tự động tụt xuống đáy
   coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
   checkRanchTitles();
+  
   showTopToast(
     'HOÀN THÀNH ĐƠN HÀNG', 
     `Giao buôn thành công cho <strong>${order.customer}</strong>! Nhận <strong style="color:#b35e00;">+${order.reward.toLocaleString('vi-VN')}₵</strong>`, 
     '🚚'
   );
 }
+
 
 
 // 9. CỬA HÀNG ĐẶC BIỆT CHĂN NUÔI (3 GÓI THỨC ĂN)
