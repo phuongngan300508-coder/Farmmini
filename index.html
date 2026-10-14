@@ -1554,7 +1554,7 @@ function load(){
         inventory: {}, 
         activeOrders: [], 
         lastOrderReset: 0, 
-        fusionRewardClaimed: null, // BỔ SUNG: Mốc thử thách phối giống đã nhận (mặc định null)
+        fusionRewardClaimed: null, // Mốc thử thách phối giống đã nhận (mặc định null)
         seeds: state.seeds,
         specialShopItems: state.specialShopItems
     }));
@@ -1571,11 +1571,11 @@ function load(){
                 
                 state = initialState;
                 state = Object.assign(state, parsed);
-                // ** SỬA LỖI:** Đảm bảo các trường này được tải LÊN TỪ parsed nếu chúng tồn tại
+                // Đảm bảo các trường này được tải lên từ parsed nếu chúng tồn tại
                 if(parsed.inventory) state.inventory = parsed.inventory;
                 if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
-                // BỔ SUNG: Tải trạng thái nhận thưởng thử thách phối giống
+                // Tải trạng thái nhận thưởng thử thách phối giống
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
                 state.selectedSeed = 'carrot'; 
@@ -1596,17 +1596,16 @@ function load(){
         save();
     }
     
-    // ⭐ NEW: LOGIC ÁP DỤNG TIỀN CŨ BỊ MẤT (Chỉ cộng tiền nếu có trong localStorage tạm thời)
+    // ⭐ LOGIC ÁP DỤNG TIỀN CŨ BỊ MẤT
     const oldCoinsTemp = localStorage.getItem(getOldCoinsKey());
     if (oldCoinsTemp) {
         const oldCoinsValue = parseInt(oldCoinsTemp);
         if (oldCoinsValue > 0) {
-            state.coins += oldCoinsValue; // CỘNG TIỀN CŨ VÀO state.coins
+            state.coins += oldCoinsValue;
             log(`💰 Đã áp dụng tiền cũ: +${oldCoinsValue}₵.`);
         }
-        localStorage.removeItem(getOldCoinsKey()); // XÓA KEY TẠM THỜI
+        localStorage.removeItem(getOldCoinsKey());
     }
-    // ⭐ END NEW LOGIC
 
     // Tự động cấp instanceId cho các đơn hàng cũ chưa có mã riêng để không bị lỗi trùng đơn
     if (state.activeOrders && Array.isArray(state.activeOrders)) {
@@ -1617,12 +1616,10 @@ function load(){
         });
     }
 
-    // Nếu Đơn hàng chưa được tạo (lần đầu tiên), thì mới tạo đơn mới.
-    // Nếu state.activeOrders có sẵn, hàm này sẽ bỏ qua và không tạo đơn mới.
     getTodayOrders(); 
     getTodayQuests();
     
-    // NEW: Trừ nước theo thời gian AFK
+    // Trừ nước theo thời gian AFK
     updateWater();
 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
@@ -1636,9 +1633,16 @@ function load(){
     renderQuests();
     renderInventory();
     renderOrders();
-    renderFusionChallenges(); // BỔ SUNG: Hiển thị bảng thử thách phối giống sau khi nạp xong dữ liệu
-    renderFusionPanel(); // Cập nhật trạng thái phối giống sau khi load
+    renderFusionChallenges(); // Hiển thị bảng thử thách phối giống
+    renderFusionPanel();
     updateLoginStatusUI();
+
+    // 🏆 ĐỒNG BỘ CÁC THỬ THÁCH ĐÃ HOÀN THÀNH TỪ TRƯỚC ĐỂ TRÁNH BỊ SPAM THÔNG BÁO KHI LOAD GAME
+    if (typeof FUSION_CHALLENGES !== 'undefined') {
+        notifiedChallenges = new Set(
+            FUSION_CHALLENGES.filter(c => c.check().isComplete).map(c => c.id)
+        );
+    }
     
     if (isNewAccount) {
         log(`Chào mừng ${currentUser}! Đã tạo tài khoản mới.`);
@@ -1646,6 +1650,7 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại.`);
     }
 }
+
 
 
 
@@ -2563,7 +2568,8 @@ function buySeeds(seedId) {
   renderSeeds();
   renderFarm();
   renderShop();
-  renderFusionChallenges(); // THÊM DÒNG NÀY
+  renderFusionChallenges();
+  checkAndNotifyChallengeCompletion(); // <-- BỔ SUNG DÒNG NÀY
 }
 
 function onTileClick(id){
@@ -2864,7 +2870,9 @@ function doCrossBreed(){
                 state.unlockedSeeds.push(resultSeed.id);
                 log(`Đã mở khóa hạt giống ${resultSeed.name} vĩnh viễn.`);
                 renderFusionChallenges();
+                checkAndNotifyChallengeCompletion(); // <-- BỔ SUNG DÒNG NÀY
             }
+
 
         } else {
             log('Lỗi nội bộ: Không thể tìm thấy ô để trồng cây mới.');
@@ -3384,6 +3392,30 @@ const FUSION_CHALLENGES = [
     }
   }
 ];
+
+  // Lưu lại các thử thách đã từng hoàn thành để không thông báo lặp lại liên tục
+let notifiedChallenges = new Set();
+
+function checkAndNotifyChallengeCompletion() {
+  if (!currentUser) return;
+  // Nếu đã từng nhận thưởng một mốc rồi thì các mốc khác không kích hoạt nữa
+  if (state.fusionRewardClaimed) return;
+
+  FUSION_CHALLENGES.forEach(ch => {
+    const status = ch.check();
+    // Điều kiện: Đạt đủ mốc, chưa từng nhận thưởng và chưa từng hiện thông báo lần này
+    if (status.isComplete && !notifiedChallenges.has(ch.id)) {
+      notifiedChallenges.add(ch.id);
+
+      // Bật Toast nổi trên đầu màn hình (hàm showTopToast đã có sẵn tự tắt sau 3 giây và phát âm thanh)
+      showTopToast(
+        '🏆 THỬ THÁCH HOÀN THÀNH!',
+        `Bạn đã hoàn thành <strong>${ch.title}</strong>! Hãy vào nhận thưởng.`,
+        '✨'
+      );
+    }
+  });
+}
 
 
 // HÀM RENDER GIAO DIỆN BẢNG THỬ THÁCH
