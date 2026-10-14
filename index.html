@@ -3997,15 +3997,22 @@ setInterval(() => {
         }
         renderFeedResource();
         renderBarns();
-        // 🌾 Cập nhật thời gian đếm ngược & trạng thái nhiệm vụ chăn nuôi mỗi giây
+        
+        // Cập nhật nhiệm vụ chăn nuôi
         if (typeof renderRanchQuests === 'function') {
           renderRanchQuests();
+        }
+
+        // CẬP NHẬT GIÂY, PHÚT, GIỜ ĐẾM NGƯỢC LIÊN TỤC MỖI GIÂY CHO ĐƠN HÀNG
+        if (typeof updateFoodOrdersTimer === 'function') {
+          updateFoodOrdersTimer();
         }
       }
     }
     updateLoginStatusUI(); 
   }
 }, 1000);
+
 
 // Autosave occasionally
 setInterval(()=>save(), 5000);
@@ -5848,24 +5855,38 @@ function getDailyFoodOrders() {
 }
 
 // 8. RENDER 10 ĐƠN HÀNG THỰC PHẨM VỚI THỨ TỰ ƯU TIÊN CHUẨN
+// CẬP NHẬT RIÊNG ĐỒNG HỒ ĐƠN HÀNG CHĂN NUÔI MỖI GIÂY (CHẠY LIÊN TỤC THEO THỜI GIAN THỰC)
+function updateFoodOrdersTimer() {
+  const timerEl = document.getElementById('timeToFoodOrdersReset');
+  if (!timerEl) return;
+
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  const diff = Math.max(0, nextMidnight.getTime() - Date.now());
+
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+
+  // Hiển thị chuẩn cấu trúc: 0h 0m 0s
+  timerEl.textContent = `${h}h ${m}m ${s}s`;
+
+  // Khi vừa chạm 00:00:00 (h=0, m=0, s=0), tự động làm mới lại 10 đơn hàng
+  if (diff <= 1000 && (!state.lastFoodOrderReset || state.lastFoodOrderReset < nextMidnight.getTime() - 86400000)) {
+    getDailyFoodOrders();
+    renderFoodOrders();
+  }
+}
+
+// 8. RENDER 10 ĐƠN HÀNG THỰC PHẨM VỚI THỨ TỰ ƯU TIÊN CHUẨN
 function renderFoodOrders() {
   getDailyFoodOrders();
   const container = document.getElementById('foodOrderList');
   if (!container) return;
   container.innerHTML = '';
 
-  // Tính thời gian đếm ngược chính xác tới 00:00:00 ngày mai
-  const now = new Date();
-  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-  const diff = Math.max(0, nextMidnight.getTime() - Date.now());
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-
-  const timerEl = document.getElementById('timeToFoodOrdersReset');
-  if (timerEl) {
-    timerEl.textContent = `${h} giờ ${m} phút ${s} giây`;
-  }
+  // Cập nhật text đồng hồ ngay khi render
+  updateFoodOrdersTimer();
 
   // --- SẮP XẾP 2 TẦNG: TRẠNG THÁI + GIÁ TIỀN TĂNG DẦN ---
   const sortedOrders = [...state.activeFoodOrders].sort((a, b) => {
@@ -5923,6 +5944,7 @@ function renderFoodOrders() {
     container.appendChild(div);
   });
 }
+
 
 
 // HÀM GIAO ĐƠN BUÔN (TỰ ĐỘNG CẬP NHẬT LẠI VỊ TRÍ XUỐNG ĐÁY NGAY LẬP TỨC)
