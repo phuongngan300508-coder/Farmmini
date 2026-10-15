@@ -1175,6 +1175,33 @@ body:not(.logged-out) .app {
   contain: content; /* Cách ly việc tính toán lại layout của 30 món bên trong */
   will-change: scroll-position;
 }
+
+/* ======================================================== */
+/* GIAO DIỆN ĐƠN HÀNG ONLINE MÓN ĂN                         */
+/* ======================================================== */
+.online-order-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+.order-tier-Normal   { background: #e2e8f0; color: #475569; }
+.order-tier-Medium   { background: #fef3c7; color: #b45309; }
+.order-tier-High     { background: #fed7aa; color: #c2410c; }
+.order-tier-VIP      { background: #f3e8ff; color: #7e22ce; }
+.order-tier-VVIP     { background: #ffe4e6; color: #be123c; border: 1px solid #f43f5e; box-shadow: 0 0 6px rgba(244,63,94,0.3); }
+
+.online-order-item {
+  border-left: 5px solid #d97706;
+}
+.online-order-item.tier-Normal { border-left-color: #94a3b8; }
+.online-order-item.tier-Medium { border-left-color: #f59e0b; }
+.online-order-item.tier-High   { border-left-color: #ea580c; }
+.online-order-item.tier-VIP    { border-left-color: #a855f7; }
+.online-order-item.tier-VVIP   { border-left-color: #e11d48; background: #fff5f5 !important; }
   </style>
 </head>
 <body>
@@ -1428,11 +1455,25 @@ body:not(.logged-out) .app {
         </div>
       </div>
 
-      <!-- 1. THÔNG TIN CHUỒNG NUÔI -->
+      <!-- 1. THÔNG TIN CHUỒNG NUÔI & ĐƠN HÀNG ONLINE KHI LẬT BẾP -->
       <div style="height:12px"></div>
-      <div class="panel">
+      
+      <!-- Khung mặc định khi ở chuồng trại -->
+      <div class="panel" id="barnInfoPanel">
         <h2>Thông tin Chuồng Nuôi 💬</h2>
         <div id="barnInfo" class="muted">Chọn một ô chuồng để quản lý gia súc.</div>
+      </div>
+
+      <!-- Khung xuất hiện khi lật sang Bếp Chế Biến -->
+      <div class="panel" id="onlineOrdersPanel" style="display: none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <h2 style="margin:0; color:#ea580c;">🛵 Đơn Hàng Món Ăn Online (5 Đơn)</h2>
+          <span class="muted-2" id="onlineOrderNextSpawnTimer" style="font-size:12px; font-weight:700; color:#d97706;"></span>
+        </div>
+        <div class="muted-2" style="margin: 6px 0 10px 0; font-size:12px;">
+          Đơn hàng số lượng lớn từ kho món đã nấu. Thưởng từ <strong>10.000 xu</strong> trở lên (Đã giao sẽ hồi lại đơn mới sau 2 phút).
+        </div>
+        <div id="onlineOrdersList" class="quest-list" style="max-height: 380px; overflow-y: auto; padding-right: 4px;"></div>
       </div>
 
       <!-- 2. KHUNG HOẠT ĐỘNG CHĂN NUÔI -->
@@ -2466,8 +2507,13 @@ function save(){
     selectedAnimal: state.selectedAnimal,
     unlockedAnimals: state.unlockedAnimals,
     foodInventory: state.foodInventory,
-    dishInventory: state.dishInventory, // <-- Lưu kho món ăn đã chế biến
-    cookingFire: state.cookingFire !== undefined ? state.cookingFire : 50, // 🔥 LƯU SỐ DƯ LỬA BẾP NẤU
+    dishInventory: state.dishInventory, // Lưu kho món ăn đã chế biến
+    cookingFire: state.cookingFire !== undefined ? state.cookingFire : 50, // 🔥 Lưu số dư lửa bếp nấu
+
+    // 🛵 LƯU DỮ LIỆU ĐƠN HÀNG ONLINE & BỘ ĐẾM 2 PHÚT HỒI ĐƠN:
+    activeOnlineOrders: state.activeOnlineOrders || [],
+    onlineOrderSpawnTimers: state.onlineOrderSpawnTimers || [],
+
     activeFoodOrders: state.activeFoodOrders,
     lastFoodOrderReset: state.lastFoodOrderReset,
     ranchEquippedTitle: state.ranchEquippedTitle,
@@ -2488,7 +2534,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (Bổ sung kho món ăn & lửa nấu bếp)
+    // 💡 Tái tạo initialState an toàn
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -2526,8 +2572,13 @@ function load(){
         selectedAnimal: 'chicken',
         unlockedAnimals: ['chicken', 'duck'],
         foodInventory: {},
-        dishInventory: {}, // Khởi tạo kho món ăn mặc định
-        cookingFire: 50,    // 🔥 MẶC ĐỊNH 50 LỬA KHI MỚI BẮT ĐẦU
+        dishInventory: {},
+        cookingFire: 50, // 🔥 Mặc định 50 lửa khi bắt đầu
+
+        // 🛵 KHỞI TẠO MẶC ĐỊNH CHO ĐƠN HÀNG ONLINE:
+        activeOnlineOrders: [],
+        onlineOrderSpawnTimers: [],
+
         activeFoodOrders: [],
         lastFoodOrderReset: 0,
         ranchEquippedTitle: null,
@@ -2589,7 +2640,12 @@ function load(){
                 state.unlockedAnimals = Array.isArray(parsed.unlockedAnimals) ? parsed.unlockedAnimals : ['chicken', 'duck'];
                 state.foodInventory = parsed.foodInventory || {};
                 state.dishInventory = parsed.dishInventory || {};
-                state.cookingFire = parsed.cookingFire !== undefined ? parsed.cookingFire : 50; // 🔥 ĐỌC SỐ DƯ LỬA (NẾU ACC CŨ CHƯA CÓ THÌ GÁN 50)
+                state.cookingFire = parsed.cookingFire !== undefined ? parsed.cookingFire : 50;
+
+                // 🛵 PHỤC HỒI DỮ LIỆU ĐƠN HÀNG ONLINE:
+                state.activeOnlineOrders = Array.isArray(parsed.activeOnlineOrders) ? parsed.activeOnlineOrders : [];
+                state.onlineOrderSpawnTimers = Array.isArray(parsed.onlineOrderSpawnTimers) ? parsed.onlineOrderSpawnTimers : [];
+
                 state.activeFoodOrders = Array.isArray(parsed.activeFoodOrders) ? parsed.activeFoodOrders : [];
                 state.lastFoodOrderReset = parsed.lastFoodOrderReset || 0;
                 state.ranchEquippedTitle = parsed.ranchEquippedTitle !== undefined ? parsed.ranchEquippedTitle : null;
@@ -2667,6 +2723,11 @@ function load(){
         getTodayRanchQuests();
     }
 
+    // 🛵 KHỞI TẠO ĐƠN HÀNG ONLINE NẾU CHƯA ĐỦ 5 ĐƠN
+    if (typeof ensureOnlineOrders === 'function') {
+        ensureOnlineOrders();
+    }
+
     updateWater();
 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
@@ -2699,8 +2760,9 @@ function load(){
     if (typeof renderFoodInventory === 'function') renderFoodInventory();
     if (typeof renderDishInventory === 'function') renderDishInventory();
     if (typeof renderKitchenFace === 'function') renderKitchenFace();
-    if (typeof renderKitchenFire === 'function') renderKitchenFire(); // 🔥 RENDER HIỂN THỊ SỐ DƯ LỬA BẾP NẤU
+    if (typeof renderKitchenFire === 'function') renderKitchenFire();
     if (typeof renderFoodOrders === 'function') renderFoodOrders();
+    if (typeof renderOnlineOrders === 'function') renderOnlineOrders(); // 🛵 Render sẵn đơn hàng online
     if (typeof renderRanchTitles === 'function') renderRanchTitles();
     if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
 
@@ -4247,9 +4309,19 @@ setInterval(() => {
           renderRanchQuests();
         }
 
-        // CẬP NHẬT GIÂY, PHÚT, GIỜ ĐẾM NGƯỢC LIÊN TỤC MỖI GIÂY CHO ĐƠN HÀNG
+        // CẬP NHẬT GIÂY, PHÚT, GIỜ ĐẾM NGƯỢC LIÊN TỤC MỖI GIÂY CHO ĐƠN HÀNG THỰC PHẨM
         if (typeof updateFoodOrdersTimer === 'function') {
           updateFoodOrdersTimer();
+        }
+
+        // 🛵 BỘ ĐẾM 2 PHÚT HỒI ĐƠN & HIỂN THỊ ĐƠN HÀNG ONLINE KHI ĐANG LẬT BẾP
+        if (typeof checkOnlineOrderSpawnTimer === 'function') {
+          checkOnlineOrderSpawnTimer();
+        }
+        if (typeof isKitchenFlipped !== 'undefined' && isKitchenFlipped) {
+          if (typeof renderOnlineOrders === 'function') {
+            renderOnlineOrders();
+          }
         }
       }
     }
@@ -6570,17 +6642,31 @@ const ranchSectionHeaderTitle = document.getElementById('ranchSectionHeaderTitle
 if (btnFlipDoorToggle && flipDoorCard) {
   btnFlipDoorToggle.onclick = () => {
     isKitchenFlipped = !isKitchenFlipped;
+    const barnInfoPanel = document.getElementById('barnInfoPanel');
+    const onlineOrdersPanel = document.getElementById('onlineOrdersPanel');
+
     if (isKitchenFlipped) {
       flipDoorCard.classList.add('is-flipped');
       btnFlipDoorToggle.innerHTML = '🏡 Về Chuồng Nuôi 🔄';
       btnFlipDoorToggle.style.background = 'linear-gradient(180deg, #f59e0b, #b45309)';
       ranchSectionHeaderTitle.textContent = 'Bếp Nấu Ẩm Thực Trang Trại 🍳🔥';
       renderKitchenFace();
+
+      // Khi chuyển sang bếp: ẨN thông tin chuồng nuôi, HIỆN đơn hàng online
+      if (barnInfoPanel) barnInfoPanel.style.display = 'none';
+      if (onlineOrdersPanel) {
+        onlineOrdersPanel.style.display = 'block';
+        renderOnlineOrders();
+      }
     } else {
       flipDoorCard.classList.remove('is-flipped');
       btnFlipDoorToggle.innerHTML = '🍳 Chế Biến Món Ăn 🔄';
       btnFlipDoorToggle.style.background = 'linear-gradient(180deg, #ea580c, #c2410c)';
       ranchSectionHeaderTitle.textContent = 'Khu Chuồng Trại Gia Súc 🏡🐄';
+
+      // Khi về chuồng nuôi: HIỆN thông tin chuồng nuôi, ẨN đơn hàng online
+      if (barnInfoPanel) barnInfoPanel.style.display = 'block';
+      if (onlineOrdersPanel) onlineOrdersPanel.style.display = 'none';
     }
     if (typeof SoundEngine !== 'undefined') SoundEngine.click();
   };
@@ -6865,6 +6951,254 @@ function renderKitchenFire() {
     fireEl.style.color = currentFire > 0 ? '#c2410c' : '#dc2626';
     fireEl.style.borderColor = currentFire > 0 ? '#f97316' : '#ef4444';
   }
+}
+
+// ==========================================================================
+// KHO 50 ĐƠN HÀNG ONLINE MÓN ĂN (TỐI THIỂU 10.000 XU)
+// ==========================================================================
+const ONLINE_ORDERS_POOL = [
+  // --- 10 ĐƠN THƯỜNG (10.000₵ - 14.500₵) ---
+  { id:'OON01', tier:'Normal', customer:'Tiệm Cơm Văn Phòng Tân Bình', required:[{dishId:'dish_01', qty:180}, {dishId:'dish_02', qty:120}], reward:10500 },
+  { id:'OON02', tier:'Normal', customer:'Hội Chợ Ẩm Thực Phố Đi Bộ', required:[{dishId:'dish_03', qty:100}, {dishId:'dish_04', qty:50}], reward:12000 },
+  { id:'OON03', tier:'Normal', customer:'Bếp Căn Tin Ký Túc Xá', required:[{dishId:'dish_01', qty:250}], reward:10000 },
+  { id:'OON04', tier:'Normal', customer:'Cửa Hàng Thức Ăn Nhanh 24/7', required:[{dishId:'dish_05', qty:100}, {dishId:'dish_02', qty:50}], reward:12500 },
+  { id:'OON05', tier:'Normal', customer:'Bếp Ăn Công Đoàn Khu Công Nghiệp', required:[{dishId:'dish_04', qty:120}, {dishId:'dish_01', qty:80}], reward:13000 },
+  { id:'OON06', tier:'Normal', customer:'Tiệm Bánh Mì Chảo Bến Thành', required:[{dishId:'dish_05', qty:80}, {dishId:'dish_03', qty:60}], reward:13200 },
+  { id:'OON07', tier:'Normal', customer:'Đoàn Cắm Trại Rừng Sác', required:[{dishId:'dish_02', qty:150}, {dishId:'dish_05', qty:50}], reward:11200 },
+  { id:'OON08', tier:'Normal', customer:'Trạm Tiếp Năng Lượng Đêm', required:[{dishId:'dish_03', qty:120}, {dishId:'dish_01', qty:100}], reward:12800 },
+  { id:'OON09', tier:'Normal', customer:'Quán Ăn Gia Đình Sum Vầy', required:[{dishId:'dish_04', qty:100}, {dishId:'dish_05', qty:60}], reward:14500 },
+  { id:'OON10', tier:'Normal', customer:'Tiệc Họp Mặt Đồng Khóa', required:[{dishId:'dish_01', qty:150}, {dishId:'dish_03', qty:70}], reward:10800 },
+
+  // --- 10 ĐƠN VỪA (15.000₵ - 24.000₵) ---
+  { id:'OOM01', tier:'Medium', customer:'Tiệm Bánh & Trà Chiều Magnolia', required:[{dishId:'dish_06', qty:65}, {dishId:'dish_07', qty:40}], reward:20500 },
+  { id:'OOM02', tier:'Medium', customer:'Hội Nghị Khởi Nghiệp Trẻ', required:[{dishId:'dish_08', qty:50}, {dishId:'dish_09', qty:25}], reward:21000 },
+  { id:'OOM03', tier:'Medium', customer:'Quán Cà Phê Acoustic Cuối Tuần', required:[{dishId:'dish_10', qty:60}, {dishId:'dish_06', qty:30}], reward:19500 },
+  { id:'OOM04', tier:'Medium', customer:'Hội Trại Sinh Viên Mùa Hè', required:[{dishId:'dish_07', qty:60}, {dishId:'dish_08', qty:25}], reward:18800 },
+  { id:'OOM05', tier:'Medium', customer:'Tiệc Trà Sinh Nhật Sân Vườn', required:[{dishId:'dish_09', qty:45}, {dishId:'dish_10', qty:35}], reward:20000 },
+  { id:'OOM06', tier:'Medium', customer:'Khách Sạn Boutique Phố Cổ', required:[{dishId:'dish_06', qty:50}, {dishId:'dish_08', qty:35}], reward:19200 },
+  { id:'OOM07', tier:'Medium', customer:'Hội Thảo Khoa Học Nông Nghiệp', required:[{dishId:'dish_09', qty:60}, {dishId:'dish_07', qty:25}], reward:20800 },
+  { id:'OOM08', tier:'Medium', customer:'Phòng Trà Ca Nhạc Hoàng Hôn', required:[{dishId:'dish_10', qty:50}, {dishId:'dish_09', qty:30}], reward:19800 },
+  { id:'OOM09', tier:'Medium', customer:'Khu Nghỉ Dưỡng Sinh Thái Ven Sông', required:[{dishId:'dish_08', qty:40}, {dishId:'dish_06', qty:40}], reward:18500 },
+  { id:'OOM10', tier:'Medium', customer:'Tiệc Đầy Tháng Bé Rồng', required:[{dishId:'dish_07', qty:50}, {dishId:'dish_10', qty:40}], reward:20200 },
+
+  // --- 10 ĐƠN CAO TIỀN (25.000₵ - 38.000₵) ---
+  { id:'OOH01', tier:'High', customer:'Nhà Hàng Bít Tết Gourmet Paris', required:[{dishId:'dish_11', qty:40}, {dishId:'dish_12', qty:25}], reward:27500 },
+  { id:'OOH02', tier:'High', customer:'Đoàn Du Khách Sa Mạc Sahara', required:[{dishId:'dish_13', qty:45}, {dishId:'dish_14', qty:20}], reward:30000 },
+  { id:'OOH03', tier:'High', customer:'Hiệp Hội Ẩm Thực Rừng Xanh', required:[{dishId:'dish_15', qty:30}, {dishId:'dish_16', qty:15}], reward:33000 },
+  { id:'OOH04', tier:'High', customer:'Tiệc Rượu Vang & Bơ Pháp', required:[{dishId:'dish_17', qty:35}, {dishId:'dish_19', qty:15}], reward:34500 },
+  { id:'OOH05', tier:'High', customer:'Yến Tiệc Đại Biểu Quốc Tế', required:[{dishId:'dish_20', qty:25}, {dishId:'dish_18', qty:15}], reward:36000 },
+  { id:'OOH06', tier:'High', customer:'Câu Lạc Bộ Quý Tộc Kỵ Binh', required:[{dishId:'dish_14', qty:40}, {dishId:'dish_11', qty:25}], reward:30500 },
+  { id:'OOH07', tier:'High', customer:'Lễ Hội Mật Ong & Trà Thơm', required:[{dishId:'dish_15', qty:35}, {dishId:'dish_13', qty:20}], reward:38000 },
+  { id:'OOH08', tier:'High', customer:'Tiệc Nướng Hầm Rượu Cổ', required:[{dishId:'dish_16', qty:30}, {dishId:'dish_18', qty:20}], reward:28500 },
+  { id:'OOH09', tier:'High', customer:'Nhà Hàng 4 Sao Le Gourmet', required:[{dishId:'dish_12', qty:40}, {dishId:'dish_17', qty:20}], reward:26800 },
+  { id:'OOH10', tier:'High', customer:'Đêm Ẩm Thực Tây Âu Cao Cấp', required:[{dishId:'dish_20', qty:20}, {dishId:'dish_19', qty:15}], reward:37000 },
+
+  // --- 10 ĐƠN VIP (40.000₵ - 65.000₵) ---
+  { id:'OOV01', tier:'VIP', customer:'Dạ Tiệc Doanh Nhân Landmark', required:[{dishId:'dish_21', qty:20}, {dishId:'dish_22', qty:15}], reward:64000 },
+  { id:'OOV02', tier:'VIP', customer:'Vũ Hội Mùa Đông Cung Điện Tuyết', required:[{dishId:'dish_23', qty:16}, {dishId:'dish_24', qty:8}], reward:65000 },
+  { id:'OOV03', tier:'VIP', customer:'Tiệc Thượng Đỉnh Hoàng Gia', required:[{dishId:'dish_25', qty:15}, {dishId:'dish_26', qty:8}], reward:63500 },
+  { id:'OOV04', tier:'VIP', customer:'Lâu Đài Rượu Vang & Phô Mai Bison', required:[{dishId:'dish_21', qty:25}], reward:49500 },
+  { id:'OOV05', tier:'VIP', customer:'Hội Quán Quý Tộc Trượt Tuyết', required:[{dishId:'dish_24', qty:14}, {dishId:'dish_25', qty:10}], reward:72000 },
+  { id:'OOV06', tier:'VIP', customer:'Lễ Trao Giải Thưởng Quốc Tế', required:[{dishId:'dish_22', qty:22}, {dishId:'dish_21', qty:10}], reward:58000 },
+  { id:'OOV07', tier:'VIP', customer:'Đoàn Ngoại Giao Bắc Âu', required:[{dishId:'dish_23', qty:18}, {dishId:'dish_25', qty:8}], reward:66500 },
+  { id:'OOV08', tier:'VIP', customer:'Bộ Sưu Tập Thời Trang Khăn Len Tuyết', required:[{dishId:'dish_26', qty:18}, {dishId:'dish_22', qty:8}], reward:68000 },
+  { id:'OOV09', tier:'VIP', customer:'Khách Sạn 6 Sao Grand Imperial', required:[{dishId:'dish_21', qty:18}, {dishId:'dish_24', qty:10}], reward:67500 },
+  { id:'OOV10', tier:'VIP', customer:'Tiệc Kỷ Niệm 100 Năm Thương Hiệu', required:[{dishId:'dish_23', qty:14}, {dishId:'dish_26', qty:10}], reward:69000 },
+
+  // --- 10 ĐƠN VVIP (80.000₵ - 150.000₵) ---
+  { id:'OOVV01', tier:'VVIP', customer:'Thần Điện Long Vương Đăng Quang', required:[{dishId:'dish_27', qty:14}, {dishId:'dish_28', qty:6}], reward:122000 },
+  { id:'OOVV02', tier:'VVIP', customer:'Hội Giả Kim Thuật Tinh Tú', required:[{dishId:'dish_29', qty:12}, {dishId:'dish_30', qty:5}], reward:140000 },
+  { id:'OOVV03', tier:'VVIP', customer:'Đại Yến Cung Đình Tam Giới', required:[{dishId:'dish_30', qty:12}], reward:125000 },
+  { id:'OOVV04', tier:'VVIP', customer:'Thần Tộc Atlantis Mở Cổng', required:[{dishId:'dish_28', qty:12}, {dishId:'dish_29', qty:8}], reward:145000 },
+  { id:'OOVV05', tier:'VVIP', customer:'Lễ Tế Ngũ Hành Thần Thoại', required:[{dishId:'dish_27', qty:15}, {dishId:'dish_30', qty:6}], reward:148000 },
+  { id:'OOVV06', tier:'VVIP', customer:'Đại Tiệc Càn Khôn Vĩnh Hằng', required:[{dishId:'dish_29', qty:10}, {dishId:'dish_28', qty:8}], reward:130000 },
+  { id:'OOVV07', tier:'VVIP', customer:'Hội Kính Nguyệt Thần Tiên', required:[{dishId:'dish_30', qty:10}, {dishId:'dish_27', qty:8}], reward:150000 },
+  { id:'OOVV08', tier:'VVIP', customer:'Yến Tiệc Của Vua Các Vị Thần', required:[{dishId:'dish_28', qty:15}, {dishId:'dish_27', qty:10}], reward:162000 },
+  { id:'OOVV09', tier:'VVIP', customer:'Thượng Đỉnh Các Vũ Trụ Hội Tụ', required:[{dishId:'dish_29', qty:14}, {dishId:'dish_30', qty:6}], reward:165000 },
+  { id:'OOVV10', tier:'VVIP', customer:'Đại Lễ Chúc Thọ Long Đế Vô Cực', required:[{dishId:'dish_30', qty:15}], reward:155000 }
+];
+
+// Lấy 1 đơn online ngẫu nhiên không trùng với các đơn đang active
+function getRandomOnlineOrder(excludeIds = []) {
+  const available = ONLINE_ORDERS_POOL.filter(o => !excludeIds.includes(o.id));
+  if (available.length === 0) return null;
+  const picked = available[Math.floor(Math.random() * available.length)];
+  return {
+    ...JSON.parse(JSON.stringify(picked)),
+    instanceKey: `online_${picked.id}_${Date.now()}_${Math.floor(Math.random()*10000)}`
+  };
+}
+
+// Khởi tạo và kiểm tra lấp đầy 5 đơn online
+function ensureOnlineOrders() {
+  if (!state.activeOnlineOrders) state.activeOnlineOrders = [];
+  if (!state.onlineOrderSpawnTimers) state.onlineOrderSpawnTimers = [];
+
+  // Lần đầu vào game chưa có đơn nào -> nạp ngay 5 đơn random từ 50 đơn
+  if (state.activeOnlineOrders.length === 0 && state.onlineOrderSpawnTimers.length === 0) {
+    while (state.activeOnlineOrders.length < 5) {
+      const existingIds = state.activeOnlineOrders.map(o => o.id);
+      const newOrder = getRandomOnlineOrder(existingIds);
+      if (newOrder) state.activeOnlineOrders.push(newOrder);
+      else break;
+    }
+    save();
+  }
+}
+
+// Kiểm tra bộ đếm 2 phút sinh đơn mới
+function checkOnlineOrderSpawnTimer() {
+  if (!state.onlineOrderSpawnTimers || state.onlineOrderSpawnTimers.length === 0) return;
+  const now = Date.now();
+  let updated = false;
+
+  // Lọc lấy các timer đã đủ 2 phút (120000ms)
+  const readyTimers = state.onlineOrderSpawnTimers.filter(t => now >= t.readyAt);
+  if (readyTimers.length > 0) {
+    readyTimers.forEach(() => {
+      if (state.activeOnlineOrders.length < 5) {
+        const existingIds = state.activeOnlineOrders.map(o => o.id);
+        const newOrder = getRandomOnlineOrder(existingIds);
+        if (newOrder) {
+          state.activeOnlineOrders.push(newOrder);
+          logRanch(`🛵 Có 1 đơn hàng online mới cập bến [${newOrder.customer}]!`);
+          updated = true;
+        }
+      }
+    });
+
+    state.onlineOrderSpawnTimers = state.onlineOrderSpawnTimers.filter(t => now < t.readyAt);
+    if (updated) {
+      save();
+      renderOnlineOrders();
+    }
+  }
+}
+
+// Render danh sách Đơn hàng Online
+// Render danh sách Đơn hàng Online (Đơn thấp lên trước, đơn cao xuống dưới)
+function renderOnlineOrders() {
+  ensureOnlineOrders();
+  const container = document.getElementById('onlineOrdersList');
+  const timerBadge = document.getElementById('onlineOrderNextSpawnTimer');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  // Hiển thị đếm ngược nếu đang chờ hồi đơn mới (khi ít hơn 5 đơn)
+  if (state.onlineOrderSpawnTimers && state.onlineOrderSpawnTimers.length > 0) {
+    const nextTimer = state.onlineOrderSpawnTimers[0];
+    const remainMs = Math.max(0, nextTimer.readyAt - Date.now());
+    const m = Math.floor(remainMs / 60000);
+    const s = Math.floor((remainMs % 60000) / 1000);
+    if (timerBadge) timerBadge.textContent = `⏳ Đơn mới sau: ${m}m ${s}s (${state.activeOnlineOrders.length}/5 đơn)`;
+  } else {
+    if (timerBadge) timerBadge.textContent = `🛵 Đang nhận: ${state.activeOnlineOrders.length}/5 đơn`;
+  }
+
+  if (state.activeOnlineOrders.length === 0) {
+    container.innerHTML = '<div class="muted" style="text-align:center; padding:15px;">Đã giao hết các đơn! Đang chuẩn bị đơn mới từ khách hàng...</div>';
+    return;
+  }
+
+  // SẮP XẾP: Đủ điều kiện giao lên đầu -> Đơn thấp tiền lên trước, cao tiền xuống dưới
+  const sorted = [...state.activeOnlineOrders].sort((a, b) => {
+    const isReadyA = a.required.every(r => (state.dishInventory && state.dishInventory[r.dishId] || 0) >= r.qty);
+    const isReadyB = b.required.every(r => (state.dishInventory && state.dishInventory[r.dishId] || 0) >= r.qty);
+    if (isReadyA && !isReadyB) return -1;
+    if (!isReadyA && isReadyB) return 1;
+    return a.reward - b.reward; // Ít tiền xếp trước, nhiều tiền xếp sau
+  });
+
+  sorted.forEach(order => {
+    let isReady = true;
+    let reqHtml = '';
+
+    order.required.forEach(r => {
+      const dish = DISHES_DB.find(d => d.id === r.dishId);
+      const has = (state.dishInventory && state.dishInventory[r.dishId]) || 0;
+      if (has < r.qty) isReady = false;
+      const met = has >= r.qty;
+
+      reqHtml += `
+        <div style="font-size:12px; color:${met ? '#2e7d32' : '#b35e00'}; font-weight:600; margin-left:8px;">
+          ${dish ? dish.emoji : '🍲'} ${dish ? dish.name : r.dishId}: ${has}/${r.qty} phần ${met ? '✓' : ''}
+        </div>
+      `;
+    });
+
+    const div = document.createElement('div');
+    div.className = `quest-item online-order-item tier-${order.tier}` + (isReady ? ' order-ready' : '');
+
+    const tierNameMap = { Normal:'Thường', Medium:'Vừa', High:'Cao Tiền', VIP:'VIP', VVIP:'VVIP 👑' };
+
+    div.innerHTML = `
+      <div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap;">
+          <strong style="font-size:14px; color:#2b3b2a;">${order.customer}</strong>
+          <span class="online-order-tag order-tier-${order.tier}">${tierNameMap[order.tier]}</span>
+        </div>
+        <div style="margin-top:4px;">${reqHtml}</div>
+      </div>
+      <div class="row" style="align-items:center;">
+        <div class="quest-progress" style="min-width:90px; text-align:right;">${isReady ? 'Đủ Món 📦' : 'Thiếu Món'}</div>
+        <button class="btn ${isReady ? '' : 'secondary'}" 
+          style="${isReady ? 'background:linear-gradient(180deg,#ea580c,#c2410c); color:#fff;' : ''}"
+          ${isReady ? '' : 'disabled'}
+          onclick="deliverOnlineOrder('${order.instanceKey}')">
+          Giao ngay +${order.reward.toLocaleString('vi-VN')}₵
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Bấm giao Đơn hàng Online
+function deliverOnlineOrder(instanceKey) {
+  const order = state.activeOnlineOrders.find(o => o.instanceKey === instanceKey);
+  if (!order) return;
+
+  // Kiểm tra an toàn
+  const canDeliver = order.required.every(r => (state.dishInventory && state.dishInventory[r.dishId] || 0) >= r.qty);
+  if (!canDeliver) {
+    alert(`Kho không đủ món ăn để giao đơn cho [${order.customer}]!`);
+    return;
+  }
+
+  // 1. Trừ món ăn trong kho
+  order.required.forEach(r => {
+    state.dishInventory[r.dishId] -= r.qty;
+    if (state.dishInventory[r.dishId] < 0) state.dishInventory[r.dishId] = 0;
+  });
+
+  // 2. Cộng tiền thưởng
+  state.coins += order.reward;
+
+  // Cập nhật thống kê
+  if (!state.ranchStats) state.ranchStats = {};
+  state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + order.reward;
+
+  // 3. Đơn đã giao xong biến mất ngay lập tức khỏi danh sách
+  state.activeOnlineOrders = state.activeOnlineOrders.filter(o => o.instanceKey !== instanceKey);
+
+  // 4. Hẹn giờ: Đúng 2 phút sau (120.000 ms) sẽ xuất hiện đơn mới random
+  if (!state.onlineOrderSpawnTimers) state.onlineOrderSpawnTimers = [];
+  state.onlineOrderSpawnTimers.push({
+    readyAt: Date.now() + 2 * 60 * 1000 // 2 phút
+  });
+
+  // 5. Thông báo & Âm thanh
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+  logRanch(`🛵 Giao thành công đơn online [${order.customer}]! Thu về +${order.reward.toLocaleString('vi-VN')}₵.`);
+  showTopToast('GIAO ĐƠN ONLINE THÀNH CÔNG', `Giao buôn món ăn cho <strong>${order.customer}</strong>! Nhận <strong style="color:#b35e00;">+${order.reward.toLocaleString('vi-VN')}₵</strong>`, '🛵');
+
+  save();
+  renderDishInventory();
+  renderOnlineOrders();
+  coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
 }
 </script>
 </body>
