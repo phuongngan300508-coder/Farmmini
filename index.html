@@ -1013,6 +1013,24 @@ body:not(.logged-out) .app {
   background: #e2b97f;
   border-radius: 6px;
 }
+  
+  /* Hiệu ứng nhấp nháy phát sáng khi có đơn hàng chăn nuôi sẵn sàng giao */
+@keyframes glowRanchOrderBtn {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.95), 0 0 25px rgba(255, 152, 0, 0.7);
+    transform: scale(1.04);
+  }
+}
+
+.btn-order-alert {
+  animation: glowRanchOrderBtn 1.2s infinite ease-in-out !important;
+  border: 1.5px solid #fff !important;
+}
+
   </style>
 </head>
 <body>
@@ -5396,17 +5414,16 @@ document.getElementById('btnGoToFarmTab').onclick = () => switchView('farm');
 function renderRanchView() {
   renderFeedResource();
   renderBarns();
-  // 🌾 Gọi vẽ bảng nhiệm vụ chăn nuôi ngay khi vừa chuyển sang tab Trại
-  if (typeof renderRanchQuests === 'function') {
-    renderRanchQuests();
-  }
+  if (typeof renderRanchQuests === 'function') renderRanchQuests();
   renderAnimalShop();
   renderSelectedAnimalDisplay();
   renderFoodInventory();
   renderFoodOrders();
   renderRanchTitles();
   renderSpecialRanchShop();
+  updateRanchOrderBtnNotification(); // Thêm dòng này
 }
+
 
 function renderFeedResource() {
   const waterEl = document.getElementById('waterAmount');
@@ -5943,6 +5960,7 @@ function renderFoodOrders() {
     `;
     container.appendChild(div);
   });
+  updateRanchOrderBtnNotification();
 }
 
 
@@ -6234,7 +6252,29 @@ if (btnBackToBarnsTop && ranchBarnsEl) {
     ranchBarnsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 }
+  
+  // Cập nhật hiệu ứng phát sáng cho nút "Kho & Đơn Trại" khi có đơn sẵn sàng giao
+function updateRanchOrderBtnNotification() {
+  const btn = document.getElementById('btnGoToRanchOrders');
+  if (!btn || !state.activeFoodOrders) return;
+
+  // Kiểm tra xem có ít nhất 1 đơn đang active và đã gom đủ nông sản/thực phẩm trong kho
+  const hasReadyOrder = state.activeFoodOrders.some(order => {
+    if (order.status === 'completed') return false;
+    return order.required.every(r => (state.foodInventory[r.animalId] || 0) >= r.qty);
+  });
+
+  if (hasReadyOrder) {
+    btn.classList.add('btn-order-alert');
+    btn.innerHTML = '🔔 🥛 Kho & Đơn Trại (Có đơn!) ⬇';
+  } else {
+    btn.classList.remove('btn-order-alert');
+    btn.innerHTML = '🥛 Kho & Đơn Trại ⬇';
+  }
+}
+
 </script>
 </body>
 </html>
-
+  
+  
