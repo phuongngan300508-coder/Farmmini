@@ -1158,6 +1158,23 @@ body:not(.logged-out) .app {
   transition: all 0.15s ease;
 }
 .kitchen-ing-btn:hover { background: #fff7ed; border-color: #f97316; }
+
+/* Tối ưu hiệu năng mở Sổ tay 30 món ăn */
+#cookingRecipeModal {
+  backdrop-filter: none !important; /* Bỏ tính năng blur nền toàn màn hình để tránh drop FPS */
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#cookingRecipeModal .settings-modal-box {
+  transform: translateZ(0); /* Bật tăng tốc GPU */
+  will-change: transform, opacity;
+  animation-duration: 0.15s; /* Rút ngắn thời gian animation để mở tức thì */
+}
+
+#cookingRecipeModalContent {
+  contain: content; /* Cách ly việc tính toán lại layout của 30 món bên trong */
+  will-change: scroll-position;
+}
   </style>
 </head>
 <body>
@@ -6793,17 +6810,18 @@ if (closeCookingRecipeBtn && cookingRecipeModal) {
   closeCookingRecipeBtn.onclick = () => cookingRecipeModal.classList.remove('open');
 }
 
+let isRecipeBookRendered = false; // Cờ kiểm tra đã dựng giao diện chưa
+
 function renderRecipeBookContent() {
-  if (!cookingRecipeModalContent) return;
-  cookingRecipeModalContent.innerHTML = '';
+  if (!cookingRecipeModalContent || isRecipeBookRendered) return;
+
+  let fullHtml = '';
+
   ['Easy', 'Medium', 'Hard', 'SuperHard'].forEach(tierKey => {
     const conf = COOKING_TIERS[tierKey];
     const tierDishes = DISHES_DB.filter(d => d.tier === tierKey);
+    const borderColor = tierKey === 'SuperHard' ? '#9333ea' : tierKey === 'Hard' ? '#ef4444' : tierKey === 'Medium' ? '#f59e0b' : '#22c55e';
 
-    const sec = document.createElement('div');
-    sec.className = 'guide-section';
-    sec.style.borderLeftColor = tierKey === 'SuperHard' ? '#9333ea' : tierKey === 'Hard' ? '#ef4444' : tierKey === 'Medium' ? '#f59e0b' : '#22c55e';
-    
     let listHtml = '';
     tierDishes.forEach(d => {
       const ingsHtml = d.ingredients.map(ing => {
@@ -6813,15 +6831,30 @@ function renderRecipeBookContent() {
 
       listHtml += `
         <div style="padding:4px 0; border-bottom:1px dashed #e2e8f0; font-size:12px;">
-          <strong>${d.emoji} ${d.name}</strong> (Bán: ${d.value}₵)<br>
+          <strong>${d.emoji} ${d.name}</strong> (Bán: ${d.value.toLocaleString('vi-VN')}₵)<br>
           <span style="color:#64748b;">Công thức:</span> <strong>${ingsHtml}</strong>
         </div>
       `;
     });
 
-    sec.innerHTML = `<h4 style="margin:0 0 6px 0; color:#0f172a;">${conf.title} — Phí: ${conf.cost} xu & ${conf.fire}🔥</h4><div>${listHtml}</div>`;
-    cookingRecipeModalContent.appendChild(sec);
+    fullHtml += `
+      <div class="guide-section" style="border-left-color: ${borderColor};">
+        <h4 style="margin:0 0 6px 0; color:#0f172a;">${conf.title} — Phí: ${conf.cost} xu & ${conf.fire}🔥</h4>
+        <div>${listHtml}</div>
+      </div>
+    `;
   });
+
+  cookingRecipeModalContent.innerHTML = fullHtml;
+  isRecipeBookRendered = true; // Đánh dấu đã dựng xong, không vẽ lại nữa
+}
+
+// Bắt sự kiện bấm nút mở sổ tay:
+if (btnOpenRecipeBook && cookingRecipeModal) {
+  btnOpenRecipeBook.onclick = () => {
+    renderRecipeBookContent(); // Chỉ chạy nặng ở lần bấm đầu tiên
+    cookingRecipeModal.classList.add('open');
+  };
 }
 
 function renderKitchenFire() {
