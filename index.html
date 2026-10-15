@@ -1795,11 +1795,11 @@ body:not(.logged-out) .app {
 
 <!-- POPUP SỔ TAY CHUỒNG TRẠI CHĂN NUÔI -->
 <div id="ranchSettingsModal" class="farm-modal-overlay">
-  <div class="farm-modal-box settings-modal-box" style="border-color: #b45309;">
+  <div class="farm-modal-box settings-modal-box" style="border-color: #b45309; max-width: 820px !important;">
     <div class="settings-modal-header" style="border-bottom-color: #f59e0b;">
       <div class="farm-modal-icon">🤠</div>
-      <h3 style="color: #b45309;">Sổ Tay Chuồng Trại</h3>
-      <div class="muted-2">Cẩm nang hướng dẫn chăn nuôi & giao thương thực phẩm</div>
+      <h3 style="color: #b45309;">Sổ Tay Chuồng Trại & Ẩm Thực</h3>
+      <div class="muted-2">Cẩm nang toàn tập: Chăn nuôi, Bếp nấu đặc sản & Giao thương Online</div>
     </div>
 
     <div class="settings-modal-content">
@@ -1808,40 +1808,72 @@ body:not(.logged-out) .app {
         <p>• Gia súc sau khi mua thả vào chuồng sẽ <strong>sống vĩnh viễn</strong> và liên tục tự động sản xuất theo vòng lặp!</p>
         <p>• Ban đầu bạn sở hữu sẵn 2 giống cơ bản: <strong>🐔 Gà đẻ trứng</strong> và <strong>🦆 Vịt cỏ</strong>.</p>
         <p>• Chọn giống muốn thả ở danh sách <em>Con Giống Đã Sở Hữu</em>, sau đó nhấp vào một ô chuồng trống để thả nuôi.</p>
-        <p>• Sử dụng nút <strong>Mở rộng chuồng (+2)</strong> để có thêm nhiều chuồng nuôi hơn (tối đa không giới hạn, chuồng có thanh cuộn gọn gàng).</p>
+        <p>• Sử dụng nút <strong>Mở rộng chuồng (+2)</strong> để xây thêm chuồng mới không giới hạn số lượng.</p>
       </div>
 
       <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
-        <h4 style="color: #9a3412;">🌾 2. Thức Ăn Chăn Nuôi (Duy Trì Tốc Độ)</h4>
+        <h4 style="color: #9a3412;">🌾 2. Thức Ăn Chăn Nuôi & Năng Lượng</h4>
         <p>• Mỗi con gia súc tiêu thụ <strong>1kg thức ăn/phút</strong> trong quá trình sản xuất.</p>
         <p>• Nếu <strong>hết thức ăn (0kg)</strong>, gia súc vẫn sản xuất bình thường nhưng <strong>thời gian chu kỳ bị chậm 50%</strong>!</p>
-        <p>• Bổ sung thức ăn miễn phí bằng cách làm <em>Nhiệm Vụ Trại Hàng Ngày 🌾</em> hoặc mua tại <em>Tiệm Thức Ăn Chăn Nuôi</em> (các gói 50kg, 500kg, 1000kg).</p>
+        <p>• Kiếm thức ăn miễn phí bằng cách làm <em>Nhiệm Vụ Trại Hàng Ngày 🌾</em> hoặc ghé <em>Cửa Hàng Năng Lượng</em> để mua các gói thức ăn (50kg, 500kg, 1000kg).</p>
       </div>
 
       <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
         <h4 style="color: #9a3412;">🥚 3. Thu Hoạch & Kho Thực Phẩm Gia Súc</h4>
-        <p>• Khi chu kỳ hoàn tất (có dấu ✓), nhấp vào chuồng để thu hoạch hoặc bấm nút <strong>Thu hoạch tất cả thực phẩm</strong>.</p>
-        <p>• Toàn bộ trứng, sữa bò, sữa dê, lông cừu, thịt xông khói... sẽ chuyển vào <strong>Kho Thực Phẩm Gia Súc 🥛🥩</strong>.</p>
-        <p>• Bạn có thể bấm <strong>Bán hết</strong> từng món trong kho để thu tiền tươi ngay lập tức.</p>
+        <p>• Khi chu kỳ hoàn tất (có dấu ✓), nhấp vào từng chuồng hoặc bấm <strong>Thu hoạch tất cả thực phẩm</strong>.</p>
+        <p>• Sản phẩm (trứng, sữa tươi, len, thịt...) được lưu trữ an toàn trong <strong>Kho Thực Phẩm Gia Súc 🥛🥩</strong>.</p>
+        <p>• Bạn có thể bấm <strong>Bán hết</strong> để thu tiền ngay hoặc giữ lại làm nguyên liệu chế biến món ăn và giao đơn buôn.</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #ea580c; background: #fff9f5; border-color: #fed7aa;">
+        <h4 style="color: #c2410c;">🍳 4. Cửa Lật 3D & Bếp Nấu 30 Món Ăn</h4>
+        <p>• Bấm nút <strong>🍳 Chế Biến Món Ăn 🔄</strong> ở góc trên chuồng trại để lật sang gian bếp ẩm thực nông trại.</p>
+        <p>• <strong>Kết hợp nguyên liệu:</strong> Chọn từ 1 đến 3 nguyên liệu thực phẩm trong kho đặt vào 3 ô chế biến để nấu thành <strong>30 món ăn đặc sản</strong>.</p>
+        <p>• <strong>Tỉ lệ thành công theo 4 cấp độ:</strong>
+          <br>&nbsp;&nbsp;+ 🟢 <em>Dễ:</em> 100% thành công (0 xu)
+          <br>&nbsp;&nbsp;+ 🟡 <em>Vừa:</em> 70% thành công (30 xu)
+          <br>&nbsp;&nbsp;+ 🔴 <em>Khó:</em> 50% thành công (70 xu)
+          <br>&nbsp;&nbsp;+ 🟣 <em>Siêu Khó:</em> 20% thành công (120 xu)
+        </p>
+        <p>• Món nấu hoàn tất sẽ đưa vào <em>Kho Món Ăn Đặc Sản</em> để bán lẻ hoặc giao các đơn online lớn.</p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #ef4444; background: #fff5f5; border-color: #fecaca;">
+        <h4 style="color: #b91c1c;">🔥 5. Lửa Nấu Bếp & Cửa Hàng Năng Lượng</h4>
+        <p>• Bếp nấu có <strong>chỉ số số dư Lửa riêng biệt</strong> (hiển thị ngay góc trên mặt bếp), khởi đầu nhận sẵn <strong>50🔥</strong>.</p>
+        <p>• <strong>Định lượng tiêu hao lửa mỗi lần nấu:</strong>
+          <br>&nbsp;&nbsp;+ Cấp Dễ: <strong>5🔥</strong> | Cấp Vừa: <strong>10🔥</strong>
+          <br>&nbsp;&nbsp;+ Cấp Khó: <strong>20🔥</strong> | Cấp Siêu Khó: <strong>30🔥</strong>
+        </p>
+        <p>• <strong>Cửa Hàng Năng Lượng:</strong> Cung cấp thêm lửa nấu nướng với giá ưu đãi:
+          <br>&nbsp;&nbsp;• <em>200🔥</em> = 200 xu | <em>500🔥</em> = 450 xu | <em>1000🔥</em> = 800 xu.
+        </p>
+      </div>
+
+      <div class="guide-section" style="border-left-color: #ea580c; background: #fff8f5; border-color: #fed7aa;">
+        <h4 style="color: #9a3412;">🛵 6. Đơn Hàng Online Món Ăn (Giá Trị Khủng)</h4>
+        <p>• Khi lật sang Bếp, khung thông tin chuồng bên dưới tự động chuyển thành <strong>Đơn Hàng Món Ăn Online</strong>.</p>
+        <p>• <strong>Quy mô đơn hàng:</strong> Hệ thống có kho 50 đơn và luôn xuất hiện <strong>5 đơn ngẫu nhiên</strong> thuộc 5 phân khúc: <em>Thường, Vừa, Cao Tiền, VIP và VVIP</em>.</p>
+        <p>• <strong>Thu nhập cực lớn:</strong> Mỗi đơn yêu cầu số lượng món đã nấu lớn nhưng đảm bảo có lãi cao (thưởng tối thiểu từ <strong>10.000 xu</strong> lên đến <strong>165.000 xu/đơn</strong>!).</p>
+        <p>• <strong>Cơ chế hàng đợi & Hồi đơn:</strong>
+          <br>&nbsp;&nbsp;+ Đơn đủ điều kiện giao luôn được tự động <strong>ưu tiên xếp lên đầu danh sách</strong>.
+          <br>&nbsp;&nbsp;+ Đơn giá trị thấp hơn sẽ xếp trước, đơn nhiều tiền hơn xếp sau.
+          <br>&nbsp;&nbsp;+ Khi hoàn tất 1 đơn, đơn đó <strong>biến mất ngay</strong> và đúng <strong>2 phút sau</strong> sẽ xuất hiện 1 đơn mới ngẫu nhiên (chỉ hồi khi chưa đủ 5/5 đơn).
+        </p>
       </div>
 
       <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
-        <h4 style="color: #9a3412;">🚚 4. 10 Đơn Giao Thực Phẩm Lớn Mỗi Ngày</h4>
-        <p>• Mỗi ngày lúc <strong>00:00 nửa đêm</strong>, hệ thống tự động làm mới 10 đơn đặt hàng buôn với số lượng lớn.</p>
-        <p>• Tích lũy đủ thực phẩm yêu cầu trong kho và bấm <strong>Giao buôn</strong> để nhận về lượng xu thưởng cực khủng (cao hơn nhiều so với bán lẻ trực tiếp).</p>
+        <h4 style="color: #9a3412;">🚚 7. 10 Đơn Giao Thực Phẩm Thô Mỗi Ngày</h4>
+        <p>• Dành riêng cho thực phẩm thô chưa qua chế biến (trứng, sữa, thịt...).</p>
+        <p>• Hệ thống tự động làm mới 10 đơn đặt hàng buôn vào đúng <strong>00:00 nửa đêm</strong> hàng ngày.</p>
+        <p>• Giao buôn nhận xu cao hơn nhiều so với bán lẻ trực tiếp trong kho.</p>
       </div>
 
       <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
-        <h4 style="color: #9a3412;">🏪 5. Mở Khóa Con Giống Cao Cấp</h4>
-        <p>• Ghé <em>Cửa Hàng Con Giống 🐄🐑</em> để mở khóa thêm các loài thú quý: Cừu lấy lông, Bò sữa Hà Lan, Ong chúa, Bò Bison, Thiên nga tuyết cho đến <strong>Long Thú 🐉 (Divine)</strong>!</p>
-        <p>• Giống càng quý hiếm, sản phẩm làm ra càng có giá trị kinh tế cao vượt trội.</p>
-      </div>
-
-      <div class="guide-section" style="border-left-color: #f59e0b; background: #fffcf4; border-color: #fed7aa;">
-        <h4 style="color: #9a3412;">🎖️ 6. Bảng Vinh Danh Chủ Trại</h4>
-        <p>• Chinh phục 10 mốc thành tựu chăn nuôi để mở khóa danh hiệu.</p>
-        <p>• Bấm <strong>⚡ Đeo Danh Hiệu</strong> để trưng bày danh hiệu lên huy hiệu đầu trang trại.</p>
-        <p>• Nhấp trực tiếp vào huy hiệu <em>Danh hiệu Trại</em> ở trên cùng để lướt nhanh xuống bảng thành tựu bất kỳ lúc nào!</p>
+        <h4 style="color: #9a3412;">🎖️ 8. Mở Khóa Con Giống & Bảng Vinh Danh</h4>
+        <p>• Ghé <em>Cửa Hàng Con Giống</em> để sở hữu những thú quý: từ Cừu, Bò sữa, Ong chúa, Bò Bison đến <strong>Long Thú 🐉 (Divine)</strong>.</p>
+        <p>• Chinh phục 10 mốc thành tựu để đeo danh hiệu Chủ Trại lên huy hiệu trang trại.</p>
+        <p>• Bấm trực tiếp vào huy hiệu <em>Danh hiệu Trại</em> ở đầu trang để lướt nhanh xuống bảng thành tựu.</p>
       </div>
     </div>
 
@@ -1850,6 +1882,7 @@ body:not(.logged-out) .app {
     </div>
   </div>
 </div>
+
 
   <!-- KHUNG THÔNG BÁO NỔI TOAST -->
 <div id="farmToast" class="farm-toast">
