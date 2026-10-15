@@ -1355,6 +1355,30 @@ body:not(.logged-out) .app {
     align-items: flex-start !important;
   }
 }
+
+/* Cặp nút Thao Tác Bán trong Kho Thực Phẩm & Món Ăn */
+.sell-btn-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.sell-btn-group .btn {
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .sell-btn-group {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .sell-btn-group .btn {
+    width: 100%;
+    padding: 4px 6px !important;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -2085,6 +2109,43 @@ body:not(.logged-out) .app {
     <div class="farm-toast-msg" id="toastMsg">Đã cộng vào tài khoản!</div>
   </div>
 </div>
+
+<!-- POPUP CHỌN SỐ LƯỢNG BÁN KHU CHĂN NUÔI -->
+<div id="sellQtyModal" class="farm-modal-overlay">
+  <div class="farm-modal-box" style="max-width: 320px; text-align: center;">
+    <div class="farm-modal-icon" id="sellQtyItemEmoji">🧺</div>
+    <h3 id="sellQtyItemTitle" style="margin: 0; color: #5c3a21;">Bán Nông Sản</h3>
+    <p class="muted-2" id="sellQtyItemDesc" style="font-size: 13px; margin: 4px 0 10px 0;">Trong kho hiện có: 0</p>
+
+    <!-- Khung điều khiển tăng / giảm số lượng -->
+    <div style="background: #f4faef; border: 1.5px solid #c9e0bf; border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
+        <button type="button" class="btn secondary" id="sellQtyMinusBtn" style="width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; padding: 0;">-</button>
+        <input type="number" id="sellQtyNumInput" min="1" value="1" 
+               style="width: 80px; text-align: center; font-size: 22px; font-weight: 800; color: #2e7d32; border: 1.5px solid #a8c99b; border-radius: 8px; padding: 4px; background: #fff; outline: none;">
+        <button type="button" class="btn" id="sellQtyPlusBtn" style="width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; padding: 0; background: linear-gradient(180deg, #6aa84f, #3e8a33);">+</button>
+      </div>
+
+      <input type="range" id="sellQtyRangeInput" min="1" max="1" value="1" style="width: 100%; accent-color: #6aa84f;">
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px;">
+        <button type="button" id="sellQtyBtnMin" style="background:none; border:none; color:#58705a; text-decoration:underline; cursor:pointer;">Tối thiểu (1)</button>
+        <button type="button" id="sellQtyBtnMax" style="background:none; border:none; color:#2e7d32; font-weight:bold; text-decoration:underline; cursor:pointer;">Bán tối đa</button>
+      </div>
+    </div>
+
+    <!-- Dự toán tiền thu về -->
+    <div id="sellQtyTotalCoinsPreview" style="font-size: 13px; font-weight: 700; color: #b35e00; margin-bottom: 14px;">
+      Thu về: 0₵
+    </div>
+
+    <div class="farm-modal-actions">
+      <button class="btn secondary" id="cancelSellQtyBtn">Đóng</button>
+      <button class="btn" id="confirmSellQtyBtn" style="background: linear-gradient(180deg, #f59e0b, #b45309);">Xác Nhận Bán</button>
+    </div>
+  </div>
+</div>
+
 
   <!-- POPUP ĐỔI TÊN & BIỂU TƯỢNG TRANG TRẠI PHONG CÁCH NÔNG TRẠI -->
 <div id="renameFarmModal" class="farm-modal-overlay">
@@ -5730,7 +5791,7 @@ const RANCH_TITLES = [
   { id:'rt_wool', title:'Thợ Cắt Lông Cừu 🧶', desc:'Thu hoạch 40 bó len cừu', icon:'🧶', check: () => { const c = state.ranchStats?.woolCollected || 0; return { cur:c, max:40, done:c>=40, text:`${Math.min(c,40)}/40 bó` }; } },
   { id:'rt_zoo', title:'Nhà Động Vật Học 📖', desc:'Mở khóa 6 loài gia súc khác nhau', icon:'📖', check: () => { const c = (state.unlockedAnimals||[]).length; return { cur:c, max:6, done:c>=6, text:`${Math.min(c,6)}/6 loài` }; } },
   { id:'rt_mythic', title:'Thuần Hóa Thần Thú 🐉', desc:'Mở khóa Thiên Nga Tuyết hoặc Long Thú', icon:'🐉', check: () => { const has = (state.unlockedAnimals||[]).some(x => x==='swan'||x==='dragon_pet'); return { cur:has?1:0, max:1, done:has, text:has?'Đã có':'Chưa có' }; } },
-  { id:'rt_wholesale', title:'Thương Gia Bán Buôn 🧺', desc:'Bán trực tiếp 100 món từ kho thực phẩm', icon:'🧺', check: () => { const c = state.ranchStats?.foodSoldDirectly || 0; return { cur:c, max:100, done:c>=100, text:`${Math.min(c,100)}/100 món` }; } },
+  { id:'rt_wholesale', title:'Thương Gia Bán Buôn 🧺', desc:'Bán 100 thực phẩm hoặc món ăn chế biến', icon:'🧺', check: () => { const c = state.ranchStats?.foodSoldDirectly || 0; return { cur:c, max:100, done:c>=100, text:`${Math.min(c,100)}/100 món` }; } },
   { id:'rt_tycoon', title:'Đại Gia Trại Gia Súc 👑', desc:'Kiếm được 25.000 xu từ chăn nuôi', icon:'👑', check: () => { const c = state.ranchStats?.ranchCoinsEarned || 0; return { cur:c, max:25000, done:c>=25000, text:`${Math.min(c,25000).toLocaleString('vi-VN')}/25.000₵` }; } }
 ];
 
@@ -6335,6 +6396,7 @@ function buyAnimalSpecies(animalId) {
 // 7. KHO THỰC PHẨM & BÁN LẺ
 function renderFoodInventory() {
   const container = document.getElementById('foodInventoryList');
+  if (!container) return;
   container.innerHTML = '';
   const entries = Object.entries(state.foodInventory).filter(([, q]) => q > 0);
 
@@ -6352,14 +6414,18 @@ function renderFoodInventory() {
       <div class="emoji">${animal.foodEmoji}</div>
       <div class="meta">
         <div style="font-weight:700">${animal.foodName}</div>
-        <div class="muted">Bán lẻ trực tiếp: ${animal.foodValue}₵/phần</div>
+        <div class="muted">Bán lẻ: ${animal.foodValue}₵/phần</div>
       </div>
-      <div style="font-weight:700; margin-right:8px;">x${qty}</div>
-      <button class="btn secondary" style="font-size:12px; padding:6px 10px;" onclick="sellFoodItem('${animalId}')">Bán hết</button>
+      <div style="font-weight:700; margin-right:6px;">x${qty}</div>
+      <div class="sell-btn-group">
+        <button class="btn" style="background:linear-gradient(180deg,#f59e0b,#b45309);" onclick="openSellQtyModal('food', '${animalId}')">Bán</button>
+        <button class="btn secondary" onclick="sellFoodItem('${animalId}')">Bán hết</button>
+      </div>
     `;
     container.appendChild(div);
   });
 }
+
 
 function sellFoodItem(animalId) {
   const qty = state.foodInventory[animalId] || 0;
@@ -7106,14 +7172,18 @@ function renderDishInventory() {
       <div class="emoji">${dish.emoji}</div>
       <div class="meta">
         <div style="font-weight:700">${dish.name}</div>
-        <div class="muted">Giá bán: ${dish.value.toLocaleString('vi-VN')}₵/phần • Cấp: ${dish.tier}</div>
+        <div class="muted">Giá bán: ${dish.value.toLocaleString('vi-VN')}₵ • Cấp: ${dish.tier}</div>
       </div>
-      <div style="font-weight:700; margin-right:8px;">x${qty}</div>
-      <button class="btn secondary" style="font-size:12px; padding:6px 10px;" onclick="sellDishItem('${dish.id}')">Bán hết</button>
+      <div style="font-weight:700; margin-right:6px;">x${qty}</div>
+      <div class="sell-btn-group">
+        <button class="btn" style="background:linear-gradient(180deg,#ea580c,#c2410c);" onclick="openSellQtyModal('dish', '${dish.id}')">Bán</button>
+        <button class="btn secondary" onclick="sellDishItem('${dish.id}')">Bán hết</button>
+      </div>
     `;
     container.appendChild(div);
   });
 }
+
 
 function sellDishItem(dishId) {
   const qty = state.dishInventory[dishId] || 0;
@@ -7124,12 +7194,18 @@ function sellDishItem(dishId) {
   state.coins += totalEarn;
   state.dishInventory[dishId] = 0;
 
+  // 🎖️ CẬP NHẬT TIẾN ĐỘ DANH HIỆU THƯƠNG GIA BÁN BUÔN CHO MÓN ĂN:
+  if (!state.ranchStats) state.ranchStats = {};
+  state.ranchStats.foodSoldDirectly = (state.ranchStats.foodSoldDirectly || 0) + qty;
+  state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + totalEarn;
+
   if (typeof SoundEngine !== 'undefined') SoundEngine.coinReward();
   logRanch(`Bán món ăn: x${qty} ${dish.name}. Thu về +${totalEarn.toLocaleString('vi-VN')}₵.`);
   
   save();
   renderFarm();
   renderDishInventory();
+  checkRanchTitles(); // 👈 Kiểm tra và kích hoạt danh hiệu ngay khi bán
   showTopToast('ĐÃ BÁN MÓN ĂN', `Thu về <strong style="color:#b35e00;">+${totalEarn.toLocaleString('vi-VN')}₵</strong>!`, '💰');
 }
 
@@ -7672,6 +7748,126 @@ function processAutoCookCycle() {
   renderDishInventory();
   renderAutoCookUI();
 }
+
+// ========================================================
+// LOGIC CHỌN SỐ LƯỢNG ĐỂ BÁN (THỰC PHẨM & MÓN ĂN)
+// ========================================================
+let currentSellType = null; // 'food' hoặc 'dish'
+let currentSellId = null;   // animalId hoặc dishId
+let currentSellMax = 1;
+let currentSellUnitPrice = 0;
+let currentSellChosenQty = 1;
+
+const sellQtyModal = document.getElementById('sellQtyModal');
+const sellQtyItemEmoji = document.getElementById('sellQtyItemEmoji');
+const sellQtyItemTitle = document.getElementById('sellQtyItemTitle');
+const sellQtyItemDesc = document.getElementById('sellQtyItemDesc');
+const sellQtyNumInput = document.getElementById('sellQtyNumInput');
+const sellQtyRangeInput = document.getElementById('sellQtyRangeInput');
+const sellQtyMinusBtn = document.getElementById('sellQtyMinusBtn');
+const sellQtyPlusBtn = document.getElementById('sellQtyPlusBtn');
+const sellQtyBtnMin = document.getElementById('sellQtyBtnMin');
+const sellQtyBtnMax = document.getElementById('sellQtyBtnMax');
+const sellQtyTotalCoinsPreview = document.getElementById('sellQtyTotalCoinsPreview');
+const cancelSellQtyBtn = document.getElementById('cancelSellQtyBtn');
+const confirmSellQtyBtn = document.getElementById('confirmSellQtyBtn');
+
+function openSellQtyModal(type, itemId) {
+  currentSellType = type;
+  currentSellId = itemId;
+
+  if (type === 'food') {
+    const animal = ANIMALS_DB[itemId];
+    currentSellMax = state.foodInventory[itemId] || 0;
+    currentSellUnitPrice = animal.foodValue;
+    sellQtyItemEmoji.textContent = animal.foodEmoji;
+    sellQtyItemTitle.textContent = `Bán ${animal.foodName}`;
+  } else {
+    const dish = DISHES_DB.find(d => d.id === itemId);
+    currentSellMax = (state.dishInventory && state.dishInventory[itemId]) || 0;
+    currentSellUnitPrice = dish.value;
+    sellQtyItemEmoji.textContent = dish.emoji;
+    sellQtyItemTitle.textContent = `Bán ${dish.name}`;
+  }
+
+  if (currentSellMax <= 0) return;
+
+  sellQtyItemDesc.textContent = `Trong kho hiện có: ${currentSellMax} phần (Giá: ${currentSellUnitPrice.toLocaleString('vi-VN')}₵/phần)`;
+  sellQtyRangeInput.max = currentSellMax;
+  updateSellQtyDisplay(1);
+
+  sellQtyModal.classList.add('open');
+}
+
+function closeSellQtyModal() {
+  sellQtyModal.classList.remove('open');
+  currentSellType = null;
+  currentSellId = null;
+}
+
+function updateSellQtyDisplay(val) {
+  val = Math.max(1, Math.min(val, currentSellMax));
+  currentSellChosenQty = val;
+  sellQtyNumInput.value = val;
+  sellQtyRangeInput.value = val;
+  const total = val * currentSellUnitPrice;
+  sellQtyTotalCoinsPreview.innerHTML = `Thu về: <strong style="color:#b35e00;">+${total.toLocaleString('vi-VN')}₵</strong>`;
+}
+
+sellQtyMinusBtn.onclick = () => updateSellQtyDisplay(currentSellChosenQty - 1);
+sellQtyPlusBtn.onclick = () => updateSellQtyDisplay(currentSellChosenQty + 1);
+sellQtyNumInput.oninput = (e) => updateSellQtyDisplay(parseInt(e.target.value) || 1);
+sellQtyRangeInput.oninput = (e) => updateSellQtyDisplay(parseInt(e.target.value) || 1);
+sellQtyBtnMin.onclick = () => updateSellQtyDisplay(1);
+sellQtyBtnMax.onclick = () => updateSellQtyDisplay(currentSellMax);
+cancelSellQtyBtn.onclick = closeSellQtyModal;
+
+// Bấm xác nhận bán số lượng đã chọn
+confirmSellQtyBtn.onclick = () => {
+  if (!currentSellType || !currentSellId || currentSellChosenQty <= 0) return;
+
+  const totalEarn = currentSellChosenQty * currentSellUnitPrice;
+  let itemName = '';
+
+  if (currentSellType === 'food') {
+    const animal = ANIMALS_DB[currentSellId];
+    itemName = animal.foodName;
+    state.foodInventory[currentSellId] -= currentSellChosenQty;
+    if (state.foodInventory[currentSellId] < 0) state.foodInventory[currentSellId] = 0;
+  } else {
+    const dish = DISHES_DB.find(d => d.id === currentSellId);
+    itemName = dish.name;
+    state.dishInventory[currentSellId] -= currentSellChosenQty;
+    if (state.dishInventory[currentSellId] < 0) state.dishInventory[currentSellId] = 0;
+  }
+
+  state.coins += totalEarn;
+
+  // 🎖️ Cập nhật tiến độ danh hiệu "Thương Gia Bán Buôn"
+  if (!state.ranchStats) state.ranchStats = {};
+  state.ranchStats.foodSoldDirectly = (state.ranchStats.foodSoldDirectly || 0) + currentSellChosenQty;
+  state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + totalEarn;
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+
+  logRanch(`Bán x${currentSellChosenQty} ${itemName}. Thu về +${totalEarn.toLocaleString('vi-VN')}₵.`);
+  showTopToast('ĐÃ BÁN THÀNH CÔNG', `Đã bán x${currentSellChosenQty} ${itemName}, thu về <strong style="color:#b35e00;">+${totalEarn.toLocaleString('vi-VN')}₵</strong>!`, '💰');
+
+  closeSellQtyModal();
+  save();
+  renderFarm();
+  renderFoodInventory();
+  renderDishInventory();
+  renderFoodOrders();
+  checkRanchTitles();
+};
+
+window.addEventListener('click', (e) => {
+  if (e.target === sellQtyModal) closeSellQtyModal();
+});
+
 </script>
 </body>
 </html>
