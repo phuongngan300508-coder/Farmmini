@@ -1031,6 +1031,133 @@ body:not(.logged-out) .app {
   border: 1.5px solid #fff !important;
 }
 
+/* ======================================================== */
+/* HIỆU ỨNG CỬA LẬT 2 MẶT 3D & CO GIÃN ĐỘ DÀI THEO NỘI DUNG */
+/* ======================================================== */
+.flip-door-container {
+  perspective: 1200px;
+  width: 100%;
+  margin-top: 6px;
+  transition: min-height 0.4s ease; /* Co giãn khung mượt mà */
+}
+
+.flip-door-card {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-door-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-face {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-sizing: border-box;
+}
+
+/* Mặt trước (Chuồng trại) */
+.flip-face-front {
+  position: relative;
+  transition: opacity 0.25s ease;
+}
+
+/* Mặt sau (Bếp chế biến) */
+.flip-face-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: rotateY(180deg);
+  transition: opacity 0.25s ease;
+}
+
+/* Khi lật sang Bếp: hoán đổi trạng thái để Bếp xác định chiều cao tự nhiên của khung */
+.flip-door-card.is-flipped .flip-face-front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.flip-door-card.is-flipped .flip-face-back {
+  position: relative;
+  pointer-events: auto;
+  opacity: 1;
+}
+.kitchen-card {
+  background: #fffcf5;
+  border: 2px solid #e28743;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(226, 135, 67, 0.15);
+}
+.kitchen-slot-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+}
+.kitchen-slot {
+  width: 70px;
+  height: 70px;
+  border: 2px dashed #d97706;
+  border-radius: 12px;
+  background: #fff8eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.kitchen-slot.filled {
+  border-style: solid;
+  border-color: #b45309;
+  background: #fef3c7;
+  box-shadow: 0 2px 6px rgba(180,83,9,0.2);
+}
+.kitchen-slot .remove-btn {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 18px; height: 18px;
+  background: #ef4444; color: #fff;
+  border-radius: 50%; font-size: 11px;
+  display: none; place-items: center;
+  cursor: pointer;
+}
+.kitchen-slot.filled:hover .remove-btn { display: grid; }
+.kitchen-ing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 8px;
+}
+.kitchen-ing-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #fed7aa;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.kitchen-ing-btn:hover { background: #fff7ed; border-color: #f97316; }
   </style>
 </head>
 <body>
@@ -1188,8 +1315,13 @@ body:not(.logged-out) .app {
     <!-- ======================================================== -->
     <div id="ranchContainer" style="display:none;">
       <div class="panel">
-        <div style="margin-bottom: 6px;">
-          <h2 style="margin:0; color:#b45309;">Khu Chuồng Trại Gia Súc 🏡🐄</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom: 6px;">
+          <h2 style="margin:0; color:#b45309;" id="ranchSectionHeaderTitle">Khu Chuồng Trại Gia Súc 🏡🐄</h2>
+          
+          <!-- NÚT LẬT CỬA 3D SANG BẾP -->
+          <button class="btn" id="btnFlipDoorToggle" style="background: linear-gradient(180deg, #ea580c, #c2410c); font-size: 12px; padding: 6px 14px; box-shadow: 0 2px 8px rgba(194, 65, 12, 0.35);">
+            🍳 Chế Biến Món Ăn 🔄
+          </button>
         </div>
 
         <div style="display:flex; align-items:center; gap:6px; margin-bottom: 8px;">
@@ -1199,18 +1331,84 @@ body:not(.logged-out) .app {
           </div>
         </div>
 
-        <div class="muted-2" style="margin-bottom:10px">
-          Gia súc nuôi trong chuồng <strong>tồn tại vĩnh viễn</strong> và tự động sản xuất theo vòng lặp liên tục!
+        <!-- CONTAINER LẬT 2 MẶT 3D -->
+        <div class="flip-door-container" id="flipDoorContainer">
+          <div class="flip-door-card" id="flipDoorCard">
+            
+            <!-- MẶT 1: CHUỒNG GIA SÚC -->
+            <div class="flip-face flip-face-front" id="frontBarnFace">
+              <div class="muted-2" style="margin-bottom:10px">
+                Gia súc nuôi trong chuồng <strong>tồn tại vĩnh viễn</strong> và tự động sản xuất theo vòng lặp liên tục!
+              </div>
+
+              <div id="ranchBarns" class="farm-grid"></div>
+
+              <div style="display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;">
+                <button class="btn" id="btnExpandBarns" style="background:linear-gradient(180deg,#f59e0b,#b45309);">Mở rộng chuồng (+2) — 250₵</button>
+                <button class="btn secondary" id="btnCollectAllFood">Thu hoạch tất cả thực phẩm</button>
+                <button class="btn" id="btnGoToRanchOrders" style="background:linear-gradient(180deg,#d97706,#92400e);">🥛 Kho & Đơn Trại ⬇</button>
+                <button class="btn" id="btnScrollToAnimals" style="margin-left:auto; background:linear-gradient(180deg,#e65100,#bf360c);">🐄 Chọn Giống ⬇</button>
+              </div>
+            </div>
+
+            <!-- MẶT 2: BẾP CHẾ BIẾN 30 MÓN -->
+<div class="flip-face flip-face-back" id="backKitchenFace">
+  <div class="kitchen-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div>
+        <h3 style="margin:0; color:#9a3412;">Bếp Nấu Ẩm Thực Trang Trại 🍳🔥</h3>
+        <div class="muted-2" style="font-size:12px;">Kết hợp 1-3 nguyên liệu thực phẩm để nấu 30 món ăn đặc sản!</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <!-- KHUNG SỐ DƯ LỬA RIÊNG BIỆT CHO BẾP -->
+        <div id="kitchenFireDisplay" style="background:#fff3e0; border:1.5px solid #f97316; color:#c2410c; padding:4px 10px; border-radius:10px; font-weight:800; font-size:13px; box-shadow:0 1px 4px rgba(249,115,22,0.2);">
+          🔥 Lửa: 50
         </div>
+        <button class="btn" id="btnOpenRecipeBook" style="background:linear-gradient(180deg,#d97706,#b45309); font-size:11px; padding:6px 10px;">
+          📖 Công Thức 30 Món
+        </button>
+      </div>
+    </div>
 
-        <div id="ranchBarns" class="farm-grid"></div>
+                <!-- 3 Ô CHỌN NGUYÊN LIỆU -->
+                <div class="kitchen-slot-row">
+                  <div class="kitchen-slot" id="kitchenSlot0" onclick="removeIngredientSlot(0)">
+                    <span id="slotEmoji0">➕</span>
+                    <span class="remove-btn">✕</span>
+                  </div>
+                  <div style="font-size:20px; color:#c2410c; font-weight:bold;">+</div>
+                  <div class="kitchen-slot" id="kitchenSlot1" onclick="removeIngredientSlot(1)">
+                    <span id="slotEmoji1">➕</span>
+                    <span class="remove-btn">✕</span>
+                  </div>
+                  <div style="font-size:20px; color:#c2410c; font-weight:bold;">+</div>
+                  <div class="kitchen-slot" id="kitchenSlot2" onclick="removeIngredientSlot(2)">
+                    <span id="slotEmoji2">➕</span>
+                    <span class="remove-btn">✕</span>
+                  </div>
+                </div>
 
-        <div style="display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;">
-            <button class="btn" id="btnExpandBarns" style="background:linear-gradient(180deg,#f59e0b,#b45309);">Mở rộng chuồng (+2) — 250₵</button>
-            <button class="btn secondary" id="btnCollectAllFood">Thu hoạch tất cả thực phẩm</button>
-            <button class="btn" id="btnGoToRanchOrders" style="background:linear-gradient(180deg,#d97706,#92400e);">🥛 Kho & Đơn Trại ⬇</button>
-            <button class="btn" id="btnScrollToAnimals" style="margin-left:auto; background:linear-gradient(180deg,#e65100,#bf360c);">🐄 Chọn Giống ⬇</button>
+                <!-- DỰ BÁO KẾT QUẢ MÓN ĂN -->
+                <div id="cookingPreviewBox" style="background:#fff; border:1px solid #fed7aa; border-radius:10px; padding:10px; text-align:center; min-height:54px;">
+                  <div class="muted" style="font-size:13px;">Chọn nguyên liệu từ kho bên dưới để xem món có thể chế biến.</div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                  <span class="muted-2" style="font-weight:700; font-size:12px;">Nguyên liệu trong kho của bạn:</span>
+                  <button class="btn secondary" style="font-size:11px; padding:4px 8px;" onclick="clearAllCookingSlots()">Xóa lựa chọn</button>
+                </div>
+                <div class="kitchen-ing-grid" id="kitchenAvailableIngredients"></div>
+
+                <div style="margin-top:12px;">
+                  <button class="btn" id="btnStartCook" style="width:100%; background:linear-gradient(180deg,#ea580c,#c2410c); font-size:14px; padding:10px;" disabled onclick="doCookDish()">
+                    Bắt Đầu Chế Biến 🍳
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
+        </div>
       </div>
 
       <!-- 1. THÔNG TIN CHUỒNG NUÔI -->
@@ -1259,6 +1457,9 @@ body:not(.logged-out) .app {
           </div>
           <div class="muted-2" style="margin:6px 0 8px 0;">Trứng, sữa, thịt, lông đã thu hoạch:</div>
           <div id="foodInventoryList" class="seed-list" style="max-height:220px; overflow-y:auto;"></div>
+          <!-- Thêm ngay dưới #foodInventoryList -->
+        <div class="muted-2" style="margin:12px 0 4px 0; font-weight:700; color:#c2410c;">Món ăn đặc sản đã chế biến:</div>
+        <div id="dishInventoryList" class="seed-list" style="max-height:180px; overflow-y:auto;"></div>
         </div>
 
       <!-- 6. ĐƠN HÀNG THỰC PHẨM -->
@@ -1328,11 +1529,11 @@ body:not(.logged-out) .app {
       </div>
 
       <div style="height:10px"></div>
-      <div class="panel controls">
-        <h2 style="color:#b45309;">Tiệm Thức Ăn Chăn Nuôi 🌾</h2>
-        <div class="muted" style="margin-bottom:10px;">Bổ sung thức ăn duy trì 100% tốc độ:</div>
-        <div id="specialRanchShopList" class="seed-list"></div>
-      </div>
+<div class="panel controls">
+  <h2 style="color:#b45309;">Cửa Hàng Năng Lượng 🌾🔥</h2>
+  <div class="muted" style="margin-bottom:10px;">Bổ sung thức ăn và nhiệt lượng nấu nướng:</div>
+  <div id="specialRanchShopList" class="seed-list"></div>
+</div>
     </div>
   </div>
   <!-- ================= KẾT THÚC CỘT PHẢI ================= -->
@@ -1639,6 +1840,20 @@ body:not(.logged-out) .app {
   </div>
 </div>
 
+<!-- POPUP SỔ TAY CÔNG THỨC 30 MÓN ĂN -->
+<div id="cookingRecipeModal" class="farm-modal-overlay">
+  <div class="farm-modal-box settings-modal-box" style="border-color:#ea580c; max-width:820px !important;">
+    <div class="settings-modal-header" style="border-bottom-color:#fb923c;">
+      <div class="farm-modal-icon">📖🍳</div>
+      <h3 style="color:#9a3412;">Cẩm Nang 30 Món Ăn Nông Trại</h3>
+      <div class="muted-2">Tra cứu công thức kết hợp từ 1 đến 3 nguyên liệu</div>
+    </div>
+    <div class="settings-modal-content" id="cookingRecipeModalContent" style="max-height:460px;"></div>
+    <div class="farm-modal-actions" style="margin-top:14px;">
+      <button class="btn" id="closeCookingRecipeBtn" style="width:100%; background:linear-gradient(180deg,#ea580c,#c2410c);">Đóng Sổ Tay</button>
+    </div>
+  </div>
+</div>
 <script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
@@ -2225,15 +2440,17 @@ function save(){
     stats: state.stats,
     unlockedTitles: state.unlockedTitles,
     equippedTitle: state.equippedTitle,
-    statsMigrated: state.statsMigrated, // <-- Cờ đánh dấu đã bù dữ liệu cũ hay chưa
+    statsMigrated: state.statsMigrated,
     lastWaterUpdate: state.lastWaterUpdate,
 
-    // 🐄 LƯU DỮ LIỆU KHU CHĂN NUÔI GIA SÚC:
+    // 🐄 LƯU DỮ LIỆU KHU CHĂN NUÔI GIA SÚC & MÓN ĂN:
     barns: state.barns,
     feed: state.feed,
     selectedAnimal: state.selectedAnimal,
     unlockedAnimals: state.unlockedAnimals,
     foodInventory: state.foodInventory,
+    dishInventory: state.dishInventory, // <-- Lưu kho món ăn đã chế biến
+    cookingFire: state.cookingFire !== undefined ? state.cookingFire : 50, // 🔥 LƯU SỐ DƯ LỬA BẾP NẤU
     activeFoodOrders: state.activeFoodOrders,
     lastFoodOrderReset: state.lastFoodOrderReset,
     ranchEquippedTitle: state.ranchEquippedTitle,
@@ -2254,7 +2471,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 💡 Tái tạo initialState an toàn (Đã bao gồm đầy đủ dữ liệu Nông trại & Khu chăn nuôi)
+    // 💡 Tái tạo initialState an toàn (Bổ sung kho món ăn & lửa nấu bếp)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -2270,10 +2487,8 @@ function load(){
         activeOrders: [], 
         lastOrderReset: 0, 
         fusionRewardClaimed: null,
-        // 🏡 MẶC ĐỊNH TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
         farmName: 'Trang trại của bạn',
         farmIcon: '🚜',
-        // 🎖️ KHỞI TẠO MẶC ĐỊNH CHO TÀI KHOẢN MỚI:
         equippedTitle: null,
         statsMigrated: false,
         stats: {
@@ -2288,12 +2503,14 @@ function load(){
         },
         unlockedTitles: [],
 
-        // 🐄 KHỞI TẠO MẶC ĐỊNH CHO KHU CHĂN NUÔI:
+        // 🐄 KHỞI TẠO MẶC ĐỊNH CHO KHU CHĂN NUÔI & MÓN ĂN:
         barns: [],
         feed: 50,
         selectedAnimal: 'chicken',
         unlockedAnimals: ['chicken', 'duck'],
         foodInventory: {},
+        dishInventory: {}, // Khởi tạo kho món ăn mặc định
+        cookingFire: 50,    // 🔥 MẶC ĐỊNH 50 LỬA KHI MỚI BẮT ĐẦU
         activeFoodOrders: [],
         lastFoodOrderReset: 0,
         ranchEquippedTitle: null,
@@ -2305,10 +2522,10 @@ function load(){
             feedUsed: 0,
             foodOrdersCompleted: 0,
             foodSoldDirectly: 0,
-            ranchCoinsEarned: 0
+            ranchCoinsEarned: 0,
+            dishesCooked: 0
         },
 
-        // 🌾 KHỞI TẠO MẶC ĐỊNH CHO NHIỆM VỤ CHĂN NUÔI:
         dailyRanchQuests: [],
         lastRanchQuestReset: 0,
 
@@ -2316,7 +2533,6 @@ function load(){
         specialShopItems: state.specialShopItems
     }));
     
-    // Khởi tạo tiles cho initialState
     initialState.tiles = createEmptyTiles(initialState.rows, initialState.cols);
 
     let isNewAccount = false; 
@@ -2325,7 +2541,6 @@ function load(){
         try{
             const parsed = JSON.parse(raw);
             if(parsed && parsed.tiles){
-                
                 state = initialState;
                 state = Object.assign(state, parsed);
                 
@@ -2334,11 +2549,9 @@ function load(){
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 
-                // 🏡 KHÔI PHỤC TÊN & BIỂU TƯỢNG TRANG TRẠI:
                 state.farmName = parsed.farmName || 'Trang trại của bạn';
                 state.farmIcon = parsed.farmIcon || '🚜';
 
-                // 🎖️ PHỤC HỒI DỮ LIỆU DANH HIỆU & CHỈ SỐ NÔNG TRẠI:
                 state.stats = Object.assign({
                     plantedCount: 0,
                     harvestedCount: 0,
@@ -2353,11 +2566,13 @@ function load(){
                 state.equippedTitle = parsed.equippedTitle !== undefined ? parsed.equippedTitle : null;
                 state.statsMigrated = parsed.statsMigrated || false;
 
-                // 🐄 PHỤC HỒI DỮ LIỆU KHU CHĂN NUÔI:
+                // 🐄 PHỤC HỒI DỮ LIỆU CHĂN NUÔI & MÓN ĂN:
                 state.feed = parsed.feed !== undefined ? parsed.feed : 50;
                 state.selectedAnimal = parsed.selectedAnimal || 'chicken';
                 state.unlockedAnimals = Array.isArray(parsed.unlockedAnimals) ? parsed.unlockedAnimals : ['chicken', 'duck'];
                 state.foodInventory = parsed.foodInventory || {};
+                state.dishInventory = parsed.dishInventory || {};
+                state.cookingFire = parsed.cookingFire !== undefined ? parsed.cookingFire : 50; // 🔥 ĐỌC SỐ DƯ LỬA (NẾU ACC CŨ CHƯA CÓ THÌ GÁN 50)
                 state.activeFoodOrders = Array.isArray(parsed.activeFoodOrders) ? parsed.activeFoodOrders : [];
                 state.lastFoodOrderReset = parsed.lastFoodOrderReset || 0;
                 state.ranchEquippedTitle = parsed.ranchEquippedTitle !== undefined ? parsed.ranchEquippedTitle : null;
@@ -2369,14 +2584,13 @@ function load(){
                     feedUsed: 0,
                     foodOrdersCompleted: 0,
                     foodSoldDirectly: 0,
-                    ranchCoinsEarned: 0
+                    ranchCoinsEarned: 0,
+                    dishesCooked: 0
                 }, parsed.ranchStats || {});
 
-                // 🌾 PHỤC HỒI DỮ LIỆU NHIỆM VỤ CHĂN NUÔI:
                 state.dailyRanchQuests = Array.isArray(parsed.dailyRanchQuests) ? parsed.dailyRanchQuests : [];
                 state.lastRanchQuestReset = parsed.lastRanchQuestReset || 0;
 
-                // Khôi phục chuồng (nếu acc cũ chưa có chuồng thì tạo 6 ô trống)
                 if (Array.isArray(parsed.barns) && parsed.barns.length > 0) {
                     state.barns = parsed.barns;
                 } else {
@@ -2387,14 +2601,12 @@ function load(){
                 }
                 
                 state.selectedSeed = 'carrot'; 
-                
             } else {
                 throw 'bad';
             }
         } catch(e){
             console.warn(`Could not load state for ${currentUser}, creating new.`);
             state = initialState;
-            // Tạo chuồng cho tài khoản hỏng/lỗi
             state.barns = [];
             for (let i = 0; i < 6; i++) {
                 state.barns.push({ id:`barn-${i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
@@ -2403,7 +2615,6 @@ function load(){
             save();
         }
     } else {
-        // Tên đăng nhập chưa có -> Tạo mới hoàn toàn
         state = initialState;
         state.barns = [];
         for (let i = 0; i < 6; i++) {
@@ -2413,7 +2624,7 @@ function load(){
         save();
     }
     
-    // ⭐ LOGIC ÁP DỤNG TIỀN CŨ BỊ MẤT
+    // Áp dụng tiền cũ nếu có
     const oldCoinsTemp = localStorage.getItem(getOldCoinsKey());
     if (oldCoinsTemp) {
         const oldCoinsValue = parseInt(oldCoinsTemp);
@@ -2424,7 +2635,6 @@ function load(){
         localStorage.removeItem(getOldCoinsKey());
     }
 
-    // Tự động cấp instanceId cho đơn hàng cũ chưa có mã riêng
     if (state.activeOrders && Array.isArray(state.activeOrders)) {
         state.activeOrders.forEach((o, idx) => {
             if (!o.instanceId) {
@@ -2436,18 +2646,15 @@ function load(){
     getTodayOrders(); 
     getTodayQuests();
     
-    // 🌾 LẤY & KHỞI TẠO NHIỆM VỤ CHĂN NUÔI HÔM NAY (NẾU ĐÃ SANG NGÀY MỚI)
     if (typeof getTodayRanchQuests === 'function') {
         getTodayRanchQuests();
     }
 
-    // Trừ nước theo thời gian AFK
     updateWater();
 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
     document.body.classList.remove('logged-out');
 
-    // 🏡 HIỂN THỊ TIÊU ĐỀ TRANG TRẠI VỪA TẢI
     if (typeof renderFarmHeaderTitle === 'function') {
         renderFarmHeaderTitle();
     }
@@ -2462,22 +2669,24 @@ function load(){
     renderInventory();
     renderOrders();
     renderFusionChallenges();
-    renderTitles(); // 🎖️ Render danh sách thẻ danh hiệu nông trại
-    renderEquippedTitle(); // 🎖️ Render huy hiệu nông trại đang đeo
+    renderTitles();
+    renderEquippedTitle();
     renderFusionPanel();
     updateLoginStatusUI();
 
-    // 🐄 RENDER DỮ LIỆU KHU CHĂN NUÔI NẾU HÀM TỒN TẠI
+    // 🐄 RENDER DỮ LIỆU KHU CHĂN NUÔI & BẾP ĂN:
     if (typeof renderBarns === 'function') renderBarns();
-    if (typeof renderRanchQuests === 'function') renderRanchQuests(); // 🌾 Render danh sách nhiệm vụ chăn nuôi
+    if (typeof renderRanchQuests === 'function') renderRanchQuests();
     if (typeof renderAnimalShop === 'function') renderAnimalShop();
     if (typeof renderSelectedAnimalDisplay === 'function') renderSelectedAnimalDisplay();
     if (typeof renderFoodInventory === 'function') renderFoodInventory();
+    if (typeof renderDishInventory === 'function') renderDishInventory();
+    if (typeof renderKitchenFace === 'function') renderKitchenFace();
+    if (typeof renderKitchenFire === 'function') renderKitchenFire(); // 🔥 RENDER HIỂN THỊ SỐ DƯ LỬA BẾP NẤU
     if (typeof renderFoodOrders === 'function') renderFoodOrders();
     if (typeof renderRanchTitles === 'function') renderRanchTitles();
     if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
 
-    // 🏆 ĐỒNG BỘ CÁC THỬ THÁCH ĐÃ HOÀN THÀNH TỪ TRƯỚC
     if (typeof FUSION_CHALLENGES !== 'undefined') {
         notifiedChallenges = new Set(
             FUSION_CHALLENGES.filter(c => c.check().isComplete).map(c => c.id)
@@ -5422,6 +5631,8 @@ function renderRanchView() {
   renderRanchTitles();
   renderSpecialRanchShop();
   updateRanchOrderBtnNotification(); // Thêm dòng này
+  renderDishInventory();
+  renderKitchenFace();
 }
 
 
@@ -6027,22 +6238,31 @@ function renderSpecialRanchShop() {
   container.innerHTML = '';
 
   const items = {
-    feed_50kg: { name: 'Bao Thức Ăn (50kg)', value: 50, cost: 200, type: 'feed' },
-    feed_500kg: { name: 'Bao Thức Ăn (500kg)', value: 500, cost: 1800, type: 'feed' },
-    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', value: 1000, cost: 3400, type: 'feed' }
+    // 3 Gói Thức ăn chăn nuôi
+    feed_50kg: { name: 'Bao Thức Ăn (50kg)', value: 50, cost: 200, type: 'feed', emoji: '🌾', border: '#ff9800' },
+    feed_500kg: { name: 'Bao Thức Ăn (500kg)', value: 500, cost: 1800, type: 'feed', emoji: '🌾', border: '#ff9800' },
+    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', value: 1000, cost: 3400, type: 'feed', emoji: '🌾', border: '#ff9800' },
+    // 3 Gói Lửa nấu ăn mới thêm
+    fire_200: { name: 'Ngọn Lửa Nhỏ (200🔥)', value: 200, cost: 200, type: 'fire', emoji: '🔥', border: '#ef4444' },
+    fire_500: { name: 'Ngọn Lửa Lớn (500🔥)', value: 500, cost: 450, type: 'fire', emoji: '🔥', border: '#ef4444' },
+    fire_1000: { name: 'Ngọn Lửa Bất Diệt (1000🔥)', value: 1000, cost: 800, type: 'fire', emoji: '🔥', border: '#ef4444' }
   };
 
   Object.entries(items).forEach(([k, item]) => {
     const div = document.createElement('div');
     div.className = 'row seed';
-    div.style.borderLeft = '5px solid #ff9800';
+    div.style.borderLeft = `5px solid ${item.border}`;
+    const detail = item.type === 'feed' 
+      ? `Nạp ngay +${item.value.toLocaleString('vi-VN')}kg thức ăn` 
+      : `Nạp ngay +${item.value.toLocaleString('vi-VN')} đơn vị lửa nấu`;
+
     div.innerHTML = `
-      <div class="emoji">🌾</div>
+      <div class="emoji">${item.emoji}</div>
       <div class="meta" style="flex:1;">
         <div style="font-weight:700">${item.name}</div>
-        <div class="muted">Nạp ngay +${item.value.toLocaleString('vi-VN')}kg thức ăn</div>
+        <div class="muted">${detail}</div>
       </div>
-      <button class="btn" style="background:linear-gradient(180deg,#f59e0b,#b45309); min-width:90px;" onclick="buyRanchFeed('${k}')">
+      <button class="btn" style="background:${item.type === 'feed' ? 'linear-gradient(180deg,#f59e0b,#b45309)' : 'linear-gradient(180deg,#ef4444,#b91c1c)'}; min-width:90px;" onclick="buyRanchEnergyItem('${k}')">
         Mua ${item.cost.toLocaleString('vi-VN')}₵
       </button>
     `;
@@ -6050,15 +6270,17 @@ function renderSpecialRanchShop() {
   });
 }
 
-
-function buyRanchFeed(k) {
-  const feedPackages = {
-    feed_50kg: { name: 'Bao Thức Ăn (50kg)', amount: 50, cost: 200 },
-    feed_500kg: { name: 'Bao Thức Ăn (500kg)', amount: 500, cost: 1800 },
-    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', amount: 1000, cost: 3400 }
+function buyRanchEnergyItem(k) {
+  const energyPackages = {
+    feed_50kg: { name: 'Bao Thức Ăn (50kg)', amount: 50, cost: 200, type: 'feed' },
+    feed_500kg: { name: 'Bao Thức Ăn (500kg)', amount: 500, cost: 1800, type: 'feed' },
+    feed_1000kg: { name: 'Bao Thức Ăn (1000kg)', amount: 1000, cost: 3400, type: 'feed' },
+    fire_200: { name: 'Gói Lửa 200🔥', amount: 200, cost: 200, type: 'fire' },
+    fire_500: { name: 'Gói Lửa 500🔥', amount: 500, cost: 450, type: 'fire' },
+    fire_1000: { name: 'Gói Lửa 1000🔥', amount: 1000, cost: 800, type: 'fire' }
   };
 
-  const item = feedPackages[k];
+  const item = energyPackages[k];
   if (!item) return;
 
   if (state.coins < item.cost) {
@@ -6067,35 +6289,32 @@ function buyRanchFeed(k) {
   }
 
   showFarmConfirm(
-    'Mua Thức Ăn Chăn Nuôi',
+    item.type === 'feed' ? 'Mua Thức Ăn Chăn Nuôi' : 'Nạp Thêm Lửa Nấu Bếp',
     `Bạn có chắc muốn mua <strong>${item.name}</strong> với giá <span style="color:#b35e00;font-weight:bold;">${item.cost.toLocaleString('vi-VN')}₵</span>?`,
-    '🌾',
+    item.type === 'feed' ? '🌾' : '🔥',
     () => {
-      // 1. Trừ tiền và nạp thức ăn
       state.coins -= item.cost;
-      state.feed = (state.feed || 0) + item.amount;
 
-      // 2. Ghi nhật ký vào bảng chăn nuôi
-      if (typeof logRanch === 'function') {
-        logRanch(`Mua vật phẩm: ${item.name} (-${item.cost.toLocaleString('vi-VN')}₵). Đã nạp +${item.amount.toLocaleString('vi-VN')}kg thức ăn.`);
+      if (item.type === 'feed') {
+        state.feed = (state.feed || 0) + item.amount;
+        renderFeedResource();
+        showTopToast('NẠP THỨC ĂN', `Đã nhận +${item.amount}kg thức ăn!`, '🌾');
+      } else {
+        state.cookingFire = (state.cookingFire !== undefined ? state.cookingFire : 50) + item.amount;
+        renderKitchenFire();
+        showTopToast('NẠP LỬA THÀNH CÔNG', `Đã nạp <strong style="color:#ef4444;">+${item.amount}🔥 Lửa</strong> vào bếp!`, '🔥');
       }
 
-      // 3. Âm thanh phản hồi
+      if (typeof logRanch === 'function') {
+        logRanch(`Mua năng lượng: ${item.name} (-${item.cost.toLocaleString('vi-VN')}₵).`);
+      }
+
       if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
         SoundEngine.specialBuy();
-      } else if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
-        SoundEngine.click();
       }
 
       save();
-      renderFeedResource();
       coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
-
-      showTopToast(
-        'NẠP THỨC ĂN THÀNH CÔNG',
-        `Đã nạp <strong style="color:#2e7d32;">+${item.amount.toLocaleString('vi-VN')}kg</strong> thức ăn vào kho trại!`,
-        '🌾'
-      );
     }
   );
 }
@@ -6273,6 +6492,347 @@ function updateRanchOrderBtnNotification() {
   }
 }
 
+// ==========================================================================
+// KHO 30 MÓN ĂN & CẤU HÌNH TỈ LỆ THÀNH CÔNG THEO 4 CẤP ĐỘ
+// ==========================================================================
+const COOKING_TIERS = {
+  Easy: { cost: 0, fire: 5, rate: 1.0, title: '🟢 Cấp Dễ (100% Thành công, 0 xu, 5🔥)' },
+  Medium: { cost: 30, fire: 10, rate: 0.7, title: '🟡 Cấp Vừa (70% Thành công, 30 xu, 10🔥)' },
+  Hard: { cost: 70, fire: 20, rate: 0.5, title: '🔴 Cấp Khó (50% Thành công, 70 xu, 20🔥)' },
+  SuperHard: { cost: 120, fire: 30, rate: 0.2, title: '🟣 Siêu Khó (20% Thành công, 120 xu, 30🔥)' }
+};
+
+const DISHES_DB = [
+  // 5 MÓN DỄ (0 xu, 100%)
+  { id: 'dish_01', name: 'Trứng Ốp La Giòn Rụm', emoji: '🍳', tier: 'Easy', ingredients: ['chicken'], value: 25 },
+  { id: 'dish_02', name: 'Trứng Vịt Muối Luộc', emoji: '🥚', tier: 'Easy', ingredients: ['duck'], value: 32 },
+  { id: 'dish_03', name: 'Trứng Chiên Song Hỷ', emoji: '🥪', tier: 'Easy', ingredients: ['chicken', 'duck'], value: 65 },
+  { id: 'dish_04', name: 'Sữa Nóng Bơ Đường', emoji: '🥛', tier: 'Easy', ingredients: ['goat'], value: 75 },
+  { id: 'dish_05', name: 'Thịt Ba Rọi Áp Chảo', emoji: '🥓', tier: 'Easy', ingredients: ['pig'], value: 85 },
+
+  // 5 MÓN VỪA (20 xu, 70%)
+  { id: 'dish_06', name: 'Sandwich Trứng & Thịt Xông Khói', emoji: '🥪', tier: 'Medium', ingredients: ['chicken', 'pig'], value: 160 },
+  { id: 'dish_07', name: 'Sữa Chua Dê Trộn Trứng Nướng', emoji: '🍮', tier: 'Medium', ingredients: ['duck', 'goat'], value: 175 },
+  { id: 'dish_08', name: 'Bánh Bông Lan Trứng Muối', emoji: '🧁', tier: 'Medium', ingredients: ['chicken', 'duck', 'goat'], value: 240 },
+  { id: 'dish_09', name: 'Bơ Sữa Bò Tươi Nóng', emoji: '🧈', tier: 'Medium', ingredients: ['cow'], value: 220 },
+  { id: 'dish_10', name: 'Len Ấm Ủ Trà Thảo Mộc', emoji: '🫖', tier: 'Medium', ingredients: ['sheep', 'goat'], value: 210 },
+
+  // 10 MÓN KHÓ (50 xu, 50%)
+  { id: 'dish_11', name: 'Phô Mai Bò Đút Lò Xông Khói', emoji: '🧀', tier: 'Hard', ingredients: ['cow', 'pig'], value: 360 },
+  { id: 'dish_12', name: 'Kem Trứng Béo Ngậy Paris', emoji: '🍨', tier: 'Hard', ingredients: ['chicken', 'cow'], value: 340 },
+  { id: 'dish_13', name: 'Trà Sữa Lạc Đà Sa Mạc', emoji: '🧋', tier: 'Hard', ingredients: ['camel'], value: 380 },
+  { id: 'dish_14', name: 'Cháo Bồi Bổ Ngựa Bạch', emoji: '🥣', tier: 'Hard', ingredients: ['horse'], value: 410 },
+  { id: 'dish_15', name: 'Bánh Mì Nướng Mật Ong Rừng', emoji: '🍯', tier: 'Hard', ingredients: ['bee_queen'], value: 720 },
+  { id: 'dish_16', name: 'Lẩu Thảo Mộc Cừu & Dê Núi', emoji: '🍲', tier: 'Hard', ingredients: ['sheep', 'goat', 'pig'], value: 450 },
+  { id: 'dish_17', name: 'Bánh Tart Kem Bơ Thượng Hạng', emoji: '🥧', tier: 'Hard', ingredients: ['cow', 'duck', 'chicken'], value: 460 },
+  { id: 'dish_18', name: 'Súp Dưỡng Nhan Lạc Đà & Bò', emoji: '🥘', tier: 'Hard', ingredients: ['camel', 'cow'], value: 520 },
+  { id: 'dish_19', name: 'Bánh Nướng Mật Ong Sữa Bò', emoji: '🥞', tier: 'Hard', ingredients: ['bee_queen', 'cow'], value: 890 },
+  { id: 'dish_20', name: 'Bít Tết Bò Bison Sốt Tiêu Cay', emoji: '🥩', tier: 'Hard', ingredients: ['bison'], value: 920 },
+
+  // 10 MÓN SIÊU KHÓ (70 xu, 20%)
+  { id: 'dish_21', name: 'Phô Mai Bison Nướng Mật Ngọt', emoji: '🧀', tier: 'SuperHard', ingredients: ['bison', 'bee_queen'], value: 1650 },
+  { id: 'dish_22', name: 'Đại Tiệc Bò Bison & Ngựa Bạch', emoji: '🍖', tier: 'SuperHard', ingredients: ['bison', 'horse'], value: 1450 },
+  { id: 'dish_23', name: 'Bát Súp Thiên Nga Tuyết Liên', emoji: '🪶', tier: 'SuperHard', ingredients: ['swan'], value: 2100 },
+  { id: 'dish_24', name: 'Tráng Miệng Lông Vũ Băng Tuyết', emoji: '🍧', tier: 'SuperHard', ingredients: ['swan', 'bee_queen'], value: 2700 },
+  { id: 'dish_25', name: 'Sữa Tuyết Thiên Nga Trộn Bơ Bò', emoji: '🥛', tier: 'SuperHard', ingredients: ['swan', 'cow'], value: 2300 },
+  { id: 'dish_26', name: 'Đan Dệt Thảm Len Quý Tộc Vàng', emoji: '🧣', tier: 'SuperHard', ingredients: ['sheep', 'swan', 'horse'], value: 2500 },
+  { id: 'dish_27', name: 'Trân Châu Ngọc Rồng Lửa Nướng', emoji: '🔮', tier: 'SuperHard', ingredients: ['dragon_pet'], value: 4800 },
+  { id: 'dish_28', name: 'Tiệc Nướng Long Vương Thượng Hạng', emoji: '🍗', tier: 'SuperHard', ingredients: ['dragon_pet', 'bison'], value: 5800 },
+  { id: 'dish_29', name: 'Mật Rồng Thần Thoại Vĩnh Cửu', emoji: '✨', tier: 'SuperHard', ingredients: ['dragon_pet', 'bee_queen'], value: 6200 },
+  { id: 'dish_30', name: 'Đại Yến Cung Đình Long - Phụng - Ngưu', emoji: '👑', tier: 'SuperHard', ingredients: ['dragon_pet', 'swan', 'bison'], value: 8500 }
+];
+
+let isKitchenFlipped = false;
+let selectedCookingIngredients = [];
+
+// Xử lý nút lật 3D
+const btnFlipDoorToggle = document.getElementById('btnFlipDoorToggle');
+const flipDoorCard = document.getElementById('flipDoorCard');
+const ranchSectionHeaderTitle = document.getElementById('ranchSectionHeaderTitle');
+
+if (btnFlipDoorToggle && flipDoorCard) {
+  btnFlipDoorToggle.onclick = () => {
+    isKitchenFlipped = !isKitchenFlipped;
+    if (isKitchenFlipped) {
+      flipDoorCard.classList.add('is-flipped');
+      btnFlipDoorToggle.innerHTML = '🏡 Về Chuồng Nuôi 🔄';
+      btnFlipDoorToggle.style.background = 'linear-gradient(180deg, #f59e0b, #b45309)';
+      ranchSectionHeaderTitle.textContent = 'Bếp Nấu Ẩm Thực Trang Trại 🍳🔥';
+      renderKitchenFace();
+    } else {
+      flipDoorCard.classList.remove('is-flipped');
+      btnFlipDoorToggle.innerHTML = '🍳 Chế Biến Món Ăn 🔄';
+      btnFlipDoorToggle.style.background = 'linear-gradient(180deg, #ea580c, #c2410c)';
+      ranchSectionHeaderTitle.textContent = 'Khu Chuồng Trại Gia Súc 🏡🐄';
+    }
+    if (typeof SoundEngine !== 'undefined') SoundEngine.click();
+  };
+}
+
+function renderKitchenFace() {
+  const container = document.getElementById('kitchenAvailableIngredients');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const ownedFoods = Object.entries(state.foodInventory || {}).filter(([, q]) => q > 0);
+  if (ownedFoods.length === 0) {
+    container.innerHTML = '<div class="muted" style="grid-column: 1/-1; text-align:center;">Kho thực phẩm thô đang trống! Hãy thu hoạch từ chuồng.</div>';
+  } else {
+    ownedFoods.forEach(([animalId, qty]) => {
+      const animal = ANIMALS_DB[animalId];
+      if (!animal) return;
+      const countUsed = selectedCookingIngredients.filter(id => id === animalId).length;
+      const remain = qty - countUsed;
+
+      const btn = document.createElement('div');
+      btn.className = 'kitchen-ing-btn';
+      btn.style.opacity = remain > 0 ? '1' : '0.4';
+      btn.innerHTML = `<span style="font-size:18px;">${animal.foodEmoji}</span> <span>${animal.foodName} (${remain})</span>`;
+      btn.onclick = () => {
+        if (remain > 0) addIngredientToCooking(animalId);
+      };
+      container.appendChild(btn);
+    });
+  }
+  updateCookingSlotsUI();
+}
+
+function addIngredientToCooking(animalId) {
+  if (selectedCookingIngredients.length >= 3) {
+    alert('Chỉ kết hợp tối đa 3 nguyên liệu cho 1 món ăn!');
+    return;
+  }
+  selectedCookingIngredients.push(animalId);
+  if (typeof SoundEngine !== 'undefined') SoundEngine.selectSeed();
+  renderKitchenFace();
+}
+
+function removeIngredientSlot(idx) {
+  if (selectedCookingIngredients[idx]) {
+    selectedCookingIngredients.splice(idx, 1);
+    if (typeof SoundEngine !== 'undefined') SoundEngine.click();
+    renderKitchenFace();
+  }
+}
+
+function clearAllCookingSlots() {
+  selectedCookingIngredients = [];
+  renderKitchenFace();
+}
+
+function updateCookingSlotsUI() {
+  for (let i = 0; i < 3; i++) {
+    const slotEl = document.getElementById(`kitchenSlot${i}`);
+    const emojiEl = document.getElementById(`slotEmoji${i}`);
+    const animalId = selectedCookingIngredients[i];
+
+    if (animalId && ANIMALS_DB[animalId]) {
+      slotEl.classList.add('filled');
+      emojiEl.textContent = ANIMALS_DB[animalId].foodEmoji;
+    } else {
+      slotEl.classList.remove('filled');
+      emojiEl.textContent = '➕';
+    }
+  }
+
+  const previewBox = document.getElementById('cookingPreviewBox');
+  const btnCook = document.getElementById('btnStartCook');
+
+  if (selectedCookingIngredients.length === 0) {
+    previewBox.innerHTML = '<div class="muted" style="font-size:13px;">Chọn nguyên liệu từ kho bên dưới để xem món có thể chế biến.</div>';
+    btnCook.disabled = true;
+    btnCook.innerHTML = 'Bắt Đầu Chế Biến 🍳';
+    return;
+  }
+
+  const matchedDish = findMatchingDishRecipe(selectedCookingIngredients);
+  if (matchedDish) {
+    const tierConfig = COOKING_TIERS[matchedDish.tier];
+    // Trong updateCookingSlotsUI:
+previewBox.innerHTML = `
+  <div style="font-size:15px; font-weight:800; color:#c2410c;">Món chế biến: ${matchedDish.emoji} ${matchedDish.name}</div>
+  <div style="font-size:12px; margin-top:2px; color:#58705a;">
+    Cấp độ: <strong>${matchedDish.tier}</strong> | Tỉ lệ: <strong>${tierConfig.rate * 100}%</strong> | Phí: <strong>${tierConfig.cost} xu</strong> + <strong>${tierConfig.fire}🔥</strong>
+  </div>
+  <div style="font-size:11px; color:#b45309; margin-top:2px;">Giá bán khi hoàn tất: <strong>+${matchedDish.value.toLocaleString('vi-VN')}₵</strong></div>
+`;
+btnCook.disabled = false;
+btnCook.innerHTML = `Bắt Đầu Nấu [${matchedDish.name}] (${tierConfig.cost}₵ - ${tierConfig.fire}🔥)`;
+  } else {
+    previewBox.innerHTML = `
+      <div style="color:#b91c1c; font-weight:700; font-size:13px;">Không khớp công thức món ăn nào!</div>
+      <div class="muted" style="font-size:11px;">Xem "📖 Công Thức 30 Món" để biết cách phối hợp.</div>
+    `;
+    btnCook.disabled = true;
+    btnCook.innerHTML = 'Không Có Công Thức';
+  }
+}
+
+function findMatchingDishRecipe(ingredients) {
+  const currentSorted = [...ingredients].sort();
+  return DISHES_DB.find(dish => {
+    const dishSorted = [...dish.ingredients].sort();
+    if (dishSorted.length !== currentSorted.length) return false;
+    return dishSorted.every((val, idx) => val === currentSorted[idx]);
+  });
+}
+
+function doCookDish() {
+  const dish = findMatchingDishRecipe(selectedCookingIngredients);
+  if (!dish) return;
+  const tierConfig = COOKING_TIERS[dish.tier];
+
+  // 1. Kiểm tra tiền xu
+  if (state.coins < tierConfig.cost) {
+    alert(`Không đủ tiền! Cần ${tierConfig.cost} xu.`);
+    return;
+  }
+
+  // 2. Kiểm tra lửa nấu
+  const currentFire = state.cookingFire !== undefined ? state.cookingFire : 50;
+  if (currentFire < tierConfig.fire) {
+    alert(`Không đủ lửa nấu! Món này cần ${tierConfig.fire}🔥 (Hiện có: ${currentFire}🔥). Hãy mua thêm ở Cửa hàng năng lượng.`);
+    return;
+  }
+
+  // Trừ nguyên liệu kho
+  selectedCookingIngredients.forEach(ingId => {
+    state.foodInventory[ingId] = (state.foodInventory[ingId] || 0) - 1;
+    if (state.foodInventory[ingId] < 0) state.foodInventory[ingId] = 0;
+  });
+
+  // Trừ tiền xu và TRỪ LỬA
+  state.coins -= tierConfig.cost;
+  state.cookingFire = currentFire - tierConfig.fire;
+
+  const isSuccess = Math.random() < tierConfig.rate;
+  if (!state.dishInventory) state.dishInventory = {};
+
+  if (isSuccess) {
+    state.dishInventory[dish.id] = (state.dishInventory[dish.id] || 0) + 1;
+    if (typeof SoundEngine !== 'undefined') SoundEngine.fusionSuccess();
+    logRanch(`🍳 Chế biến THÀNH CÔNG [${dish.name} ${dish.emoji}]! Tiêu hao ${tierConfig.fire}🔥 và ${tierConfig.cost} xu.`);
+    showTopToast('NẤU MÓN THÀNH CÔNG', `Đã chế biến thành công <strong>${dish.name}</strong> (-${tierConfig.fire}🔥)!`, dish.emoji);
+  } else {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.fusionFail();
+    logRanch(`🍳 Chế biến THẤT BẠI món [${dish.name}]! Tiêu hao ${tierConfig.fire}🔥, nguyên liệu và ${tierConfig.cost} xu.`);
+    showTopToast('CHẾ BIẾN THẤT BẠI', `Món ăn bị cháy khét mất rồi (-${tierConfig.fire}🔥)!`, '💨');
+  }
+
+  selectedCookingIngredients = [];
+  save();
+  renderFarm();
+  renderKitchenFace();
+  renderKitchenFire();
+  renderFoodInventory();
+  renderDishInventory();
+}
+
+function renderDishInventory() {
+  const container = document.getElementById('dishInventoryList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const entries = Object.entries(state.dishInventory || {}).filter(([, q]) => q > 0);
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="muted" style="text-align:center;">Chưa có món ăn nào trong kho.</div>';
+    return;
+  }
+
+  entries.forEach(([dishId, qty]) => {
+    const dish = DISHES_DB.find(d => d.id === dishId);
+    if (!dish) return;
+
+    const div = document.createElement('div');
+    div.className = 'seed';
+    div.style.borderLeftColor = dish.tier === 'SuperHard' ? '#9333ea' : dish.tier === 'Hard' ? '#ef4444' : dish.tier === 'Medium' ? '#f59e0b' : '#22c55e';
+    div.innerHTML = `
+      <div class="emoji">${dish.emoji}</div>
+      <div class="meta">
+        <div style="font-weight:700">${dish.name}</div>
+        <div class="muted">Giá bán: ${dish.value.toLocaleString('vi-VN')}₵/phần • Cấp: ${dish.tier}</div>
+      </div>
+      <div style="font-weight:700; margin-right:8px;">x${qty}</div>
+      <button class="btn secondary" style="font-size:12px; padding:6px 10px;" onclick="sellDishItem('${dish.id}')">Bán hết</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function sellDishItem(dishId) {
+  const qty = state.dishInventory[dishId] || 0;
+  if (qty <= 0) return;
+  const dish = DISHES_DB.find(d => d.id === dishId);
+  const totalEarn = qty * dish.value;
+
+  state.coins += totalEarn;
+  state.dishInventory[dishId] = 0;
+
+  if (typeof SoundEngine !== 'undefined') SoundEngine.coinReward();
+  logRanch(`Bán món ăn: x${qty} ${dish.name}. Thu về +${totalEarn.toLocaleString('vi-VN')}₵.`);
+  
+  save();
+  renderFarm();
+  renderDishInventory();
+  showTopToast('ĐÃ BÁN MÓN ĂN', `Thu về <strong style="color:#b35e00;">+${totalEarn.toLocaleString('vi-VN')}₵</strong>!`, '💰');
+}
+
+// Popup Sổ tay công thức
+const cookingRecipeModal = document.getElementById('cookingRecipeModal');
+const btnOpenRecipeBook = document.getElementById('btnOpenRecipeBook');
+const closeCookingRecipeBtn = document.getElementById('closeCookingRecipeBtn');
+const cookingRecipeModalContent = document.getElementById('cookingRecipeModalContent');
+
+if (btnOpenRecipeBook && cookingRecipeModal) {
+  btnOpenRecipeBook.onclick = () => {
+    renderRecipeBookContent();
+    cookingRecipeModal.classList.add('open');
+  };
+}
+if (closeCookingRecipeBtn && cookingRecipeModal) {
+  closeCookingRecipeBtn.onclick = () => cookingRecipeModal.classList.remove('open');
+}
+
+function renderRecipeBookContent() {
+  if (!cookingRecipeModalContent) return;
+  cookingRecipeModalContent.innerHTML = '';
+  ['Easy', 'Medium', 'Hard', 'SuperHard'].forEach(tierKey => {
+    const conf = COOKING_TIERS[tierKey];
+    const tierDishes = DISHES_DB.filter(d => d.tier === tierKey);
+
+    const sec = document.createElement('div');
+    sec.className = 'guide-section';
+    sec.style.borderLeftColor = tierKey === 'SuperHard' ? '#9333ea' : tierKey === 'Hard' ? '#ef4444' : tierKey === 'Medium' ? '#f59e0b' : '#22c55e';
+    
+    let listHtml = '';
+    tierDishes.forEach(d => {
+      const ingsHtml = d.ingredients.map(ing => {
+        const an = ANIMALS_DB[ing];
+        return `${an ? an.foodEmoji : ''} ${an ? an.foodName : ing}`;
+      }).join(' + ');
+
+      listHtml += `
+        <div style="padding:4px 0; border-bottom:1px dashed #e2e8f0; font-size:12px;">
+          <strong>${d.emoji} ${d.name}</strong> (Bán: ${d.value}₵)<br>
+          <span style="color:#64748b;">Công thức:</span> <strong>${ingsHtml}</strong>
+        </div>
+      `;
+    });
+
+    sec.innerHTML = `<h4 style="margin:0 0 6px 0; color:#0f172a;">${conf.title} — Phí: ${conf.cost} xu & ${conf.fire}🔥</h4><div>${listHtml}</div>`;
+    cookingRecipeModalContent.appendChild(sec);
+  });
+}
+
+function renderKitchenFire() {
+  const fireEl = document.getElementById('kitchenFireDisplay');
+  if (fireEl) {
+    const currentFire = state.cookingFire !== undefined ? state.cookingFire : 50;
+    fireEl.innerHTML = `🔥 Lửa: ${currentFire}`;
+    fireEl.style.color = currentFire > 0 ? '#c2410c' : '#dc2626';
+    fireEl.style.borderColor = currentFire > 0 ? '#f97316' : '#ef4444';
+  }
+}
 </script>
 </body>
 </html>
