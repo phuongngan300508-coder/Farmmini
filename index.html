@@ -1090,12 +1090,99 @@ body:not(.logged-out) .app {
   pointer-events: auto;
   opacity: 1;
 }
+/* ======================================================== */
+/* CỐ ĐỊNH KHUNG BẾP Y HỆT CHUỒNG TRẠI (CHỐNG TRÀN TUYỆT ĐỐI) */
+/* ======================================================== */
 .kitchen-card {
   background: #fffcf5;
   border: 2px solid #e28743;
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   box-shadow: 0 8px 24px rgba(226, 135, 67, 0.15);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  /* Khóa cứng kích thước giống y chang #ranchBarns */
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.kitchen-card::-webkit-scrollbar {
+  width: 6px;
+}
+.kitchen-card::-webkit-scrollbar-thumb {
+  background: #e28743;
+  border-radius: 6px;
+}
+
+/* KHUNG TỰ ĐỘNG NẤU - MẶC ĐỊNH CHO MÀN HÌNH RỘNG (PC/LAPTOP) */
+#autoCookPanel {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  background: #fff7ed;
+  border: 1.5px dashed #ea580c;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+.auto-cook-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.auto-cook-select-box {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #fed7aa;
+  font-size: 13px;
+  background: #fff;
+  outline: none;
+}
+
+/* ======================================================== */
+/* TRÊN ĐIỆN THOẠI (DƯỚI 650px): DỊCH CHUYỂN NÚT VÀ MENU XUỐNG DƯỚI */
+/* ======================================================== */
+@media (max-width: 650px) {
+  .kitchen-card {
+    padding: 10px 8px;
+  }
+  
+  .kitchen-slot-row {
+    margin: 8px 0;
+    gap: 6px;
+  }
+  .kitchen-slot {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+  }
+
+  /* Đưa toàn bộ thành phần tự động xếp tầng 1 cột theo chiều dọc */
+  .auto-cook-header-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  /* Dịch chuyển nút bấm xuống dưới cùng và bung full chiều rộng */
+  #autoCookActionContainer {
+    width: 100%;
+    margin-top: 4px;
+  }
+  #autoCookActionContainer button {
+    width: 100% !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    display: block;
+  }
 }
 .kitchen-slot-row {
   display: flex;
@@ -1202,6 +1289,72 @@ body:not(.logged-out) .app {
 .online-order-item.tier-High   { border-left-color: #ea580c; }
 .online-order-item.tier-VIP    { border-left-color: #a855f7; }
 .online-order-item.tier-VVIP   { border-left-color: #e11d48; background: #fff5f5 !important; }
+
+/* TỐI ƯU GIAO DIỆN BẾP TỰ ĐỘNG CHỐNG TRÀN VÀ VỠ KHUNG */
+#autoCookPanel {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.auto-cook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auto-cook-title-grp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* Ngăn flex item bị tràn ngang trên màn hình hẹp */
+  flex: 1 1 180px;
+}
+
+.auto-cook-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.auto-cook-select-row select {
+  flex: 1 1 180px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Tinh chỉnh riêng cho màn hình điện thoại dưới 500px */
+@media (max-width: 500px) {
+  #autoCookPanel {
+    padding: 8px 10px !important;
+  }
+  .auto-cook-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 10px;
+  }
+  #autoCookActionContainer {
+    width: 100%;
+  }
+  #autoCookActionContainer button {
+    width: 100% !important;
+    text-align: center;
+  }
+  .auto-cook-select-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
   </style>
 </head>
 <body>
@@ -1411,6 +1564,42 @@ body:not(.logged-out) .app {
         <button class="btn" id="btnOpenRecipeBook" style="background:linear-gradient(180deg,#d97706,#b45309); font-size:11px; padding:6px 10px;">
           📖 Công Thức 30 Món
         </button>
+      </div>
+    </div>
+
+    <!-- KHUNG ĐIỀU KHIỂN NẤU ĂN TỰ ĐỘNG (DỊCH CHUYỂN BỐ CỤC DỌC TRÊN MOBILE) -->
+    <div id="autoCookPanel">
+      <!-- 1. HÀNG TIÊU ĐỀ & ĐỒNG HỒ ĐẾM NGƯỢC -->
+      <div class="auto-cook-header-row">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:20px; line-height:1; flex-shrink:0;">🤖</span>
+          <div>
+            <strong style="color:#9a3412; font-size:13px; display:block;">Nồi Nấu Tự Động (Treo máy)</strong>
+            <div id="autoCookTimerDisplay" class="muted-2" style="font-size:11px;">Chưa kích hoạt gói thuê</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 💡 GHI CHÚ NẤU SONG SONG -->
+      <div style="font-size:11px; color:#2e7d32; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; padding:4px 8px; margin-top:6px; line-height:1.35;">
+        💡 <strong>Mẹo:</strong> Bạn vẫn có thể <strong>tự chọn nguyên liệu nấu thủ công</strong> bình thường ngay cả khi nồi tự động đang chạy (hai chế độ nấu độc lập, không xung đột).
+      </div>
+
+      <!-- 2. KHU VỰC CÀI ĐẶT -->
+      <div id="autoCookActiveSettings" style="display:none; margin-top:8px; border-top:1px dashed #fed7aa; padding-top:8px;">
+        <label style="font-size:11px; font-weight:700; color:#58705a; display:block; margin-bottom:4px;">Món ăn cần chế biến:</label>
+        <select id="autoCookDishSelect" class="auto-cook-select-box" onchange="onSelectAutoDish(this.value)">
+          <option value="">-- Chọn món từ danh sách --</option>
+        </select>
+        
+        <div id="autoCookStatusLog" style="font-size:11px; color:#c2410c; margin-top:6px; font-weight:600; line-height:1.3;">
+          Trạng thái: Đang chờ chọn món và nguyên liệu...
+        </div>
+      </div>
+
+      <!-- 3. NÚT BẬT/TẮT TỰ NẤU -->
+      <div id="autoCookActionContainer" style="margin-top:8px;">
+        <!-- Nút thuê hoặc Bật/Tắt render qua JS -->
       </div>
     </div>
 
@@ -1829,6 +2018,10 @@ body:not(.logged-out) .app {
         <h4 style="color: #c2410c;">🍳 4. Cửa Lật 3D & Bếp Nấu 30 Món Ăn</h4>
         <p>• Bấm nút <strong>🍳 Chế Biến Món Ăn 🔄</strong> ở góc trên chuồng trại để lật sang gian bếp ẩm thực nông trại.</p>
         <p>• <strong>Kết hợp nguyên liệu:</strong> Chọn từ 1 đến 3 nguyên liệu thực phẩm trong kho đặt vào 3 ô chế biến để nấu thành <strong>30 món ăn đặc sản</strong>.</p>
+        <p>• <strong>🤖 Nồi Nấu Tự Động (Treo máy):</strong>
+          <br>&nbsp;&nbsp;+ Thuê gói 3 ngày để nồi tự lấy nguyên liệu, trừ tiền, trừ lửa và cất thành phẩm vào kho.
+          <br>&nbsp;&nbsp;+ <strong>Nấu song song:</strong> Trong lúc nồi tự động đang chạy ngầm, bạn <strong>vẫn có thể thao tác chọn nguyên liệu và bấm nấu thủ công</strong> các món khác cùng lúc mà hoàn toàn không bị xung đột!
+        </p>
         <p>• <strong>Tỉ lệ thành công theo 4 cấp độ:</strong>
           <br>&nbsp;&nbsp;+ 🟢 <em>Dễ:</em> 100% thành công (0 xu)
           <br>&nbsp;&nbsp;+ 🟡 <em>Vừa:</em> 70% thành công (30 xu)
@@ -1997,6 +2190,12 @@ let state = {
     totalCoinsEarned: 0
   },
   unlockedTitles: [],
+
+  // 🤖 CƠ CHẾ NẤU ĂN TỰ ĐỘNG (THUÊ 3 NGÀY - TREO MÁY):
+  autoCookExpiresAt: 0,     // Mốc hết hạn 3 ngày tính theo thời gian thực (0 = chưa thuê hoặc hết hạn)
+  autoCookEnabled: false,   // false: tắt, true: đang bật nấu tự động khi treo máy
+  autoCookTargetDish: null, // Lưu ID món ăn được chọn (ví dụ: 'dish_01', 'dish_15'...)
+
   
   seeds: {
     // ===========================================
@@ -2543,6 +2742,11 @@ function save(){
     dishInventory: state.dishInventory, // Lưu kho món ăn đã chế biến
     cookingFire: state.cookingFire !== undefined ? state.cookingFire : 50, // 🔥 Lưu số dư lửa bếp nấu
 
+    // 🤖 LƯU DỮ LIỆU NẤU ĂN TỰ ĐỘNG (THUÊ 3 NGÀY):
+    autoCookExpiresAt: state.autoCookExpiresAt || 0,
+    autoCookEnabled: state.autoCookEnabled || false,
+    autoCookTargetDish: state.autoCookTargetDish || null,
+
     // 🛵 LƯU DỮ LIỆU ĐƠN HÀNG ONLINE & BỘ ĐẾM 2 PHÚT HỒI ĐƠN:
     activeOnlineOrders: state.activeOnlineOrders || [],
     onlineOrderSpawnTimers: state.onlineOrderSpawnTimers || [],
@@ -2607,6 +2811,11 @@ function load(){
         foodInventory: {},
         dishInventory: {},
         cookingFire: 50, // 🔥 Mặc định 50 lửa khi bắt đầu
+
+        // 🤖 KHỞI TẠO MẶC ĐỊNH NẤU ĂN TỰ ĐỘNG:
+        autoCookExpiresAt: 0,
+        autoCookEnabled: false,
+        autoCookTargetDish: null,
 
         // 🛵 KHỞI TẠO MẶC ĐỊNH CHO ĐƠN HÀNG ONLINE:
         activeOnlineOrders: [],
@@ -2674,6 +2883,11 @@ function load(){
                 state.foodInventory = parsed.foodInventory || {};
                 state.dishInventory = parsed.dishInventory || {};
                 state.cookingFire = parsed.cookingFire !== undefined ? parsed.cookingFire : 50;
+
+                // 🤖 PHỤC HỒI DỮ LIỆU NẤU ĂN TỰ ĐỘNG:
+                state.autoCookExpiresAt = parsed.autoCookExpiresAt || 0;
+                state.autoCookEnabled = parsed.autoCookEnabled || false;
+                state.autoCookTargetDish = parsed.autoCookTargetDish || null;
 
                 // 🛵 PHỤC HỒI DỮ LIỆU ĐƠN HÀNG ONLINE:
                 state.activeOnlineOrders = Array.isArray(parsed.activeOnlineOrders) ? parsed.activeOnlineOrders : [];
@@ -2798,6 +3012,9 @@ function load(){
     if (typeof renderOnlineOrders === 'function') renderOnlineOrders(); // 🛵 Render sẵn đơn hàng online
     if (typeof renderRanchTitles === 'function') renderRanchTitles();
     if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
+
+    // 🤖 RENDER GIAO DIỆN BẾP NẤU TỰ ĐỘNG:
+    if (typeof renderAutoCookUI === 'function') renderAutoCookUI();
 
     if (typeof FUSION_CHALLENGES !== 'undefined') {
         notifiedChallenges = new Set(
@@ -4318,8 +4535,11 @@ window.addEventListener('click', (e) => {
 // VÒNG LẶP CHÍNH DUY NHẤT: Điều phối mượt mà theo từng Tab
 setInterval(() => {
   if (currentUser) {
+    // Cập nhật đồng hồ đếm ngược 3 ngày & chu kỳ tự nấu khi treo máy
+    if (typeof renderAutoCookUI === 'function') renderAutoCookUI();
+    if (typeof processAutoCookCycle === 'function') processAutoCookCycle();
+
     if (typeof activeTab === 'undefined' || activeTab === 'farm') {
-      // Khi đang ở tab Trồng Cây
       updateWater(); 
       renderFarm(false); 
       renderQuests(); 
@@ -7232,6 +7452,225 @@ function deliverOnlineOrder(instanceKey) {
   renderDishInventory();
   renderOnlineOrders();
   coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
+}
+
+// ==========================================================================
+// HỆ THỐNG NẤU ĂN TỰ ĐỘNG (THUÊ 3 NGÀY - TREO MÁY)
+// ==========================================================================
+const AUTO_COOK_FEE = 15000; // Giá mở khóa 3 ngày (15.000 xu)
+const AUTO_COOK_DURATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 Ngày thời gian thực (259.200.000 ms)
+
+// Kiểm tra thời hạn thuê 3 ngày
+function isAutoCookActive() {
+  return state.autoCookExpiresAt && Date.now() < state.autoCookExpiresAt;
+}
+
+// Mua / Gia hạn gói 3 ngày
+function unlockAutoCook() {
+  if (state.coins < AUTO_COOK_FEE) {
+    alert(`Không đủ tiền mở chức năng! Cần ${AUTO_COOK_FEE.toLocaleString('vi-VN')} xu.`);
+    return;
+  }
+
+  showFarmConfirm(
+    'Mở Nấu Ăn Tự Động 🤖',
+    `Thuê cơ chế tự động chế biến món ăn trong <strong>3 Ngày</strong> với phí <span style="color:#b35e00; font-weight:bold;">${AUTO_COOK_FEE.toLocaleString('vi-VN')} xu</span>?<br><br><small style="color:#64748b;">(Thời gian 3 ngày chạy theo thời gian thực. Cơ chế chỉ tự nấu khi bạn treo máy mở web).</small>`,
+    '🤖',
+    () => {
+      state.coins -= AUTO_COOK_FEE;
+      const baseTime = isAutoCookActive() ? state.autoCookExpiresAt : Date.now();
+      state.autoCookExpiresAt = baseTime + AUTO_COOK_DURATION_MS;
+
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
+        SoundEngine.specialBuy();
+      }
+
+      logRanch(`🤖 Đã kích hoạt Nồi nấu tự động 3 ngày (-${AUTO_COOK_FEE.toLocaleString('vi-VN')} xu).`);
+      showTopToast('KÍCH HOẠT THÀNH CÔNG', 'Đã mở Nồi Nấu Tự Động trong <strong>3 Ngày</strong>!', '🤖');
+
+      save();
+      renderFarm(false);
+      renderAutoCookUI();
+    }
+  );
+}
+
+// Bật / Tắt nút tự động
+function toggleAutoCookSwitch() {
+  if (!isAutoCookActive()) {
+    alert('Thời hạn 3 ngày đã kết thúc! Vui lòng trả phí để gia hạn.');
+    state.autoCookEnabled = false;
+    renderAutoCookUI();
+    return;
+  }
+
+  state.autoCookEnabled = !state.autoCookEnabled;
+  if (state.autoCookEnabled) {
+    showTopToast('TỰ ĐỘNG BẬT', 'Đang tự động lấy nguyên liệu & nấu khi treo máy!', '🔥');
+  } else {
+    showTopToast('TỰ ĐỘNG TẮT', 'Đã tạm dừng nấu ăn tự động.', '⏸️');
+  }
+
+  save();
+  renderAutoCookUI();
+}
+
+// Chọn món ăn cần tự động nấu
+function onSelectAutoDish(dishId) {
+  state.autoCookTargetDish = dishId || null;
+  save();
+  renderAutoCookUI();
+}
+
+// Render giao diện Bếp tự động (Gọn gàng trên Mobile, nguyên bản trên PC)
+// Render giao diện Bếp tự động (Đã tinh chỉnh nút bấm xuống dưới)
+function renderAutoCookUI() {
+  const timerDisplay = document.getElementById('autoCookTimerDisplay');
+  const actionContainer = document.getElementById('autoCookActionContainer');
+  const settingsDiv = document.getElementById('autoCookActiveSettings');
+  const dishSelect = document.getElementById('autoCookDishSelect');
+  const statusLog = document.getElementById('autoCookStatusLog');
+  if (!timerDisplay || !actionContainer) return;
+
+  const now = Date.now();
+  const isActive = isAutoCookActive();
+
+  if (!isActive) {
+    state.autoCookEnabled = false;
+    timerDisplay.innerHTML = `<span style="color:#ef4444; font-weight:bold;">Đã khóa / Hết hạn</span>`;
+    actionContainer.innerHTML = `
+      <button class="btn" style="background:linear-gradient(180deg,#ea580c,#c2410c); font-size:12px; padding:8px 12px; width:100%; box-sizing:border-box;" onclick="unlockAutoCook()">
+        Mở 3 Ngày (${AUTO_COOK_FEE.toLocaleString('vi-VN')}₵)
+      </button>
+    `;
+    if (settingsDiv) settingsDiv.style.display = 'none';
+  } else {
+    const remainMs = Math.max(0, state.autoCookExpiresAt - now);
+    const d = Math.floor(remainMs / (24 * 3600 * 1000));
+    const h = Math.floor((remainMs % (24 * 3600 * 1000)) / 3600000);
+    const m = Math.floor((remainMs % 3600000) / 60000);
+    const s = Math.floor((remainMs % 60000) / 1000);
+
+    timerDisplay.innerHTML = `Còn: <strong style="color:#2e7d32;">${d}d ${h}h ${m}m ${s}s</strong>`;
+
+    const isRunning = state.autoCookEnabled;
+    actionContainer.innerHTML = `
+      <button class="btn" style="background:${isRunning ? 'linear-gradient(180deg,#ef4444,#b91c1c)' : 'linear-gradient(180deg,#22c55e,#15803d)'}; font-size:12px; padding:8px 14px; width:100%; box-sizing:border-box;" onclick="toggleAutoCookSwitch()">
+        ${isRunning ? '⏹ Dừng Nấu Tự Động' : '▶ Bật Nấu Tự Động'}
+      </button>
+    `;
+
+    if (settingsDiv) {
+      settingsDiv.style.display = 'block';
+
+      if (dishSelect && dishSelect.options.length <= 1) {
+        dishSelect.innerHTML = '<option value="">-- Chọn món cần chế biến --</option>';
+        DISHES_DB.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.emoji} ${d.name} (${COOKING_TIERS[d.tier].fire}🔥)`;
+          dishSelect.appendChild(opt);
+        });
+      }
+      if (dishSelect) dishSelect.value = state.autoCookTargetDish || '';
+
+      if (!state.autoCookTargetDish) {
+        statusLog.textContent = 'Vui lòng chọn 1 món ăn ở trên để bắt đầu.';
+        statusLog.style.color = '#c2410c';
+      } else {
+        const dish = DISHES_DB.find(d => d.id === state.autoCookTargetDish);
+        if (dish) {
+          const tierConfig = COOKING_TIERS[dish.tier];
+          const hasEnoughCoins = state.coins >= tierConfig.cost;
+          const currentFire = state.cookingFire !== undefined ? state.cookingFire : 50;
+          const hasEnoughFire = currentFire >= tierConfig.fire;
+
+          const requiredCounts = {};
+          dish.ingredients.forEach(id => { requiredCounts[id] = (requiredCounts[id] || 0) + 1; });
+          let hasEnoughIngredients = true;
+          for (const [ingId, reqQty] of Object.entries(requiredCounts)) {
+            if ((state.foodInventory[ingId] || 0) < reqQty) {
+              hasEnoughIngredients = false;
+              break;
+            }
+          }
+
+          if (!isRunning) {
+            statusLog.textContent = `Đã chọn: ${dish.name}. Bấm nút bên dưới để bật nấu.`;
+            statusLog.style.color = '#58705a';
+          } else if (!hasEnoughIngredients) {
+            statusLog.textContent = `Tạm dừng: Thiếu nguyên liệu thô làm ${dish.name}!`;
+            statusLog.style.color = '#ef4444';
+          } else if (!hasEnoughFire) {
+            statusLog.textContent = `Tạm dừng: Hết lửa! Cần ${tierConfig.fire}🔥 (Có: ${currentFire}🔥).`;
+            statusLog.style.color = '#ef4444';
+          } else if (!hasEnoughCoins) {
+            statusLog.textContent = `Tạm dừng: Thiếu tiền trả phí (${tierConfig.cost} xu)!`;
+            statusLog.style.color = '#ef4444';
+          } else {
+            statusLog.textContent = `Đang hoạt động: Đang tự động nấu ${dish.name}...`;
+            statusLog.style.color = '#2e7d32';
+          }
+        }
+      }
+    }
+  }
+}
+
+// Logic thực thi nấu 1 mẻ tự động (Được gọi theo chu kỳ khi treo máy)
+let lastAutoCookCycle = 0;
+function processAutoCookCycle() {
+  if (!currentUser || !isAutoCookActive() || !state.autoCookEnabled || !state.autoCookTargetDish) return;
+
+  // Thực hiện nấu mỗi 3.5 giây / 1 mẻ để người chơi kịp quan sát
+  const now = Date.now();
+  if (now - lastAutoCookCycle < 3500) return;
+
+  const dish = DISHES_DB.find(d => d.id === state.autoCookTargetDish);
+  if (!dish) return;
+
+  const tierConfig = COOKING_TIERS[dish.tier];
+  const currentFire = state.cookingFire !== undefined ? state.cookingFire : 50;
+
+  // 1. Kiểm tra tài nguyên
+  if (state.coins < tierConfig.cost || currentFire < tierConfig.fire) return;
+
+  // 2. Kiểm tra nguyên liệu trong kho
+  const requiredCounts = {};
+  dish.ingredients.forEach(id => { requiredCounts[id] = (requiredCounts[id] || 0) + 1; });
+
+  for (const [ingId, reqQty] of Object.entries(requiredCounts)) {
+    if ((state.foodInventory[ingId] || 0) < reqQty) {
+      return; // Không đủ nguyên liệu -> đứng chờ
+    }
+  }
+
+  // 3. Khấu trừ nguyên liệu, tiền & LỬA NẤU
+  for (const [ingId, reqQty] of Object.entries(requiredCounts)) {
+    state.foodInventory[ingId] -= reqQty;
+  }
+  state.coins -= tierConfig.cost;
+  state.cookingFire = currentFire - tierConfig.fire;
+
+  // 4. Tính toán kết quả thành công/thất bại
+  const isSuccess = Math.random() < tierConfig.rate;
+  if (!state.dishInventory) state.dishInventory = {};
+
+  if (isSuccess) {
+    state.dishInventory[dish.id] = (state.dishInventory[dish.id] || 0) + 1;
+    logRanch(`🤖 [Tự Động] Nấu thành công +1 ${dish.name} ${dish.emoji} (-${tierConfig.fire}🔥, -${tierConfig.cost}₵).`);
+  } else {
+    logRanch(`🤖 [Tự Động] Mẻ nấu ${dish.name} thất bại (-${tierConfig.fire}🔥, -${tierConfig.cost}₵).`);
+  }
+
+  lastAutoCookCycle = now;
+  save();
+  renderFarm(false);
+  renderKitchenFace();
+  renderKitchenFire();
+  renderFoodInventory();
+  renderDishInventory();
+  renderAutoCookUI();
 }
 </script>
 </body>
