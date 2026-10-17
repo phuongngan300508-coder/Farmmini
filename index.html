@@ -3861,7 +3861,16 @@ function renderRecipeTable(){
 
     let html = '';
 
-    // Hàm phụ trợ kiểm tra xem một hạt giống (theo key) có khớp từ khóa không (theo tên hoặc icon)
+    // Bảng cấu hình màu sắc đồng bộ theo Cấp độ (Header, Border và Background)
+    const tierTheme = {
+        'Uncommon': { headerBg: '#e8f5e9', color: '#1e7e34', rowBg: '#f2f9f3' },
+        'Rare':     { headerBg: '#e3f2fd', color: '#0056b3', rowBg: '#f0f7ff' },
+        'Legendary':{ headerBg: '#fffbe2', color: '#d97706', rowBg: '#fffdf0' },
+        'Mythic':   { headerBg: '#f3e5f5', color: '#9c27b0', rowBg: '#faf0fc' },
+        'Divine':   { headerBg: '#ffebee', color: '#b91c1c', rowBg: '#fff5f5' }
+    };
+
+    // Hàm phụ trợ kiểm tra xem một hạt giống (theo key) có khớp từ khóa không
     const seedMatchesKeyword = (seedKey) => {
         if (!seedKey || !keyword) return false;
         const seed = state.seeds[seedKey];
@@ -3875,6 +3884,9 @@ function renderRecipeTable(){
         const recipeGroup = fusionRecipes[nextLevel];
         const isSpecialLevel = nextLevel === 'Mythic' || nextLevel === 'Divine';
         
+        // Lấy theme màu đồng bộ theo cấp độ
+        const theme = tierTheme[nextLevel] || { headerBg: '#e8f5e9', color: '#1b4d14', rowBg: '#f4faef' };
+
         let baseLevelText = '';
         if (nextLevel === 'Uncommon') baseLevelText = 'Phối từ 2 cây giống loại cấp Common';
         else if (nextLevel === 'Rare') baseLevelText = 'Phối từ 2 cây giống loại cấp Uncommon';
@@ -3895,20 +3907,15 @@ function renderRecipeTable(){
         const filteredRecipes = recipeGroup.recipes.filter(recipe => {
             if (!keyword) return true;
             
-            // 1. Kiểm tra hạt giống kết quả
             if (seedMatchesKeyword(recipe.result)) return true;
             
-            // 2. Kiểm tra các hạt giống dùng để phối (nguyên liệu)
             if (isSpecialLevel) {
-                // Định dạng dạng mảng object: [{id: '...', qty: ...}, ...]
                 return recipe.ingredients.some(req => seedMatchesKeyword(req.id));
             } else {
-                // Định dạng dạng mảng key: ['...', '...']
                 return recipe.ingredients.some(seedKey => seedMatchesKeyword(seedKey));
             }
         });
 
-        // Nếu cấp độ này không có công thức phù hợp thì bỏ qua
         if (filteredRecipes.length === 0) continue;
 
         filteredRecipes.forEach(recipe => {
@@ -3921,24 +3928,24 @@ function renderRecipeTable(){
             if (isSpecialLevel) {
                 ingredientsDisplay = recipe.ingredients.map(req => {
                     const seed = state.seeds[req.id];
-                    return `<span style="font-weight:800; color:#b45309;">x${req.qty}</span> ${seed.emoji} <strong style="color:#1b2a19;">${seed.name}</strong>`;
+                    return `<span style="font-weight:800; color:#b45309; font-size:12px;">x${req.qty}</span> <span title="${seed.name}" style="font-size:18px; cursor:help;">${seed.emoji}</span>`;
                 }).join(' + ');
             } else {
                 const ingredient1 = state.seeds[recipe.ingredients[0]];
                 const ingredient2 = state.seeds[recipe.ingredients[1]];
-                ingredientsDisplay = `${ingredient1.emoji} <strong style="color:#1b2a19;">${ingredient1.name}</strong> + ${ingredient2.emoji} <strong style="color:#1b2a19;">${ingredient2.name}</strong>`;
+                ingredientsDisplay = `<span title="${ingredient1.name}" style="font-size:18px; cursor:help;">${ingredient1.emoji}</span> + <span title="${ingredient2.name}" style="font-size:18px; cursor:help;">${ingredient2.emoji}</span>`;
             }
 
             const costSeedStr = Number(resultSeed.cost).toLocaleString('vi-VN') + '₵';
             const valueSeedStr = Number(resultSeed.value).toLocaleString('vi-VN') + '₵';
 
             recipesListHtml += `
-                <div class="recipe-item-row" style="display:flex; flex-direction:column; gap:6px; width:100%; box-sizing:border-box;">
-                    <div class="recipe-top-line" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px; padding-bottom:6px; border-bottom:1px dashed #e2ede0; width:100%;">
-                        <div class="recipe-ingredients-group" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:14px; font-weight:700; word-break:break-word; flex:1;">
+                <div class="recipe-item-row" style="display:flex; flex-direction:column; gap:6px; width:100%; box-sizing:border-box; background: ${theme.rowBg}; margin-bottom: 8px; padding: 10px; border-radius: 6px;">
+                    <div class="recipe-top-line" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px; padding-bottom:6px; border-bottom:1px dashed #d8e5d0; width:100%;">
+                        <div class="recipe-ingredients-group" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; font-weight:700; word-break:break-word; flex:1;">
                             ${ingredientsDisplay}
-                            <span class="recipe-arrow" style="color:#6aa84f; font-weight:900; font-size:16px;">➔</span>
-                            <div class="recipe-result-badge" style="display:inline-flex; align-items:center; gap:4px; background:#f4faef; border:1.5px solid #93cb83; padding:2px 7px; border-radius:6px; font-weight:800; font-size:12px; color:#1b4d14;">
+                            <span class="recipe-arrow" style="color:${theme.color}; font-weight:900; font-size:16px;">➔</span>
+                            <div class="recipe-result-badge" style="display:inline-flex; align-items:center; gap:4px; background:#ffffff; border:1.5px solid ${theme.color}; padding:2px 7px; border-radius:6px; font-weight:800; font-size:12px; color:${theme.color};">
                                 <span>${resultSeed.emoji}</span>
                                 <span style="word-break:break-word;">${resultSeed.name}</span>
                             </div>
@@ -3948,7 +3955,7 @@ function renderRecipeTable(){
                         </div>
                     </div>
                     
-                    <div class="recipe-stats-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:4px; background:#f7faf5; padding:6px 8px; border-radius:6px; font-size:11px; color:#3b4d38; text-align:center; border:1px solid #d8e5d0; width:100%; box-sizing:border-box;">
+                    <div class="recipe-stats-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:4px; background:#ffffff; padding:6px 8px; border-radius:6px; font-size:11px; color:#3b4d38; text-align:center; border:1px solid #d8e5d0; width:100%; box-sizing:border-box;">
                         <div class="recipe-stat-item" style="border-right:1px solid #d8e5d0; padding-right:4px; word-break:break-word;">
                             Phí phối: <strong style="display:block; font-size:11px; font-weight:800; color:#112211; margin-top:1px;">${cost}</strong>
                         </div>
@@ -3956,7 +3963,7 @@ function renderRecipeTable(){
                             Nước: <strong style="display:block; font-size:11px; font-weight:800; color:${waterCost > 0 ? '#0284c7' : '#2e7d32'}; margin-top:1px;">${waterDisplay}</strong>
                         </div>
                         <div class="recipe-stat-item" style="grid-column: span 2; border-right:none; border-top:1px dashed #d8e5d0; padding-top:4px; margin-top:2px; word-break:break-word;">
-                            Tỉ lệ thành công: <strong style="color:#2e7d32; font-weight:800;">${successRatePct}%</strong> <span style="color:#8a8f94; font-weight:normal;">(${failRatePct}% thất bại)</span>
+                            Tỉ lệ thành công: <strong style="color:${theme.color}; font-weight:800;">${successRatePct}%</strong> <span style="color:#8a8f94; font-weight:normal;">(${failRatePct}% thất bại)</span>
                         </div>
                         <div class="recipe-stat-item" style="grid-column: span 2; border-right:none; border-top:1px dashed #d8e5d0; padding-top:5px; margin-top:2px; text-align:center; word-break:break-word;">
                             Giá bán hạt giống: <strong style="color:#2e7d32; font-weight:800;">${valueSeedStr}</strong> (Gieo: ${costSeedStr})
@@ -3966,24 +3973,16 @@ function renderRecipeTable(){
             `;
         });
 
-        let headerColor = '#1b4d14';
-        let headerBg = '#e8f5e9';
-        if (nextLevel === 'Uncommon') { headerColor = '#1e7e34'; headerBg = '#e8f5e9'; }
-        else if (nextLevel === 'Rare') { headerColor = '#0056b3'; headerBg = '#e3f2fd'; }
-        else if (nextLevel === 'Legendary') { headerColor = '#d97706'; headerBg = '#fffbe2'; }
-        else if (nextLevel === 'Mythic') { headerColor = '#9c27b0'; headerBg = '#f3e5f5'; }
-        else if (nextLevel === 'Divine') { headerColor = '#b91c1c'; headerBg = '#ffebee'; }
-
         html += `
-            <div class="recipe-section-card" style="width:100%; box-sizing:border-box; margin-bottom: 12px;">
-                <div class="recipe-tier-header" style="background:${headerBg}; color:${headerColor}; font-size:16px; font-weight:900; padding:10px 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; border-bottom:2px solid ${headerColor}; border-radius:8px 8px 0 0;">
+            <div class="recipe-section-card" style="width:100%; box-sizing:border-box; margin-bottom: 16px;">
+                <div class="recipe-tier-header" style="background:${theme.headerBg}; color:${theme.color}; font-size:16px; font-weight:900; padding:10px 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; border-bottom:2px solid ${theme.color}; border-radius:8px 8px 0 0;">
                     <span style="word-break:break-word; letter-spacing:0.3px;">⚡ PHỐI RA CÂY CẤP ${nextLevel.toUpperCase()}</span>
-                    <span style="font-size:12px; font-weight:700; background:rgba(255,255,255,0.7); padding:2px 8px; border-radius:12px; border:1px solid ${headerColor};">Tỉ lệ thành công: ${successRatePct}%</span>
+                    <span style="font-size:12px; font-weight:700; background:rgba(255,255,255,0.85); padding:2px 8px; border-radius:12px; border:1px solid ${theme.color};">Tỉ lệ thành công: ${successRatePct}%</span>
                 </div>
-                <div style="background: #f4faef; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: #3b5c35; border-bottom: 1px solid #d8e5d0; word-break:break-word;">
+                <div style="background: ${theme.rowBg}; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: ${theme.color}; border-bottom: 1px solid #d8e5d0; word-break:break-word;">
                     📌 <em>Quy tắc:</em> ${baseLevelText}
                 </div>
-                <div class="recipe-tier-body" style="width:100%; box-sizing:border-box;">
+                <div class="recipe-tier-body" style="width:100%; box-sizing:border-box; background: #ffffff; padding: 8px;">
                     ${recipesListHtml}
                 </div>
             </div>
@@ -3996,6 +3995,7 @@ function renderRecipeTable(){
 
     recipeTableEl.innerHTML = html;
 }
+
 
 
 
