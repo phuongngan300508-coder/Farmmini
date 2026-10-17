@@ -1379,6 +1379,36 @@ body:not(.logged-out) .app {
   }
 }
 
+/* Styling nút thử thách giao đơn chăn nuôi */
+.ranch-challenge-btn-wrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+/* Modal phong cách chăn nuôi mộc mạc */
+.ranch-modal-box {
+  background: #fffcf5 !important;
+  border: 4px solid #b45309 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 32px rgba(180, 83, 9, 0.3), inset 0 0 0 2px #fef3c7 !important;
+  max-width: 420px !important;
+}
+
+.ranch-modal-header {
+  border-bottom: 2px dashed #f59e0b;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.ranch-modal-header h3 {
+  margin: 4px 0;
+  color: #92400e;
+  font-size: 20px;
+  font-weight: 800;
+}
+
   </style>
 </head>
 <body>
@@ -1420,15 +1450,25 @@ body:not(.logged-out) .app {
       </div>
     </header>
 
-    <!-- HÀNG NÚT CHUYỂN QUA LẠI GIỮA TRỒNG CÂY VÀ CHĂN NUÔI -->
-    <div style="display:flex; justify-content:flex-start; align-items:center; margin: 4px 0 8px 0;">
-      <button class="btn" id="btnGoToRanch" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:12px; padding:6px 14px; box-shadow:0 2px 6px rgba(180,83,9,0.3);">
-        🐄 Sang Khu Chăn Nuôi Gia Súc ➔
-      </button>
-      <button class="btn" id="btnGoToFarmTab" style="background:linear-gradient(180deg,#6aa84f,#3e8a33); font-size:12px; padding:6px 14px; display:none; box-shadow:0 2px 6px rgba(46,125,50,0.3);">
-        🌱 Về Vườn Trồng Cây ➔
-      </button>
-    </div>
+<!-- HÀNG NÚT CHUYỂN KHI SANG KHU CHĂN NUÔI -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin: 4px 0 8px 0;">
+  <!-- Nút Về Vườn Trồng Cây (Bên trái, chỉ hiện khi ở khu chăn nuôi) -->
+  <button class="btn" id="btnGoToFarmTab" style="background:linear-gradient(180deg,#6aa84f,#3e8a33); font-size:12px; padding:6px 14px; display:none; box-shadow:0 2px 6px rgba(46,125,50,0.3);">
+    🌱 Về Vườn Trồng Cây ➔
+  </button>
+
+  <!-- Nút Sang Khu Chăn Nuôi (Bên trái lúc ở vườn) -->
+  <button class="btn" id="btnGoToRanch" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:12px; padding:6px 14px; box-shadow:0 2px 6px rgba(180,83,9,0.3);">
+    🐄 Sang Khu Chăn Nuôi Gia Súc ➔
+  </button>
+
+  <!-- Nút Thử Thách Giao Đơn (Bên phải, mặc định ẩn, chỉ xuất hiện ở khu chăn nuôi) -->
+  <div id="ranchChallengeBtnWrapper" class="ranch-challenge-btn-wrapper" style="display:none; margin-left:auto;">
+    <button class="btn" id="btnOpenRanchChallenge" style="background:linear-gradient(180deg,#d97706,#92400e); font-size:12px; padding:6px 14px; box-shadow:0 2px 6px rgba(146,64,14,0.35);">
+      🏆 Thử Thách Giao Đơn
+    </button>
+  </div>
+</div>
 
     <!-- ======================================================== -->
     <!-- 1. KHU TRỒNG CÂY (GOM HẾT VÀO #farmContainer) -->
@@ -2199,6 +2239,29 @@ body:not(.logged-out) .app {
     </div>
   </div>
 </div>
+
+<!-- 2. THÊM POPUP THỬ THÁCH GIAO ĐƠN CHĂN NUÔI (Đặt ở cuối body) -->
+<div id="ranchChallengeModal" class="farm-modal-overlay">
+  <div class="farm-modal-box ranch-modal-box" style="width: 92%; padding: 20px; text-align: left;">
+    <div class="ranch-modal-header">
+      <div class="farm-modal-icon" style="font-size: 38px; margin-bottom: 2px;">🚚🥩</div>
+      <h3>Thử Thách Giao Thực Phẩm</h3>
+      <div class="muted-2" style="font-size:12px; color:#b45309;">Giao đơn hàng thực phẩm & đồ ăn để tích lũy cột mốc!</div>
+    </div>
+
+    <div style="background:#fff7ed; border:1px dashed #f59e0b; border-radius:10px; padding:8px 10px; margin-bottom:12px; font-size:12px; color:#9a3412;">
+      ⚠️ <strong>Lưu ý:</strong> Bạn có thể hoàn thành hết các thử thách nhưng <strong>chỉ được chọn duy nhất 1 Thử thách để nhận phần thưởng</strong>. Khi đã nhận 1 phần thưởng, 2 Thử thách còn lại sẽ bị <strong>KHÓA VĨNH VIỄN</strong>!
+    </div>
+
+    <div id="ranchChallengeList" class="quest-list" style="max-height: 320px; overflow-y: auto;"></div>
+
+    <div class="farm-modal-actions" style="margin-top: 16px;">
+      <button class="btn" id="closeRanchChallengeBtn" style="width:100%; background:linear-gradient(180deg,#f59e0b,#b45309);">
+        Đóng Bảng Thử Thách
+      </button>
+    </div>
+  </div>
+</div>
 <script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
@@ -2235,6 +2298,7 @@ let state = {
   activeOrders: [],
   lastOrderReset: 0,
   fusionRewardClaimed: null, // Lưu ID mốc đã nhận: 'mythic_all', 'divine_all', hoặc 'all_seeds'
+  ranchOrderChallengeClaimed: null, // NEW: Lưu ID mốc thử thách giao đơn chăn nuôi đã nhận ('ranch_order_100', 'ranch_order_300', 'ranch_order_500')
   // 🏡 TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
   farmName: 'Trang trại của bạn',
   farmIcon: '🚜',
@@ -2256,6 +2320,7 @@ let state = {
   autoCookExpiresAt: 0,     // Mốc hết hạn 3 ngày tính theo thời gian thực (0 = chưa thuê hoặc hết hạn)
   autoCookEnabled: false,   // false: tắt, true: đang bật nấu tự động khi treo máy
   autoCookTargetDish: null, // Lưu ID món ăn được chọn (ví dụ: 'dish_01', 'dish_15'...)
+
 
   
   seeds: {
@@ -2784,6 +2849,7 @@ function save(){
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
     fusionRewardClaimed: state.fusionRewardClaimed,
+    ranchOrderChallengeClaimed: state.ranchOrderChallengeClaimed, // 👈 Thêm dòng này để lưu mốc thưởng thử thách giao đơn chăn nuôi
     // 🏡 LƯU TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
     farmName: state.farmName || 'Trang trại của bạn',
     farmIcon: state.farmIcon || '🚜',
@@ -2848,6 +2914,7 @@ function load(){
         activeOrders: [], 
         lastOrderReset: 0, 
         fusionRewardClaimed: null,
+        ranchOrderChallengeClaimed: null, // 👈 Thêm giá trị mặc định vào initialState
         farmName: 'Trang trại của bạn',
         farmIcon: '🚜',
         equippedTitle: null,
@@ -2919,6 +2986,7 @@ function load(){
                 if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
+                if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed; // 👈 Phục hồi dữ liệu khi load
                 
                 state.farmName = parsed.farmName || 'Trang trại của bạn';
                 state.farmIcon = parsed.farmIcon || '🚜';
@@ -3073,6 +3141,7 @@ function load(){
     if (typeof renderOnlineOrders === 'function') renderOnlineOrders(); // 🛵 Render sẵn đơn hàng online
     if (typeof renderRanchTitles === 'function') renderRanchTitles();
     if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
+    if (typeof renderRanchOrderChallenges === 'function') renderRanchOrderChallenges(); // 👈 Render bảng thử thách giao đơn chăn nuôi
 
     // 🤖 RENDER GIAO DIỆN BẾP NẤU TỰ ĐỘNG:
     if (typeof renderAutoCookUI === 'function') renderAutoCookUI();
@@ -3093,6 +3162,7 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
 }
+
 
 function login(username){
   if (username && username.trim().length >= 3){
@@ -6002,11 +6072,18 @@ function switchView(tab) {
   if (farmSidebar) farmSidebar.style.display = isFarm ? 'block' : 'none';
   if (ranchSidebar) ranchSidebar.style.display = isFarm ? 'none' : 'block';
 
-  // 3. Nút bấm chuyển tab
+  // 3. Nút bấm chuyển tab & Nút Thử Thách Chăn Nuôi
   const btnToRanch = document.getElementById('btnGoToRanch');
   const btnToFarm = document.getElementById('btnGoToFarmTab');
+  const ranchChallengeWrapper = document.getElementById('ranchChallengeBtnWrapper');
+
   if (btnToRanch) btnToRanch.style.display = isFarm ? 'inline-block' : 'none';
   if (btnToFarm) btnToFarm.style.display = isFarm ? 'none' : 'inline-block';
+  
+  // HIỆN NÚT THỬ THÁCH Ở BÊN PHẢI KHI ĐANG Ở KHU CHĂN NUÔI
+  if (ranchChallengeWrapper) {
+    ranchChallengeWrapper.style.display = isFarm ? 'none' : 'inline-flex';
+  }
 
   // 4. Header tài nguyên
   if (isFarm) {
@@ -6016,6 +6093,7 @@ function switchView(tab) {
     renderRanchView();
   }
 }
+
 
 
 
@@ -7505,8 +7583,23 @@ function deliverOnlineOrder(instanceKey) {
   state.coins += order.reward;
 
   // Cập nhật thống kê
-  if (!state.ranchStats) state.ranchStats = {};
+  if (!state.ranchStats) {
+    state.ranchStats = {
+      eggsCollected: 0,
+      milkCollected: 0,
+      woolCollected: 0,
+      feedUsed: 0,
+      foodOrdersCompleted: 0,
+      foodSoldDirectly: 0,
+      ranchCoinsEarned: 0,
+      dishesCooked: 0
+    };
+  }
+  
   state.ranchStats.ranchCoinsEarned = (state.ranchStats.ranchCoinsEarned || 0) + order.reward;
+  
+  // 🏆 TỰ ĐỘNG CỘNG DỒN SỐ ĐƠN HÀNG ĐÃ GIAO ĐỂ TÍNH TIẾN ĐỘ THỬ THÁCH
+  state.ranchStats.foodOrdersCompleted = (state.ranchStats.foodOrdersCompleted || 0) + 1;
 
   // 3. Đơn đã giao xong biến mất ngay lập tức khỏi danh sách
   state.activeOnlineOrders = state.activeOnlineOrders.filter(o => o.instanceKey !== instanceKey);
@@ -7527,8 +7620,15 @@ function deliverOnlineOrder(instanceKey) {
   save();
   renderDishInventory();
   renderOnlineOrders();
+  
+  // Cập nhật lại giao diện bảng thử thách nếu đang mở
+  if (typeof renderRanchOrderChallenges === 'function') {
+    renderRanchOrderChallenges();
+  }
+
   coinsEl.textContent = '💰 ' + state.coins.toLocaleString('vi-VN');
 }
+
 
 // ==========================================================================
 // HỆ THỐNG NẤU ĂN TỰ ĐỘNG (THUÊ 3 NGÀY - TREO MÁY)
@@ -7866,6 +7966,164 @@ confirmSellQtyBtn.onclick = () => {
 
 window.addEventListener('click', (e) => {
   if (e.target === sellQtyModal) closeSellQtyModal();
+});
+
+// 1. CẤU HÌNH 3 THỬ THÁCH GIAO ĐƠN CHĂN NUÔI
+const RANCH_ORDER_CHALLENGES = [
+  {
+    id: 'ranch_order_100',
+    title: 'Thử thách 1: Giao 100 đơn',
+    desc: 'Giao đủ 100 đơn thực phẩm / món ăn',
+    required: 100,
+    reward: 5000,
+    check: () => {
+      const delivered = (state.ranchStats?.foodOrdersCompleted || 0);
+      return { current: delivered, total: 100, isComplete: delivered >= 100 };
+    }
+  },
+  {
+    id: 'ranch_order_300',
+    title: 'Thử thách 2: Giao 300 đơn',
+    desc: 'Giao đủ 300 đơn thực phẩm / món ăn',
+    required: 300,
+    reward: 7000,
+    check: () => {
+      const delivered = (state.ranchStats?.foodOrdersCompleted || 0);
+      return { current: delivered, total: 300, isComplete: delivered >= 300 };
+    }
+  },
+  {
+    id: 'ranch_order_500',
+    title: 'Thử thách 3: Giao 500 đơn',
+    desc: 'Giao đủ 500 đơn thực phẩm / món ăn',
+    required: 500,
+    reward: 10000,
+    check: () => {
+      const delivered = (state.ranchStats?.foodOrdersCompleted || 0);
+      return { current: delivered, total: 500, isComplete: delivered >= 500 };
+    }
+  }
+];
+
+// 2. RENDER BẢNG THỬ THÁCH CHĂN NUÔI
+function renderRanchOrderChallenges() {
+  if (!currentUser) return;
+  const listEl = document.getElementById('ranchChallengeList');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  const hasClaimedAny = state.ranchOrderChallengeClaimed !== null && state.ranchOrderChallengeClaimed !== undefined;
+
+  RANCH_ORDER_CHALLENGES.forEach(ch => {
+    const status = ch.check();
+    const isThisClaimed = state.ranchOrderChallengeClaimed === ch.id;
+    const isLockedOut = hasClaimedAny && !isThisClaimed;
+
+    const div = document.createElement('div');
+    div.className = 'quest-item' + 
+      (isThisClaimed ? ' quest-completed' : (status.isComplete && !hasClaimedAny ? ' quest-ready' : ''));
+
+    if (isLockedOut) {
+      div.style.opacity = '0.45';
+      div.style.filter = 'grayscale(0.8)';
+    }
+
+    let progressText = '';
+    let btnHtml = '';
+
+    if (isThisClaimed) {
+      progressText = 'Đã nhận ✅';
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">Đã hoàn thành</button>`;
+    } else if (isLockedOut) {
+      progressText = 'Đã khóa 🔒';
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">Đã khóa</button>`;
+    } else if (status.isComplete) {
+      progressText = 'Sẵn sàng nhận!';
+      btnHtml = `<button class="btn" style="background:linear-gradient(180deg,#f59e0b,#b45309); color:#fff; font-size:12px; padding:6px 10px;" onclick="claimRanchOrderChallengeReward('${ch.id}')">Nhận +${ch.reward.toLocaleString('vi-VN')}₵</button>`;
+    } else {
+      progressText = `${Math.min(status.current, status.total)}/${status.total}`;
+      btnHtml = `<button class="btn secondary" disabled style="font-size:12px; padding:6px 10px;">+${ch.reward.toLocaleString('vi-VN')}₵</button>`;
+    }
+
+    div.innerHTML = `
+      <div>
+        <strong style="font-size:14px; color:#92400e;">${ch.title}</strong>
+        <div class="muted-2" style="font-size:12px; margin-top:2px;">Thưởng: <strong style="color:#b35e00;">+${ch.reward.toLocaleString('vi-VN')} đồng</strong></div>
+      </div>
+      <div class="row" style="align-items: center;">
+        <div class="quest-progress" style="min-width: 85px; color:#b45309;">${progressText}</div>
+        ${btnHtml}
+      </div>
+    `;
+
+    listEl.appendChild(div);
+  });
+}
+
+// 3. HÀM NHẬN THƯỞNG 1 LẦN DUY NHẤT VÀ KHÓA 2 THỬ THÁCH CÒN LẠI
+function claimRanchOrderChallengeReward(challengeId) {
+  if (!currentUser) return;
+  if (state.ranchOrderChallengeClaimed) {
+    alert('Bạn đã nhận 1 phần thưởng thử thách giao đơn trước đó rồi! Hai thử thách còn lại đã bị khóa.');
+    return;
+  }
+
+  const ch = RANCH_ORDER_CHALLENGES.find(c => c.id === challengeId);
+  if (!ch) return;
+
+  const status = ch.check();
+  if (!status.isComplete) {
+    alert('Bạn chưa đạt đủ số lượng đơn hàng giao để nhận phần thưởng này.');
+    return;
+  }
+
+  showFarmConfirm(
+    'Xác Nhận Nhận Thưởng',
+    `Bạn có chắc muốn chọn phần thưởng <strong>${ch.title}</strong> (+<span style="color:#b35e00;font-weight:bold;">${ch.reward.toLocaleString('vi-VN')} đồng</span>)?<br><br><span style="color:#c2185b; font-size:12.5px;">⚠️ <strong>Cảnh báo:</strong> Sau khi nhận phần thưởng này, 2 thử thách còn lại sẽ bị <strong>KHÓA PHẦN THƯỞNG VĨNH VIỄN</strong>!</span>`,
+    '🏆',
+    () => {
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
+        SoundEngine.fanfareChallenge();
+      }
+
+      state.coins += ch.reward;
+      state.ranchOrderChallengeClaimed = ch.id;
+
+      if (typeof logRanch === 'function') {
+        logRanch(`🏆 Đã nhận phần thưởng [${ch.title}] (+${ch.reward.toLocaleString('vi-VN')}₵). Hai thử thách giao đơn còn lại đã bị khóa.`);
+      }
+
+      save();
+      renderFarm(false);
+      renderRanchOrderChallenges();
+      showTopToast('NHẬN THƯỞNG THÀNH CÔNG', `Đã cộng <strong style="color:#b35e00;">+${ch.reward.toLocaleString('vi-VN')} đồng</strong> vào số dư! 2 Thử thách còn lại đã bị khóa.`, '🏆');
+    }
+  );
+}
+
+// 4. QUẢN LÝ POPUP THỬ THÁCH CHĂN NUÔI
+const ranchChallengeModal = document.getElementById('ranchChallengeModal');
+const btnOpenRanchChallenge = document.getElementById('btnOpenRanchChallenge');
+const closeRanchChallengeBtn = document.getElementById('closeRanchChallengeBtn');
+
+if (btnOpenRanchChallenge && ranchChallengeModal) {
+  btnOpenRanchChallenge.onclick = () => {
+    renderRanchOrderChallenges();
+    ranchChallengeModal.classList.add('open');
+    if (typeof SoundEngine !== 'undefined') SoundEngine.click();
+  };
+}
+
+if (closeRanchChallengeBtn && ranchChallengeModal) {
+  closeRanchChallengeBtn.onclick = () => {
+    ranchChallengeModal.classList.remove('open');
+  };
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === ranchChallengeModal) {
+    ranchChallengeModal.classList.remove('open');
+  }
 });
 
 </script>
