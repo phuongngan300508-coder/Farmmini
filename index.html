@@ -26,7 +26,60 @@
     --shadow: 0 6px 18px rgba(19,40,19,0.08);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#e9f2e6);color:#1b2a19;}
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Đặt ảnh nền tổng thể (ở đây mình dùng link ảnh trồng cây làm nền chính, bạn có thể đổi link ảnh chăn nuôi nếu muốn) */
+    background-image: url('https://i.postimg.cc/3xJxsKtg/Khong-Co-Tieu-De54-20261018140848.jpg');
+    
+    /* Các thuộc tính quan trọng để kéo dài và phủ kín ảnh toàn trang */
+    background-size: cover;          /* Phủ kín toàn bộ không gian */
+    background-position: center;     /* Canh giữa ảnh */
+    background-repeat: no-repeat;    /* Không lặp lại ảnh */
+    background-attachment: fixed;    /* Cố định ảnh nền, khi cuộn trang nội dung trượt lên nhưng ảnh nền đứng yên cực kỳ đẹp */
+    
+    min-height: 100vh;               /* Đảm bảo body luôn cao ít bằng toàn bộ màn hình */
+}
+
+/* Làm trong suốt nhẹ các khung panel, hộp thoại, kho hàng để thấy ảnh nền (Đã loại bỏ bảng công thức phối giống và popup nấu ăn) */
+.panel, 
+.login-card, 
+.farm-modal-box, 
+.settings-modal-box,
+.kitchen-card,
+.quest-item,
+.seed,
+.badge-card,
+.wizard-crop-card,
+.wizard-qty-control,
+#cookingPreviewBox,
+#autoCookPanel {
+    background-color: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Riêng các ô đất trống và chuồng trại (giữ màu mộc đặc trưng nhưng pha nhẹ độ trong suốt) */
+.tile {
+    background: linear-gradient(180deg, rgba(223, 239, 221, 0.85), rgba(207, 230, 199, 0.85)) !important;
+    backdrop-filter: blur(4px);
+}
+.tile.soil {
+    background: linear-gradient(180deg, rgba(191, 165, 125, 0.88), rgba(168, 122, 81, 0.88)) !important;
+}
+.tile.barn-tile {
+    background: linear-gradient(180deg, rgba(255, 248, 231, 0.88), rgba(255, 224, 178, 0.88)) !important;
+}
+.kitchen-card, .ranch-modal-box {
+    background-color: rgba(255, 252, 245, 0.85) !important;
+    backdrop-filter: blur(6px);
+}
+
   .app{
     max-width:1100px;
     /* Loại bỏ margin top, chỉ giữ auto và bottom */
