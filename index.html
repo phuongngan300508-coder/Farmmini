@@ -1585,6 +1585,61 @@ body:not(.logged-out) .app {
   margin-top: 1px;
 }
 
+/* ======================================================== */
+/* HIỆU ỨNG VIỀN NỔI BẬT CHO NHIỆM VỤ SẴN SÀNG NHẬN (TRỒNG CÂY & CHĂN NUÔI) */
+/* ======================================================== */
+
+@keyframes pulseQuestReadyGlow {
+  0%, 100% {
+    border-color: #6aa84f;
+    box-shadow: 0 0 6px rgba(106, 168, 79, 0.4), inset 0 0 4px rgba(106, 168, 79, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    border-color: #4b9a3a;
+    box-shadow: 0 0 16px rgba(106, 168, 79, 0.85), 0 0 25px rgba(90, 163, 56, 0.5), inset 0 0 8px rgba(106, 168, 79, 0.4);
+    transform: scale(1.01);
+  }
+}
+
+@keyframes pulseRanchQuestReadyGlow {
+  0%, 100% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4), inset 0 0 4px rgba(245, 158, 11, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    border-color: #b45309;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.85), 0 0 25px rgba(217, 119, 6, 0.5), inset 0 0 8px rgba(245, 158, 11, 0.4);
+    transform: scale(1.01);
+  }
+}
+
+/* Áp dụng hiệu ứng viền nổi bật cho nhiệm vụ trồng cây sẵn sàng */
+.quest-item.quest-ready {
+  background: #f0fdf4 !important;
+  border: 2px solid #6aa84f !important;
+  animation: pulseQuestReadyGlow 1.8s infinite ease-in-out !important;
+}
+
+/* Áp dụng hiệu ứng viền nổi bật cho nhiệm vụ chăn nuôi sẵn sàng */
+.quest-item.ranch-quest-ready {
+  background: #fffbeb !important;
+  border: 2px solid #f59e0b !important;
+  animation: pulseRanchQuestReadyGlow 1.8s infinite ease-in-out !important;
+}
+
+.quest-item.ranch-quest-ready .quest-progress {
+  color: #b45309 !important;
+  font-weight: 800;
+}
+
+.quest-item.ranch-quest-ready button {
+  background: linear-gradient(180deg, #f59e0b, #b45309) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.35);
+}
+
   </style>
 </head>
 <body>
@@ -1671,7 +1726,7 @@ body:not(.logged-out) .app {
         <div id="farm" class="farm-grid" aria-label="Farm grid"></div>
 
         <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
-            <button class="btn" id="btnExpand">Mua thêm ô (+3) — 100₵</button>
+            <button class="btn" id="btnExpand">Mua thêm ô (+6) — 100₵</button>
             <button class="btn secondary" id="btnHarvestAll">Thu hoạch tất cả (Đã chín)</button>     
             <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
             <button class="btn secondary" id="btnClear">Reset farm</button>
@@ -6198,6 +6253,7 @@ function getTodayRanchQuests() {
 }
 
 // Render danh sách nhiệm vụ chăn nuôi
+// Render danh sách nhiệm vụ chăn nuôi
 function renderRanchQuests() {
   if (!currentUser) return;
   getTodayRanchQuests();
@@ -6228,7 +6284,8 @@ function renderRanchQuests() {
     const isClaimed = q.completed === 'claimed';
 
     const div = document.createElement('div');
-    div.className = 'quest-item' + (isReady ? ' quest-ready' : isClaimed ? ' quest-completed' : '');
+    // THAY ĐỔI Ở ĐÂY: Thêm class 'ranch-quest-ready' khi nhiệm vụ sẵn sàng
+    div.className = 'quest-item' + (isReady ? ' ranch-quest-ready' : isClaimed ? ' quest-completed' : '');
 
     let statusText = '';
     if (isClaimed) statusText = 'Đã nhận ✅';
@@ -6253,6 +6310,7 @@ function renderRanchQuests() {
     container.appendChild(div);
   });
 }
+
 
 // Nhận thưởng thức ăn
 function claimRanchQuestReward(questId) {
