@@ -1805,6 +1805,52 @@ body:not(.logged-out) .app {
     gap: 16px;
   }
 }
+
+/* ẨN MẶC ĐỊNH NPC KHI CHƯA ĐĂNG NHẬP HOẶC KHI LOADING */
+#game-npc-widget {
+  display: none !important;
+}
+
+/* CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP VÀ LOADING ĐÃ BIẾN MẤT */
+body:not(.logged-out) #game-npc-widget {
+  display: flex !important;
+}
+
+/* Hiệu ứng lơ lửng bồng bềnh cho NPC */
+@keyframes npcFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Hiệu ứng nhấp nháy nhẹ cho huy hiệu thông báo */
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+.npc-floating-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  cursor: pointer;
+  animation: npcFloat 3s ease-in-out infinite;
+  transition: transform 0.2s;
+}
+
+.npc-floating-img:hover {
+  transform: scale(1.1) !important;
+  animation: none; /* Dừng lơ lửng khi rê chuột vào */
+}
   </style>
 </head>
 <body>
@@ -2930,6 +2976,35 @@ body:not(.logged-out) .app {
     </div>
   </div>
 </div>
+
+<!-- NPC Assistant Widget -->
+<div id="game-npc-widget" style="position: fixed; bottom: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; font-family: sans-serif;">
+  
+  <!-- Lời nhắn / Mẹo hiển thị khi click -->
+  <div id="npc-dialog-box" style="display: none; background: #ffffff; color: #1e293b; border: 2px solid #22c55e; border-radius: 12px; padding: 12px; margin-bottom: 8px; width: 280px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative;">
+    <div style="font-weight: bold; color: #16a34a; font-size: 13px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+      <span id="npc-tip-title">💡 Mẹo chơi game (1/4)</span>
+      <button onclick="toggleNpcDialog(event)" style="background: none; border: none; font-size: 14px; cursor: pointer; color: #64748b; padding: 0 4px;">✕</button>
+    </div>
+    <div id="npc-tip-content" style="font-size: 13px; line-height: 1.4; color: #334155;"></div>
+    <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-top: 6px;">Chạm vào NPC để đổi tip</div>
+  </div>
+
+  <!-- Badge kêu gọi người chơi -->
+  <div style="background: #22c55e; color: white; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 20px; margin-bottom: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; animation: badgePulse 2s infinite;">
+    ✨ Ấn vào tôi để xem mẹo!
+  </div>
+
+  <!-- Ảnh NPC (Hiệu ứng lơ lửng) -->
+  <img 
+    src="https://i.postimg.cc/Fzd50HVv/1792315110051(5).png" 
+    alt="NPC Trợ lý" 
+    onclick="clickNpc()"
+    class="npc-floating-img"
+  />
+</div>
+
+
 <script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
@@ -5490,27 +5565,6 @@ setInterval(() => {
 // Autosave occasionally
 setInterval(()=>save(), 5000);
 
-// Khởi tạo (CHỈ CHẠY MỘT LẦN)
-(function init() {
-  runFarmLoader(() => {
-    const lastUser = localStorage.getItem(STORAGE_KEY_PREFIX + 'last_user');
-
-    if (lastUser) {
-      usernameInput.value = lastUser;
-      login(lastUser); 
-    } else {
-      document.body.classList.add('logged-out');
-      updateLoginStatusUI();
-      log('Hệ thống khởi tạo. Vui lòng đăng nhập.');
-
-      renderShop(); 
-      renderSpecialShop(); 
-      renderRecipeTable();
-    }
-  });
-})();
-
-
 // Biến lưu callback khi người chơi bấm Đồng ý
 let onModalConfirmCallback = null;
 
@@ -5538,7 +5592,26 @@ document.getElementById('confirmAcceptBtn').onclick = () => {
   closeFarmConfirm();
 };
 
-// Quản lý Màn hình Loading (Chạy chậm rãi, mượt mà)
+// Khởi tạo (CHỈ CHẠY MỘT LẦN)
+(function init() {
+  runFarmLoader(() => {
+    const lastUser = localStorage.getItem(STORAGE_KEY_PREFIX + 'last_user');
+
+    if (lastUser) {
+      usernameInput.value = lastUser;
+      login(lastUser); 
+    } else {
+      document.body.classList.add('logged-out');
+      updateLoginStatusUI();
+      log('Hệ thống khởi tạo. Vui lòng đăng nhập.');
+
+      renderShop(); 
+      renderSpecialShop(); 
+      renderRecipeTable();
+    }
+  });
+})();
+
 function runFarmLoader(onComplete) {
   const overlay = document.getElementById('loadingScreen');
   const bar = document.getElementById('farmProgressBar');
@@ -5585,6 +5658,7 @@ function runFarmLoader(onComplete) {
     txt.textContent = progress + '%';
   }, 50); 
 }
+
 
 // Điều hướng nhanh giữa Trang Trại và Danh Sách Hạt Giống
 const btnGoToSeeds = document.getElementById('btnGoToSeeds');
@@ -9230,6 +9304,41 @@ window.addEventListener('click', (e) => {
     breedGuideModal.classList.remove('open');
   }
 });
+
+// Danh sách các mẹo chơi game với thẻ <strong> chuẩn xác
+const npcTips = [
+  "Khu trồng cây là nơi thích hợp để <strong>cày tiền</strong>, hãy spam tiền bên này rồi qua khu chăn nuôi chơi.",
+  "Khi mới bắt đầu, bạn nên phối cây <strong>🥔🥒</strong> vì nó được phối từ <strong>2 hạt giống free</strong>. Nó cũng là cây bán được <strong>nhiều tiền nhất</strong> trong các cây phối free còn lại. Cứ trồng rồi bán, spam đến mốc <strong>5.000 xu</strong> rồi bạn hãy mua hạt giống mới và bắt đầu làm nhiệm vụ.",
+  "Bạn nhớ để ý <strong>nước và lúa</strong> nha! Xuống <strong>0</strong> nước và lúa là tốc độ phát triển cây và động vật sẽ <strong>giảm 50%</strong> đó! Có thể mua thêm ở cửa hàng bên dưới.",
+  "Nên dùng các <strong>nút tiện ích</strong> để hỗ trợ bạn nhiều hơn nè!"
+];
+
+let currentTipIndex = 0;
+
+function clickNpc() {
+  const dialogBox = document.getElementById('npc-dialog-box');
+  const tipContent = document.getElementById('npc-tip-content');
+  const tipTitle = document.getElementById('npc-tip-title');
+  
+  // Hiển thị khung hội thoại nếu đang ẩn
+  if (dialogBox.style.display === 'none' || dialogBox.style.display === '') {
+    dialogBox.style.display = 'block';
+  } else {
+    // Chuyển sang mẹo tiếp theo khi click liên tục
+    currentTipIndex = (currentTipIndex + 1) % npcTips.length;
+  }
+  
+  // Cập nhật nội dung tiêu đề và mẹo
+  tipTitle.textContent = `💡 Mẹo chơi game (${currentTipIndex + 1}/${npcTips.length})`;
+  tipContent.innerHTML = npcTips[currentTipIndex];
+}
+
+function toggleNpcDialog(event) {
+  event.stopPropagation();
+  const dialogBox = document.getElementById('npc-dialog-box');
+  dialogBox.style.display = 'none';
+}
+
 </script>
 </body>
 </html>
