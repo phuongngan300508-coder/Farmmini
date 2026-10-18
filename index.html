@@ -33,16 +33,28 @@
 }
 
 body {
-    /* Đặt ảnh nền tổng thể (ở đây mình dùng link ảnh trồng cây làm nền chính, bạn có thể đổi link ảnh chăn nuôi nếu muốn) */
+    /* 1. MẶC ĐỊNH (Dành cho điện thoại / màn hình dọc) */
     background-image: url('https://i.postimg.cc/3xJxsKtg/Khong-Co-Tieu-De54-20261018140848.jpg');
     
-    /* Các thuộc tính quan trọng để kéo dài và phủ kín ảnh toàn trang */
-    background-size: cover;          /* Phủ kín toàn bộ không gian */
-    background-position: center;     /* Canh giữa ảnh */
-    background-repeat: no-repeat;    /* Không lặp lại ảnh */
-    background-attachment: fixed;    /* Cố định ảnh nền, khi cuộn trang nội dung trượt lên nhưng ảnh nền đứng yên cực kỳ đẹp */
-    
-    min-height: 100vh;               /* Đảm bảo body luôn cao ít bằng toàn bộ màn hình */
+    /* Các thuộc tính phủ kín ảnh toàn trang */
+    background-size: cover;          
+    background-position: center;     
+    background-repeat: no-repeat;    
+    background-attachment: fixed;    
+    min-height: 100vh;               
+}
+
+/* 2. DÀNH CHO MÀN HÌNH RỘNG (Laptop, PC từ 1024px trở lên) */
+@media (min-width: 1024px) {
+    body {
+        /* Tự động đổi sang ảnh ngang mới cho màn hình rộng */
+        background-image: url('https://i.postimg.cc/nLK94HcS/Khong-Co-Tieu-De58-20261018144434.jpg');
+        
+        /* Canh chỉnh vị trí ảnh hoàn hảo trên màn hình lớn */
+        background-position: center center;
+        background-size: cover;
+        background-attachment: fixed;
+    }
 }
 
 /* Làm trong suốt nhẹ các khung panel, hộp thoại, kho hàng để thấy ảnh nền (Đã loại bỏ bảng công thức phối giống và popup nấu ăn) */
@@ -66,8 +78,18 @@ body {
 
 /* Riêng các ô đất trống và chuồng trại (giữ màu mộc đặc trưng nhưng pha nhẹ độ trong suốt) */
 .tile {
-    background: linear-gradient(180deg, rgba(223, 239, 221, 0.85), rgba(207, 230, 199, 0.85)) !important;
-    backdrop-filter: blur(4px);
+  background: linear-gradient(180deg, #dfeedd, #cfe6c7);
+  border-radius: 8px;
+  height: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa theo chiều ngang (Flex cross-axis) */
+  justify-content: center; /* Căn giữa theo chiều dọc (Flex main-axis) */
+  text-align: center; /* Đảm bảo chữ nhiều dòng (nếu có) cũng canh giữa */
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 .tile.soil {
     background: linear-gradient(180deg, rgba(191, 165, 125, 0.88), rgba(168, 122, 81, 0.88)) !important;
@@ -7576,65 +7598,153 @@ if (closeCookingRecipeBtn && cookingRecipeModal) {
 
 let isRecipeBookRendered = false; // Cờ kiểm tra đã dựng giao diện chưa
 
+// Khai báo biến lưu trạng thái lọc hiện tại
+let currentRecipeSearch = "";
+let currentRecipeTierFilter = "ALL"; // 'ALL', 'Easy', 'Medium', 'Hard', 'SuperHard'
+let recipeSearchTimer = null; // Biến chống giật (debounce)
+
 function renderRecipeBookContent() {
   if (!cookingRecipeModalContent) return;
 
+  // Kiểm tra xem modal đã có sẵn thanh tìm kiếm và bộ lọc chưa, nếu chưa thì tạo khung sườn một lần duy nhất
+  let wrapper = document.getElementById('recipe-book-wrapper');
+  if (!wrapper) {
+    cookingRecipeModalContent.innerHTML = `
+      <div id="recipe-book-wrapper" style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box;">
+        <!-- 1. THANH TÌM KIẾM & BỘ LỌC CẤP ĐỘ -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box;">
+          <div style="position: relative; width: 100%;">
+            <input type="text" id="recipe-search-input" placeholder="Tìm kiếm tên món ăn hoặc icon món ăn..." value="${currentRecipeSearch}" 
+                   style="width: 100%; padding: 8px 12px 8px 32px; border: 1.5px solid #fed7aa; border-radius: 8px; font-size: 13px; outline: none; background: #fffdfa; box-sizing: border-box;" />
+            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 14px;">🔍</span>
+          </div>
+
+          <div id="recipe-tier-buttons" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;"></div>
+        </div>
+
+        <!-- 2. DANH SÁCH KẾT QUẢ CÔNG THỨC -->
+        <div id="recipe-results-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box;"></div>
+      </div>
+    `;
+
+    // Gắn sự kiện gõ phím mượt mà bằng Debounce (chỉ render sau khi người dùng ngừng gõ 250ms)
+    const inputEl = document.getElementById('recipe-search-input');
+    if (inputEl) {
+      inputEl.addEventListener('input', (e) => {
+        currentRecipeSearch = e.target.value;
+        clearTimeout(recipeSearchTimer);
+        recipeSearchTimer = setTimeout(() => {
+          updateRecipeResultsOnly(); // Chỉ render lại danh sách bên dưới, KHÔNG làm mất focus ô input
+        }, 250);
+      });
+    }
+  }
+
+  // Cập nhật lại giao diện nút bấm cấp độ và danh sách kết quả
+  updateTierButtonsUI();
+  updateRecipeResultsOnly();
+}
+
+// Hàm cập nhật trạng thái màu sắc các nút bấm cấp độ
+function updateTierButtonsUI() {
+  const btnContainer = document.getElementById('recipe-tier-buttons');
+  if (!btnContainer) return;
+
+  const tiers = [
+    { key: 'ALL', label: 'Tất cả', activeBg: '#ea580c', inactiveBg: '#fff7ed', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'Easy', label: 'Dễ', activeBg: '#ea580c', inactiveBg: '#fff7ed', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'Medium', label: 'Vừa', activeBg: '#b45309', inactiveBg: '#fef3c7', activeColor: '#fff', inactiveColor: '#b45309', border: '#fde68a' },
+    { key: 'Hard', label: 'Khó', activeBg: '#c2410c', inactiveBg: '#ffedd5', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'SuperHard', label: 'Cực khó', activeBg: '#b91c1c', inactiveBg: '#fee2e2', activeColor: '#fff', inactiveColor: '#b91c1c', border: '#fecaca' }
+  ];
+
+  btnContainer.innerHTML = tiers.map(t => {
+    const isActive = currentRecipeTierFilter === t.key;
+    return `
+      <button onclick="setRecipeTierFilter('${t.key}')" 
+              style="flex: 1; padding: 6px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; border: 1px solid ${t.border}; background: ${isActive ? t.activeBg : t.inactiveBg}; color: ${isActive ? t.activeColor : t.inactiveColor}; white-space: nowrap;">
+        ${t.label}
+      </button>
+    `;
+  }).join('');
+}
+
+// Hàm đổi cấp độ lọc
+function setRecipeTierFilter(tierKey) {
+  currentRecipeTierFilter = tierKey;
+  updateTierButtonsUI();
+  updateRecipeResultsOnly();
+}
+
+// Hàm chuyên biệt chỉ render lại danh sách món ăn bên dưới để không ảnh hưởng đến ô input đang gõ
+function updateRecipeResultsOnly() {
+  const container = document.getElementById('recipe-results-container');
+  if (!container) return;
+
   let fullHtml = '';
+  let hasAnyMatch = false;
+
+  const keyword = currentRecipeSearch.toLowerCase().trim();
 
   ['Easy', 'Medium', 'Hard', 'SuperHard'].forEach(tierKey => {
-    const conf = COOKING_TIERS[tierKey];
-    const tierDishes = DISHES_DB.filter(d => d.tier === tierKey);
-    if (tierDishes.length === 0) return;
+    if (currentRecipeTierFilter !== 'ALL' && currentRecipeTierFilter !== tierKey) return;
 
-    // Màu sắc chủ đạo theo cấp độ (Tone Đỏ - Cam - Lửa)
-    let headerColor = '#c2410c'; // Mặc định Cam đậm (Easy)
+    const conf = COOKING_TIERS[tierKey];
+    const tierDishes = DISHES_DB.filter(d => {
+      const matchTier = (d.tier === tierKey);
+      
+      if (!keyword) return matchTier;
+
+      // 1. Kiểm tra khớp tên món ăn hoặc emoji món ăn
+      const matchDishName = d.name.toLowerCase().includes(keyword);
+      const matchDishEmoji = d.emoji && d.emoji.includes(keyword);
+
+      // 2. Kiểm tra khớp nguyên liệu (Tên nguyên liệu tiếng Việt hoặc Emoji của nguyên liệu)
+      const matchIngredient = d.ingredients.some(ingId => {
+        const an = ANIMALS_DB[ingId];
+        const foodName = (an ? an.foodName : ingId).toLowerCase();
+        const foodEmoji = (an ? an.foodEmoji : '🥩');
+        return foodName.includes(keyword) || foodEmoji.includes(keyword) || ingId.toLowerCase().includes(keyword);
+      });
+
+      return matchTier && (matchDishName || matchDishEmoji || matchIngredient);
+    });
+
+    if (tierDishes.length === 0) return;
+    hasAnyMatch = true;
+
+    let headerColor = '#c2410c'; 
     let headerBg = '#fff7ed';
     let borderColor = '#fed7aa';
     let badgeBg = '#ffedd5';
 
     if (tierKey === 'Medium') { 
-      headerColor = '#b45309'; 
-      headerBg = '#fef3c7'; 
-      borderColor = '#fde68a';
-      badgeBg = '#fef9c3';
+      headerColor = '#b45309'; headerBg = '#fef3c7'; borderColor = '#fde68a'; badgeBg = '#fef9c3';
     } else if (tierKey === 'Hard') { 
-      headerColor = '#c2410c'; 
-      headerBg = '#ffedd5'; 
-      borderColor = '#fed7aa';
-      badgeBg = '#ffedd5';
+      headerColor = '#c2410c'; headerBg = '#ffedd5'; borderColor = '#fed7aa'; badgeBg = '#ffedd5';
     } else if (tierKey === 'SuperHard') { 
-      headerColor = '#b91c1c'; // Đỏ rực
-      headerBg = '#fee2e2'; 
-      borderColor = '#fecaca';
-      badgeBg = '#fee2e2';
+      headerColor = '#b91c1c'; headerBg = '#fee2e2'; borderColor = '#fecaca'; badgeBg = '#fee2e2';
     }
 
     let listHtml = '';
     tierDishes.forEach(d => {
-      // Chỉ hiển thị icon (emoji) của nguyên liệu kèm tooltip tên thực phẩm khi rê chuột vào
       const ingsHtml = d.ingredients.map(ing => {
         const an = ANIMALS_DB[ing];
-        return `<span style="font-size:16px;" title="${an ? an.foodName : ing}">${an ? an.foodEmoji : '🥩'}</span>`;
+        return `<span style="font-size:18px;" title="${an ? an.foodName : ing}">${an ? an.foodEmoji : '🥩'}</span>`;
       }).join(' + ');
 
-      // Kiểm tra đủ nguyên liệu hay không
       const hasEnoughIngredients = d.ingredients.every(ingId => {
         const qty = (state.inventory && state.inventory[ingId]) || (state.foodInventory && state.foodInventory[ingId]) || 0;
         return qty > 0;
       });
 
-      // 1/3 khung cho trạng thái nguyên liệu
       const statusBadgeHtml = hasEnoughIngredients 
         ? `<div style="font-size:11px; font-weight:800; color:#ea580c; background:#fff7ed; border:1px solid #fed7aa; padding:4px 8px; border-radius:6px; text-align:center; width:100%; box-sizing:border-box;">🔥 Đủ nguyên liệu</div>`
         : `<div style="font-size:11px; font-weight:600; color:#94a3b8; background:#f8fafc; border:1px solid #e2e8f0; padding:4px 8px; border-radius:6px; text-align:center; width:100%; box-sizing:border-box;">❌ Thiếu nguyên liệu</div>`;
 
       listHtml += `
         <div class="recipe-item-row" style="display:flex; flex-direction:column; gap:6px; width:100%; box-sizing:border-box; background:#ffffff; border:1px solid ${borderColor}; border-radius:8px; padding:8px 10px; margin-bottom:6px;">
-          
-          <!-- Hàng ngang: 2/3 Công thức món ăn & 1/3 Trạng thái -->
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border-bottom:1px dashed ${borderColor}; padding-bottom:6px;">
-            
-            <!-- Phần 2/3: Công thức nguyên liệu ➔ Thành phẩm -->
             <div style="flex: 2; display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; font-weight:700;">
               ${ingsHtml}
               <span style="color:#ea580c; font-weight:900; font-size:15px;">➔</span>
@@ -7643,15 +7753,11 @@ function renderRecipeBookContent() {
                 <span>${d.name}</span>
               </div>
             </div>
-
-            <!-- Phần 1/3: Trạng thái Đủ / Thiếu nguyên liệu -->
             <div style="flex: 1; min-width: 110px; display:flex; justify-content:flex-end;">
               ${statusBadgeHtml}
             </div>
-
           </div>
           
-          <!-- Lưới thông số (Phí nấu, Lửa, Giá bán, Tỉ lệ) -->
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; background:${headerBg}; padding:6px 8px; border-radius:6px; font-size:11px; color:#431407; text-align:center; border:1px solid ${borderColor}; width:100%; box-sizing:border-box;">
             <div style="border-right:1px solid ${borderColor}; padding-right:4px;">
               Phí nấu: <strong style="display:block; font-size:11px; font-weight:800; color:#111827; margin-top:1px;">${conf.cost}₵</strong>
@@ -7666,7 +7772,6 @@ function renderRecipeBookContent() {
               Tỉ lệ thành công: <strong style="color:${conf.rate === 1 ? '#15803d' : '#b45309'}; font-weight:800;">${conf.rate * 100}%</strong> <span style="color:#78716c; font-weight:normal;">(${100 - conf.rate * 100}% rủi ro cháy khét)</span>
             </div>
           </div>
-
         </div>
       `;
     });
@@ -7684,18 +7789,26 @@ function renderRecipeBookContent() {
     `;
   });
 
-  cookingRecipeModalContent.innerHTML = fullHtml;
+  if (!hasAnyMatch) {
+    fullHtml += `
+      <div style="text-align:center; padding: 24px; color: #78716c; font-size: 13px; font-weight: 600;">
+        ❌ Không tìm thấy món ăn nào phù hợp với từ khóa hoặc cấp độ đã chọn!
+      </div>
+    `;
+  }
+
+  container.innerHTML = fullHtml;
 }
 
 // Bắt sự kiện bấm nút mở sổ tay:
 if (btnOpenRecipeBook && cookingRecipeModal) {
   btnOpenRecipeBook.onclick = () => {
+    currentRecipeSearch = "";
+    currentRecipeTierFilter = "ALL";
     renderRecipeBookContent();
     cookingRecipeModal.classList.add('open');
   };
 }
-
-
 
 function renderKitchenFire() {
   const fireEl = document.getElementById('kitchenFireDisplay');
