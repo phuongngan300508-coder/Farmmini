@@ -9380,6 +9380,7 @@ function clickNpc() {
     SoundEngine.click();
   }
 
+  const widgetEl = document.getElementById('game-npc-widget');
   const dialogBox = document.getElementById('npc-dialog-box');
   const tipContent = document.getElementById('npc-tip-content');
   const tipTitle = document.getElementById('npc-tip-title');
@@ -9387,6 +9388,10 @@ function clickNpc() {
   // Hiển thị khung hội thoại nếu đang ẩn
   if (dialogBox.style.display === 'none' || dialogBox.style.display === '') {
     dialogBox.style.display = 'block';
+    // Đứng yên khi mở khung mẹo
+    widgetEl.style.animation = 'none';
+    const imgEl = widgetEl.querySelector('.npc-floating-img');
+    if (imgEl) imgEl.style.animation = 'none';
   } else {
     // Chuyển sang mẹo tiếp theo khi click liên tục
     currentTipIndex = (currentTipIndex + 1) % npcTips.length;
@@ -9397,12 +9402,18 @@ function clickNpc() {
   tipContent.innerHTML = npcTips[currentTipIndex];
 }
 
-
 function toggleNpcDialog(event) {
   event.stopPropagation();
+  const widgetEl = document.getElementById('game-npc-widget');
   const dialogBox = document.getElementById('npc-dialog-box');
   dialogBox.style.display = 'none';
+
+  // Khôi phục lại hiệu ứng lơ lửng khi đóng khung mẹo lại
+  widgetEl.style.animation = '';
+  const imgEl = widgetEl.querySelector('.npc-floating-img');
+  if (imgEl) imgEl.style.animation = 'npcFloat 3s ease-in-out infinite';
 }
+
 
 // Lưu trữ ảnh NPC tùy chỉnh vào localStorage theo tài khoản người chơi
 function getCustomNpcKey() {
