@@ -1806,6 +1806,31 @@ body:not(.logged-out) .app {
   }
 }
 
+/* Chỉ đẩy độ cao (z-index) lên mà không làm thay đổi vị trí hiển thị của popup */
+.guide-slider-box {
+  z-index: 99999 !important;
+}
+
+/* Nếu popup của bạn nằm bên trong một lớp phủ mờ (overlay), hãy ép luôn lớp phủ đó lên trên */
+.farm-modal-overlay, 
+.modal-overlay {
+  z-index: 99998 !important;
+}
+
+
+
+/* NPC Assistant Widget */
+#game-npc-widget {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 500; /* Đã hạ xuống 999 để nằm dưới các popup có z-index: 1000+ */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: sans-serif;
+}
+
 /* ẨN MẶC ĐỊNH NPC KHI CHƯA ĐĂNG NHẬP HOẶC KHI LOADING */
 #game-npc-widget {
   display: none !important;
@@ -2400,9 +2425,25 @@ body:not(.logged-out) #game-npc-widget {
     
     <div id="loadingPercent" class="loading-percent">0%</div>
   </div>
+
+  <!-- NPC & KHUNG CHÀO MỪNG TINH TẾ Ở GÓC DƯỚI BÊN PHẢI -->
+  <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; align-items: flex-end; z-index: 10000; animation: npcFloat 3s ease-in-out infinite;">
+    
+    <!-- Khung thoại chào mừng tinh tế -->
+    <div style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(6px); color: #3b4d38; border: 1.5px solid #a8c99b; border-radius: 14px; padding: 10px 16px; margin-bottom: 10px; font-size: 13.5px; font-weight: 700; box-shadow: 0 8px 20px rgba(46, 125, 50, 0.12); position: relative; max-width: 230px; text-align: center; letter-spacing: 0.2px;">
+      ✨ Chào mừng bạn đến với Nông Trại Nhỏ!
+      <!-- Mũi tên nhỏ trỏ xuống dưới -->
+      <div style="position: absolute; bottom: -6px; right: 28px; width: 10px; height: 10px; background: rgba(255, 255, 255, 0.92); border-right: 1.5px solid #a8c99b; border-bottom: 1.5px solid #a8c99b; transform: rotate(45deg);"></div>
+    </div>
+
+    <!-- Hình ảnh NPC loading -->
+    <img src="https://i.postimg.cc/PqjXhYzK/1792315110051(3).png" alt="NPC Loading" style="width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));" />
+  </div>
 </div>
 
-    <!-- POPUP MENU TÀI KHOẢN NÔNG DÂN -->
+
+
+<!-- POPUP MENU TÀI KHOẢN NÔNG DÂN -->
 <div id="userMenuModal" class="farm-modal-overlay">
   <div class="farm-modal-box" style="max-width: 310px;">
     <div class="farm-modal-icon">🧑‍🌾</div>
@@ -2424,6 +2465,20 @@ body:not(.logged-out) #game-npc-widget {
         ⭐ Góp Ý & Đánh Giá Game
       </a>
 
+      <!-- 🧑‍🎨 NÚT TÙY CHỈNH NHÂN VẬT NPC -->
+      <div style="padding: 10px; background: #f4faef; border: 1.5px dashed #6aa84f; border-radius: 8px; text-align: center;">
+        <div style="font-weight: 700; color: #2b5624; font-size: 12px; margin-bottom: 4px;">🧑‍🎨 Tùy Chỉnh Nhân Vật NPC</div>
+        <div class="muted-2" style="font-size: 10.5px; line-height: 1.4; margin-bottom: 8px; color: #58705a;">
+          Cần là ảnh có <strong>nền trong suốt</strong> và thuộc dạng <strong>PNG, JPG</strong> hoặc <strong>JPEG</strong> thì mới thêm vào được.
+        </div>
+        <input type="file" id="customNpcUpload" accept="image/png, image/jpeg" style="display: none;" onchange="handleCustomNpcUpload(event)" />
+        <div style="display: flex; gap: 6px;">
+          <button class="btn" style="flex: 1; font-size: 11px; padding: 6px 4px;" onclick="document.getElementById('customNpcUpload').click()">📤 Tải Ảnh Lên</button>
+          <button class="btn secondary" style="flex: 1; font-size: 11px; padding: 6px 4px; border-color: #d5e8ce;" onclick="resetCustomNpc()">🔄 Về Mặc Định</button>
+        </div>
+      </div>
+
+
       <button class="btn secondary" id="logoutFromMenuBtn" style="width: 100%; background: #fee2e2; color: #b91c1c; border-color: #fca5a5;">
         🚪 Đăng Xuất Nông Trại
       </button>
@@ -2433,6 +2488,7 @@ body:not(.logged-out) #game-npc-widget {
     </div>
   </div>
 </div>
+
 
 
   <!-- POPUP CÀI ĐẶT & HƯỚNG DẪN NÔNG TRẠI -->
@@ -2813,14 +2869,15 @@ body:not(.logged-out) #game-npc-widget {
       <!-- Trang 7 -->
       <div class="farm-guide-page" data-page="7">
         <div class="guide-img-wrapper">
-          <img src="https://i.postimg.cc/J0CNNHKq/Screenshot-20261019-004210-Chrome.jpg" class="guide-slide-img" alt="Trang 7">
+          <img src="https://i.postimg.cc/0yVkrxK6/Screenshot-20261019-110400-Chrome.jpg" class="guide-slide-img" alt="Trang 7">
         </div>
         <div class="guide-content-box">
           <h4 style="margin:0 0 6px 0; color:#2b5624;">Khám phá thêm & Góp ý</h4>
           <div class="guide-slide-desc">
             Bạn có thể xem thêm các thông tin khác về những khu như <strong>bảng thử thách</strong>, <strong>danh hiệu</strong>,...<br>
             Đồng thời bạn cũng có thể <strong>đăng xuất tài khoản</strong> này để chơi bằng tài khoản khác.<br>
-            Và mong là bạn có thể dành ít thời gian <strong>góp ý để game phát triển hơn</strong> nha!
+            Và mong là bạn có thể dành ít thời gian <strong>góp ý để game phát triển hơn</strong> nha!<br>
+            Ngoài ra bạn còn có thể <strong>thay đổi hình NPC</strong> theo ý thích nữa. Nhưng hãy đọc kĩ <strong>yêu cầu về ảnh</strong> nhé!
           </div>
         </div>
       </div>
@@ -2978,7 +3035,7 @@ body:not(.logged-out) #game-npc-widget {
 </div>
 
 <!-- NPC Assistant Widget -->
-<div id="game-npc-widget" style="position: fixed; bottom: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; font-family: sans-serif;">
+<div id="game-npc-widget" style="position: fixed; bottom: 16px; right: 16px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; font-family: sans-serif; animation: npcFloat 3s ease-in-out infinite;">
   
   <!-- Lời nhắn / Mẹo hiển thị khi click -->
   <div id="npc-dialog-box" style="display: none; background: #ffffff; color: #1e293b; border: 2px solid #22c55e; border-radius: 12px; padding: 12px; margin-bottom: 8px; width: 280px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative;">
@@ -2995,7 +3052,7 @@ body:not(.logged-out) #game-npc-widget {
     ✨ Ấn vào tôi để xem mẹo!
   </div>
 
-  <!-- Ảnh NPC (Hiệu ứng lơ lửng) -->
+  <!-- Ảnh NPC Cũ -->
   <img 
     src="https://i.postimg.cc/Fzd50HVv/1792315110051(5).png" 
     alt="NPC Trợ lý" 
@@ -3003,6 +3060,7 @@ body:not(.logged-out) #game-npc-widget {
     class="npc-floating-img"
   />
 </div>
+
 
 
 <script>
@@ -3870,6 +3928,7 @@ function load(){
     renderEquippedTitle();
     renderFusionPanel();
     updateLoginStatusUI();
+    loadCustomNpcOnStartup();
 
     // 🐄 RENDER DỮ LIỆU KHU CHĂN NUÔI & BẾP ĂN:
     if (typeof renderBarns === 'function') renderBarns();
@@ -9316,6 +9375,11 @@ const npcTips = [
 let currentTipIndex = 0;
 
 function clickNpc() {
+  // Phát âm thanh click khi chạm vào NPC
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+    SoundEngine.click();
+  }
+
   const dialogBox = document.getElementById('npc-dialog-box');
   const tipContent = document.getElementById('npc-tip-content');
   const tipTitle = document.getElementById('npc-tip-title');
@@ -9333,11 +9397,111 @@ function clickNpc() {
   tipContent.innerHTML = npcTips[currentTipIndex];
 }
 
+
 function toggleNpcDialog(event) {
   event.stopPropagation();
   const dialogBox = document.getElementById('npc-dialog-box');
   dialogBox.style.display = 'none';
 }
+
+// Lưu trữ ảnh NPC tùy chỉnh vào localStorage theo tài khoản người chơi
+function getCustomNpcKey() {
+  return currentUser ? `farmmini_custom_npc_${currentUser}` : null;
+}
+
+// Khi người chơi chọn file ảnh tải lên (Có tính năng tự động làm trong suốt nền trắng)
+function handleCustomNpcUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('Vui lòng chọn tệp hình ảnh hợp lệ (PNG hoặc JPG).');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Dùng Canvas để tự động khử nền trắng (nếu ảnh chưa tách nền)
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      ctx.drawImage(img, 0, 0);
+      
+      // Lấy dữ liệu pixel của toàn bộ ảnh
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      
+      // Kiểm tra các góc của ảnh để đoán màu nền (ví dụ: góc trên bên trái là màu trắng hay màu khác)
+      // Nếu góc ảnh là màu trắng (RGB gần như 255,255,255), ta sẽ chuyển toàn bộ các pixel màu trắng đó thành trong suốt (alpha = 0)
+      const r0 = data[0], g0 = data[1], b0 = data[2];
+      // Nếu màu nền ở góc khá sáng (gần trắng > 220)
+      if (r0 > 220 && g0 > 220 && b0 > 220) {
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2];
+          // Nếu pixel nào có màu gần giống màu nền ở góc (gần trắng) thì cho biến mất (trong suốt)
+          if (r > 215 && g > 215 && b > 215) {
+            data[i+3] = 0; // Đặt độ trong suốt alpha về 0
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }
+      
+      const processedBase64 = canvas.toDataURL('image/png');
+      const storageKey = getCustomNpcKey();
+      if (storageKey) {
+        localStorage.setItem(storageKey, processedBase64);
+      }
+
+      applyCustomNpcImage(processedBase64);
+      showTopToast('ĐÃ ĐỔI NPC', 'Đã tải lên và tự động lọc nền nhân vật thành công!', '🧑‍🎨');
+      if (typeof SoundEngine !== 'undefined' && SoundEngine.specialBuy) {
+        SoundEngine.specialBuy();
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Khôi phục lại NPC mặc định
+function resetCustomNpc() {
+  const storageKey = getCustomNpcKey();
+  if (storageKey) {
+    localStorage.removeItem(storageKey);
+  }
+
+  const defaultNpcImg = 'https://i.postimg.cc/Fzd50HVv/1792315110051(5).png';
+  applyCustomNpcImage(defaultNpcImg);
+  showTopToast('ĐÃ KHÔI PHỤC', 'Trợ lý đã trở về nhân vật mặc định.', '🔄');
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+    SoundEngine.click();
+  }
+}
+
+// Cập nhật hình ảnh cho thẻ img của NPC trong game
+function applyCustomNpcImage(imgSrc) {
+  const npcImgEl = document.querySelector('#game-npc-widget img.npc-floating-img');
+  if (npcImgEl) {
+    npcImgEl.src = imgSrc;
+  }
+}
+
+// Tự động tải lại ảnh NPC đã lưu khi load game
+function loadCustomNpcOnStartup() {
+  const storageKey = getCustomNpcKey();
+  if (!storageKey) return;
+  const savedImg = localStorage.getItem(storageKey);
+  if (savedImg) {
+    applyCustomNpcImage(savedImg);
+  } else {
+    applyCustomNpcImage('https://i.postimg.cc/Fzd50HVv/1792315110051(5).png');
+  }
+}
+
 
 </script>
 </body>
