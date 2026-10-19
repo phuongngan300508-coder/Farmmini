@@ -1327,17 +1327,78 @@ body:not(.logged-out) .app {
   background: rgba(0, 0, 0, 0.55);
 }
 
-#cookingRecipeModal .settings-modal-box {
-  transform: translateZ(0); /* Bật tăng tốc GPU */
-  will-change: transform, opacity;
-  animation-duration: 0.15s; /* Rút ngắn thời gian animation để mở tức thì */
+/* ========================================================== */
+/* CHỈ DÀNH RIÊNG CHO ĐIỆN THOẠI (Ẩn trên máy tính và iPad)     */
+/* ========================================================== */
+@media (min-width: 1024px) {
+    #cookingRecipeModal {
+        display: none !important;
+    }
+}
+
+/* 1. Khung popup sổ tay nấu ăn trên điện thoại */
+#cookingRecipeModal .settings-modal-box.cooking-recipe-popup-box {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    margin: 10px auto !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 #cookingRecipeModalContent {
-  contain: content; /* Cách ly việc tính toán lại layout của 30 món bên trong */
-  will-change: scroll-position;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
 }
 
+/* 2. Đảm bảo thanh tìm kiếm và bộ lọc nút bấm giãn 100% chiều ngang khung */
+#recipe-book-wrapper {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+#recipe-book-wrapper > div:first-child {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#recipe-search-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 3. Lưới các nút chọn cấp độ công thức phân đều trên điện thoại (5 nút dàn ngang) */
+#recipe-tier-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#recipe-tier-buttons button {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+}
+
+/* 4. DẠNG DỌC 1 CỘT TRÊN ĐIỆN THOẠI */
+#recipe-results-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#recipe-results-container .recipe-section-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
+}
 /* ======================================================== */
 /* GIAO DIỆN ĐƠN HÀNG ONLINE MÓN ĂN                         */
 /* ======================================================== */
@@ -1876,6 +1937,121 @@ body:not(.logged-out) #game-npc-widget {
   transform: scale(1.1) !important;
   animation: none; /* Dừng lơ lửng khi rê chuột vào */
 }
+
+.resource:hover, #kitchenFireDisplay:hover {
+  transform: scale(1.05);
+}
+
+/* ========================================================== */
+/* POPUP RIÊNG BIỆT DÀNH CHO MÀN HÌNH RỘNG (PC / LAPTOP)        */
+/* ========================================================== */
+#desktopCookingRecipeModal {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    #desktopCookingRecipeModal.farm-modal-overlay.open {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 24px !important;
+        box-sizing: border-box !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(4px);
+    }
+
+   /* Khung bọc popup to bản, cân đối với chiều cao được nới rộng */
+    .desktop-recipe-modal-box {
+        background: #fffcf5 !important;
+        border: 4px solid #ea580c !important;
+        border-radius: 20px !important;
+        box-shadow: 0 16px 40px rgba(234, 88, 12, 0.25), inset 0 0 0 2px #ffedd5 !important;
+        width: 75vw !important;
+        max-width: 900px !important;
+        max-height: 92vh !important;    /* Tăng từ 85vh lên 92vh để cao gần full màn hình */
+        padding: 20px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: left !important;
+        animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .desktop-recipe-header {
+        text-align: center;
+        border-bottom: 2px dashed #fed7aa;
+        padding-bottom: 12px;
+        margin-bottom: 14px;
+    }
+
+    .desktop-recipe-header h3 {
+        margin: 4px 0 2px 0;
+        color: #9a3412;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    /* Vùng chứa nội dung bên trong cũng được nới rộng chiều cao cuộn */
+    .desktop-recipe-content {
+        flex: 1;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        max-height: 78vh !important;    /* Tăng từ 65vh lên 78vh tương ứng với khung */
+        padding-right: 8px !important;
+        box-sizing: border-box !important;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    /* Mặc định cho chế độ Tất cả: 2 cột bình thường */
+    .desktop-recipe-grid-results {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-auto-flow: dense !important;
+        gap: 16px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        align-items: start !important;
+    }
+
+    /* ĐẶC BIỆT: Khi chọn riêng từng cấp độ (Single-column mode) */
+    .desktop-recipe-grid-results.single-column-mode {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* Bên trong thẻ card chia 2 cột */
+        gap: 16px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Ép thẻ chứa tiêu đề và danh sách món kéo dài bao quát trọn vẹn cả 2 cột */
+    .desktop-recipe-grid-results.single-column-mode .recipe-section-card {
+        grid-column: span 2 !important; 
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Khi ở chế độ 1 cấp độ, phần thân chứa món ăn bên trong tự động chia thành 2 cột nhỏ */
+    .desktop-recipe-grid-results.single-column-mode .recipe-tier-body {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    /* Ép từng ô món ăn bên trong chiếm trọn 1 ô của lưới 2 cột nhỏ */
+    .desktop-recipe-grid-results.single-column-mode .recipe-tier-body .recipe-item-row {
+        margin-bottom: 0 !important;
+        height: 100% !important;
+    }
+
+    .desktop-recipe-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    .desktop-recipe-content::-webkit-scrollbar-thumb {
+        background: #fdba74;
+        border-radius: 6px;
+    }
+}
   </style>
 </head>
 <body>
@@ -1912,7 +2088,7 @@ body:not(.logged-out) #game-npc-widget {
       </div>
       <div class="status">
         <div class="resource" id="coins">💰 0</div>
-        <div class="resource" id="waterAmount" title="Lượng nước tưới cây">💧 50L</div>
+        <div class="resource" id="waterAmount" onclick="handleResourceClick()" title="Nhấp để chuyển nhanh tới cửa hàng" style="cursor: pointer; transition: transform 0.15s ease;">💧 50L</div>
         <button class="btn secondary" id="loginStatusBtn" title="Tài khoản & Cài đặt">🧑‍🌾 Đăng xuất</button>
       </div>
     </header>
@@ -1967,14 +2143,15 @@ body:not(.logged-out) #game-npc-widget {
 
         <div id="farm" class="farm-grid" aria-label="Farm grid"></div>
 
-        <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
-            <button class="btn" id="btnExpand">Mua thêm ô (+6) — 100₵</button>
-            <button class="btn secondary" id="btnHarvestAll">Thu hoạch tất cả (Đã chín)</button>     
-            <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
-            <button class="btn secondary" id="btnClear">Reset farm</button>
-            <button class="btn" id="btnGoToFarmOrders" style="background:linear-gradient(180deg,#0288d1,#01579b);">🧺 Kho & Đơn Hàng ⬇</button>
-            <button class="btn" id="btnGoToSeeds" style="margin-left:auto;background:linear-gradient(180deg,#4a86e8,#2a62bc);">🌱 Chọn Hạt Giống ⬇</button>
-          </div>
+       <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+    <button class="btn" id="btnExpand">Mua thêm ô (+6) — 100₵</button>
+    <button class="btn" id="btnOpenQuickPlant" style="background:linear-gradient(180deg,#7c3aed,#5b21b6);">⚡ Gieo hạt nhanh</button>
+    <button class="btn" id="btnHarvestAll" style="background:linear-gradient(180deg,#f59e0b,#c2410c);">🌾 Thu hoạch tất cả (Đã chín)</button>     
+    <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
+    <button class="btn secondary" id="btnClear">Reset farm</button>
+    <button class="btn" id="btnGoToFarmOrders" style="background:linear-gradient(180deg,#0288d1,#01579b);">🧺 Kho & Đơn Hàng ⬇</button>
+    <button class="btn" id="btnGoToSeeds" style="margin-left:auto;background:linear-gradient(180deg,#4a86e8,#2a62bc);">🌱 Chọn Hạt Giống ⬇</button>
+</div>
       </div>
 
       <!-- THÔNG TIN Ô TRỒNG CÂY -->
@@ -2033,7 +2210,10 @@ body:not(.logged-out) #game-npc-widget {
       <div class="panel controls" id="achievementsPanel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h2 style="margin:0;">Bảng Vinh Danh & Danh Hiệu 🎖️</h2>
-          <span id="badgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn" onclick="document.getElementById('farmContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#6aa84f,#3e8a33); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(46,125,50,0.25);">🚜 Lên Đất Trồng ⬆</button>
+            <span id="badgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+          </div>
         </div>
         <div class="muted-2" style="margin-bottom:10px">Tích lũy các thành tựu nông nghiệp để khắc tên lên Bảng Vàng!</div>
         <div id="badgeList" class="badge-grid"></div>
@@ -2075,11 +2255,11 @@ body:not(.logged-out) #game-npc-widget {
               <div id="ranchBarns" class="farm-grid"></div>
 
               <div style="display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;">
-                <button class="btn" id="btnExpandBarns" style="background:linear-gradient(180deg,#f59e0b,#b45309);">Mở rộng chuồng (+2) — 250₵</button>
-                <button class="btn secondary" id="btnCollectAllFood">Thu hoạch tất cả thực phẩm</button>
-                <button class="btn" id="btnGoToRanchOrders" style="background:linear-gradient(180deg,#d97706,#92400e);">🥛 Kho & Đơn Trại ⬇</button>
-                <button class="btn" id="btnScrollToAnimals" style="margin-left:auto; background:linear-gradient(180deg,#e65100,#bf360c);">🐄 Chọn Giống ⬇</button>
-              </div>
+    <button class="btn" id="btnExpandBarns" style="background:linear-gradient(180deg,#f59e0b,#b45309);">Mở rộng chuồng (+2) — 250₵</button>
+    <button class="btn" id="btnCollectAllFood" style="background:linear-gradient(180deg,#ff6b35,#d72638);">🌾 Thu hoạch tất cả thực phẩm</button>
+    <button class="btn" id="btnGoToRanchOrders" style="background:linear-gradient(180deg,#d97706,#92400e);">🥛 Kho & Đơn Trại ⬇</button>
+    <button class="btn" id="btnScrollToAnimals" style="margin-left:auto; background:linear-gradient(180deg,#e65100,#bf360c);">🐄 Chọn Giống ⬇</button>
+</div>
             </div>
 
             <!-- MẶT 2: BẾP CHẾ BIẾN 30 MÓN -->
@@ -2092,9 +2272,9 @@ body:not(.logged-out) #game-npc-widget {
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
         <!-- KHUNG SỐ DƯ LỬA RIÊNG BIỆT CHO BẾP -->
-        <div id="kitchenFireDisplay" style="background:#fff3e0; border:1.5px solid #f97316; color:#c2410c; padding:4px 10px; border-radius:10px; font-weight:800; font-size:13px; box-shadow:0 1px 4px rgba(249,115,22,0.2);">
-          🔥 Lửa: 50
-        </div>
+        <div id="kitchenFireDisplay" onclick="scrollToRanchEnergyShop()" title="Nhấp để chuyển nhanh tới Cửa hàng năng lượng" style="background:#fff3e0; border:1.5px solid #f97316; color:#c2410c; padding:4px 10px; border-radius:10px; font-weight:800; font-size:13px; box-shadow:0 1px 4px rgba(249,115,22,0.2); cursor: pointer; transition: transform 0.15s ease;">
+  🔥 Lửa: 50
+</div>
         <button class="btn" id="btnOpenRecipeBook" style="background:linear-gradient(180deg,#d97706,#b45309); font-size:11px; padding:6px 10px;">
           📖 Công Thức 30 Món
         </button>
@@ -2236,12 +2416,15 @@ body:not(.logged-out) #game-npc-widget {
         <div id="dailyRanchQuestsList" class="quest-list" style="max-height:260px; overflow-y:auto; padding-right:4px;"></div>
       </div>
       
-            <!-- 3. BẢNG DANH HIỆU CHĂN NUÔI -->
+           <!-- 3. BẢNG DANH HIỆU CHĂN NUÔI -->
         <div style="height:10px"></div>
         <div class="panel controls" id="ranchAchievementsPanel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h2 style="margin:0; color:#b45309;">Bảng Vinh Danh Chủ Trại 🤠🎖️</h2>
-            <span id="ranchBadgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="btn" onclick="document.getElementById('ranchContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(180,83,9,0.25);">🏡 Lên Chuồng ⬆</button>
+              <span id="ranchBadgeCounter" class="muted-2" style="font-weight:700; font-size:12px;">Đã đạt: 0/10</span>
+            </div>
           </div>
           <div id="ranchBadgeList" class="badge-grid"></div>
         </div>
@@ -2258,10 +2441,13 @@ body:not(.logged-out) #game-npc-widget {
     <!-- 1. SIDEBAR TRỒNG CÂY -->
     <div id="farmRightSidebar">
 <div class="panel controls" id="seedsPanel">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <h2 style="margin:0">Hạt giống 🌱</h2>
-          <button class="btn" id="btnGoToFarm" style="background:linear-gradient(180deg,#7cc576,#4b9a3a);font-size:12px;padding:6px 10px;">🚜 Lên Đất Trồng ⬆</button>
-        </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h2 style="margin:0">Hạt giống 🌱</h2>
+        <button class="help-icon-btn" id="btnOpenSeedHelp" title="Hướng dẫn sử dụng kho hạt giống và tìm kiếm" style="width:26px; height:26px; font-size:13px;">?</button>
+      </div>
+      <button class="btn" id="btnGoToFarm" style="background:linear-gradient(180deg,#7cc576,#4b9a3a);font-size:12px;padding:6px 10px;">🚜 Lên Đất Trồng ⬆</button>
+    </div>
         
         <!-- THÊM THANH TÌM KIẾM VÀO ĐÂY -->
 <input type="text" id="inventorySeedSearchInput" placeholder="🔍 Tìm hạt giống theo tên hoặc icon (vd: 🌾, Lúa...)" oninput="renderSeeds()" style="width:100%; padding:8px 12px; margin-bottom:10px; border:1px solid #c5d9bc; border-radius:8px; box-sizing:border-box; font-size:13px; outline:none;" />
@@ -2272,9 +2458,25 @@ body:not(.logged-out) #game-npc-widget {
         <div style="height:10px"></div>
 
 <div class="panel controls">
-  <h2>Bảng Công thức Phối giống 🧪</h2>
-  <!-- CẬP NHẬT PLACEHOLDER ĐỂ HỖ TRỢ TÌM CẢ NGUYÊN LIỆU VÀ KẾT QUẢ -->
-  <input type="text" id="recipeSearchInput" placeholder="🔍 Tìm theo tên hoặc icon nguyên liệu/kết quả (vd: 🌾, Lúa, Cà chua)..." oninput="renderRecipeTable()" style="width:100%; padding:7px 10px; margin:6px 0 10px 0; border:1px solid #c5d9bc; border-radius:8px; box-sizing:border-box; font-size:13px; outline:none;" />
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <h2 style="margin:0">Bảng Công thức Phối giống 🧪</h2>
+      <button class="help-icon-btn" id="btnOpenRecipeHelp" title="Hướng dẫn sử dụng bảng công thức và tìm kiếm" style="width:26px; height:26px; font-size:13px;">?</button>
+    </div>
+  </div>
+
+  <!-- 🟢 Ô CHỌN HIỂN THỊ CÔNG THỨC THEO CẤP ĐỘ -->
+  <select id="recipeTierFilterSelect" onchange="renderRecipeTable()" style="width:100%; padding:7px 10px; margin:4px 0 6px 0; border:1px solid #c5d9bc; border-radius:8px; box-sizing:border-box; font-size:13px; outline:none; background:#ffffff; font-weight:600; color:#2b5624;">
+    <option value="ALL">✨ Hiển thị tất cả cấp độ</option>
+    <option value="Uncommon">🌿 Cấp Uncommon</option>
+    <option value="Rare">💎 Cấp Rare</option>
+    <option value="Legendary">✨ Cấp Legendary</option>
+    <option value="Mythic">👑 Cấp Mythic</option>
+    <option value="Divine">⭐ Cấp Divine</option>
+  </select>
+
+  <!-- THANH TÌM KIẾM -->
+  <input type="text" id="recipeSearchInput" placeholder="🔍 Tìm theo tên hoặc icon nguyên liệu/kết quả (vd: 🌾, Lúa, Cà chua)..." oninput="renderRecipeTable()" style="width:100%; padding:7px 10px; margin:0 0 10px 0; border:1px solid #c5d9bc; border-radius:8px; box-sizing:border-box; font-size:13px; outline:none;" />
   <div id="recipeTable" style="max-height: 250px; overflow-y: auto;"></div>
 </div>
 
@@ -2290,7 +2492,10 @@ body:not(.logged-out) #game-npc-widget {
 
       <div style="height:10px"></div> 
       <div class="panel controls">
-        <h2>Cửa hàng Đặc biệt ✨</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 style="margin:0;">Cửa hàng Đặc biệt ✨</h2>
+          <button class="btn" onclick="document.getElementById('farmContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#6aa84f,#3e8a33); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(46,125,50,0.25);">🚜 Lên Đất Trồng ⬆</button>
+        </div>
         <div class="muted" style="margin-bottom:10px;">Đổi vật phẩm đặc biệt tại đây.</div>
         <div id="specialShopList" class="seed-list"></div>
       </div>
@@ -2323,7 +2528,10 @@ body:not(.logged-out) #game-npc-widget {
 
       <div style="height:10px"></div>
 <div class="panel controls">
-  <h2 style="color:#b45309;">Cửa Hàng Năng Lượng 🌾🔥</h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <h2 style="margin:0; color:#b45309;">Cửa Hàng Năng Lượng 🌾🔥</h2>
+    <button class="btn" onclick="document.getElementById('ranchContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(180,83,9,0.25);">⬆ Lên Chuồng Trại</button>
+  </div>
   <div class="muted" style="margin-bottom:10px;">Bổ sung thức ăn và nhiệt lượng nấu nướng:</div>
   <div id="specialRanchShopList" class="seed-list"></div>
 </div>
@@ -2528,6 +2736,7 @@ body:not(.logged-out) #game-npc-widget {
             <div class="guide-section">
         <h4>🎖️ 4. Bảng Vinh Danh & Danh Hiệu</h4>
         <p>• Hoàn thành các cột mốc thực tế (gieo hạt, gặt hái, giao hàng, lai giống, tích lũy tiền...) để mở khóa <strong>10 Danh hiệu</strong> cao quý.</p>
+        <p>• Mỗi một <strong>danh hiệu đã đạt được</strong> đều sẽ có một <strong>phần thưởng</strong> đi kèm.</p>
         <p>• <strong>Cơ chế Đeo danh hiệu:</strong>
           <br>&nbsp;&nbsp;+ Mặc định khi chưa đeo danh hiệu nào, danh xưng sẽ là <strong>🧑‍🌾 Nông Dân</strong>.
           <br>&nbsp;&nbsp;+ Khi đạt danh hiệu, bấm <strong>⚡ Đeo Danh Hiệu</strong> trong bảng để gắn lên khung trưng bày phía trên đất trồng.
@@ -2651,6 +2860,7 @@ body:not(.logged-out) #game-npc-widget {
         <p>• Ghé <em>Cửa Hàng Con Giống</em> để sở hữu những thú quý: từ Cừu, Bò sữa, Ong chúa, Bò Bison đến <strong>Long Thú 🐉 (Divine)</strong>.</p>
         <p>• Chinh phục 10 mốc thành tựu để đeo danh hiệu Chủ Trại lên huy hiệu trang trại.</p>
         <p>• Bấm trực tiếp vào huy hiệu <em>Danh hiệu Trại</em> ở đầu trang để lướt nhanh xuống bảng thành tựu.</p>
+        <p>• Giờ đây, mỗi một <strong>danh hiệu đã đạt được</strong> đều sẽ có một <strong>phần thưởng</strong> đi kèm.</p>
       </div>
     </div>
 
@@ -2747,13 +2957,13 @@ body:not(.logged-out) #game-npc-widget {
 
 <!-- POPUP SỔ TAY CÔNG THỨC 30 MÓN ĂN -->
 <div id="cookingRecipeModal" class="farm-modal-overlay">
-  <div class="farm-modal-box settings-modal-box" style="border-color:#ea580c; max-width:820px !important;">
+  <div class="farm-modal-box settings-modal-box cooking-recipe-popup-box" style="border-color:#ea580c;">
     <div class="settings-modal-header" style="border-bottom-color:#fb923c;">
       <div class="farm-modal-icon">📖🍳</div>
       <h3 style="color:#9a3412;">Cẩm Nang 30 Món Ăn Nông Trại</h3>
       <div class="muted-2">Tra cứu công thức kết hợp từ 1 đến 3 nguyên liệu</div>
     </div>
-    <div class="settings-modal-content" id="cookingRecipeModalContent" style="max-height:460px;"></div>
+    <div class="settings-modal-content" id="cookingRecipeModalContent" style="max-height:65vh;"></div>
     <div class="farm-modal-actions" style="margin-top:14px;">
       <button class="btn" id="closeCookingRecipeBtn" style="width:100%; background:linear-gradient(180deg,#ea580c,#c2410c);">Đóng Sổ Tay</button>
     </div>
@@ -2836,7 +3046,7 @@ body:not(.logged-out) #game-npc-widget {
       <!-- Trang 5 -->
       <div class="farm-guide-page" data-page="5">
         <div class="guide-img-wrapper">
-          <img src="https://i.postimg.cc/0yzFbpwd/Screenshot-20261018-211447-Chrome.jpg" class="guide-slide-img" alt="Trang 5">
+          <img src="https://i.postimg.cc/9fnJmxdp/Screenshot-20261019-130452-Chrome.jpg" class="guide-slide-img" alt="Trang 5">
         </div>
         <div class="guide-content-box">
           <h4 style="margin:0 0 6px 0; color:#2b5624;">Các nút tiện tích ở khu trồng cây</h4>
@@ -2846,7 +3056,8 @@ body:not(.logged-out) #game-npc-widget {
             3. <strong>Nút thu hoạch toàn bộ:</strong> Thu hoạch <strong>tất cả cây đã chín</strong> cùng 1 lúc.<br>
             4. <strong>Nút kho và đơn hàng:</strong> <strong>Di chuyển bạn xuống kho hàng</strong> và đơn hàng.<br>
             5. <strong>Nút reset farm:</strong> <strong>Chơi lại từ đầu</strong> hết toàn bộ.<br>
-            6. <strong>Nút chọn phối nhiều ô:</strong> Hỗ trợ <strong>phối giống nhanh</strong>.
+            6. <strong>Nút chọn phối nhiều ô:</strong> Hỗ trợ <strong>phối giống nhanh</strong>.<br>
+            7. <strong>Nút gieo hạt nhanh:</strong> <strong>Hỗ trợ</strong> gieo hạt <strong>số lượng lớn</strong> một cách nhanh chóng.
           </div>
         </div>
       </div>
@@ -2861,7 +3072,7 @@ body:not(.logged-out) #game-npc-widget {
             1. <strong>Nút chuyển bạn sang khu chăn nuôi:</strong> Trải nghiệm không gian <strong>chăn nuôi thú cưng</strong> hoàn toàn mới.<br>
             2. Bạn có thể ấn nút này để <strong>đổi tên trang trại và icon</strong>.<br>
             3. Ấn vô nút này sẽ dẫn bạn đến chỗ <strong>thu thập danh hiệu</strong> và đeo những danh hiệu bạn đã đạt được.<br>
-            4. <strong>Nước:</strong> Trồng cây cần tiêu thụ nước 1p/1L, nếu hết nước thì cây sẽ <strong>phát triển chậm 50%!</strong><br>
+            4. <strong>Nước:</strong> Trồng cây cần tiêu thụ nước 1p/1L, nếu hết nước thì cây sẽ <strong>phát triển chậm 50%!</strong> Đặc biệt hơn là <strong>ấn vào nó</strong> sẽ <strong>đưa bạn đến cửa hàng bán nước</strong> nhanh chóng.<br>
             5. Nút này <strong>ấn được</strong> đó nha, bạn <strong>ấn tiếp theo</strong> để xem nó có gì nhé.
           </div>
         </div>
@@ -3034,6 +3245,58 @@ body:not(.logged-out) #game-npc-widget {
   </div>
 </div>
 
+<!-- POPUP HƯỚNG DẪN HẠT GIỐNG (1 TRANG) -->
+<div id="seedGuideModal" class="farm-modal-overlay">
+  <div class="farm-modal-box guide-slider-box" style="max-width: 440px !important;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px dashed #d1c1a5; padding-bottom:8px; margin-bottom:12px;">
+      <h3 style="margin:0; color:#2b5624;">📖 Hướng Dẫn Hạt Giống</h3>
+      <span class="guide-pagination">Trang 1 / 1</span>
+    </div>
+
+    <div>
+      <div class="guide-img-wrapper" style="margin-bottom: 10px;">
+        <img src="https://i.postimg.cc/MGpz2G5H/Screenshot-20261018-171900-Chrome.jpg" class="guide-slide-img" alt="Hướng dẫn hạt giống" style="max-height: 220px; width: 100%; object-fit: contain;">
+      </div>
+      <div class="guide-content-box">
+        <h4 style="margin:0 0 6px 0; color:#2b5624;">Tìm kiếm hạt giống nhanh</h4>
+        <div class="guide-slide-desc">
+          <strong>Thanh tìm kiếm</strong> sẽ hỗ trợ bạn tìm hạt giống nhanh. Nhập <strong>icon</strong> hay <strong>chữ</strong> đều được nhé!
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <button class="btn secondary" id="closeSeedGuideModalBtn" style="width:100%; background:#f4faef; color:#3b4d38; border-color:#d5e8ce;">Đóng hướng dẫn</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP HƯỚNG DẪN CÔNG THỨC PHỐI GIỐNG (1 TRANG) -->
+<div id="recipeGuideModal" class="farm-modal-overlay">
+  <div class="farm-modal-box guide-slider-box" style="max-width: 440px !important;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px dashed #d1c1a5; padding-bottom:8px; margin-bottom:12px;">
+      <h3 style="margin:0; color:#2b5624;">📖 Hướng Dẫn Công Thức Phối Giống</h3>
+      <span class="guide-pagination">Trang 1 / 1</span>
+    </div>
+
+    <div>
+      <div class="guide-img-wrapper" style="margin-bottom: 10px;">
+        <img src="https://i.postimg.cc/jdM83dWC/Screenshot-20261018-171953-Chrome.jpg" class="guide-slide-img" alt="Hướng dẫn công thức phối giống" style="max-height: 220px; width: 100%; object-fit: contain;">
+      </div>
+      <div class="guide-content-box">
+        <h4 style="margin:0 0 6px 0; color:#2b5624;">Tìm kiếm công thức phối giống</h4>
+        <div class="guide-slide-desc">
+          <strong>Thanh tìm kiếm</strong> sẽ hỗ trợ bạn tìm công thức nhanh. Chỉ cần nhớ một từ trong <strong>tên cây</strong> hoặc <strong>1 icon</strong> cũng sẽ tìm ra được. Nhập <strong>icon</strong> hay <strong>chữ</strong> đều được nhé!
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <button class="btn secondary" id="closeRecipeGuideModalBtn" style="width:100%; background:#f4faef; color:#3b4d38; border-color:#d5e8ce;">Đóng hướng dẫn</button>
+    </div>
+  </div>
+</div>
+
 <!-- NPC Assistant Widget -->
 <div id="game-npc-widget" style="position: fixed; bottom: 16px; right: 16px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; font-family: sans-serif; animation: npcFloat 3s ease-in-out infinite;">
   
@@ -3061,8 +3324,75 @@ body:not(.logged-out) #game-npc-widget {
   />
 </div>
 
+<!-- POPUP GIEO HẠT NHANH -->
+<div id="quickPlantModal" class="farm-modal-overlay">
+  <div class="farm-modal-box" style="max-width: 330px; text-align: left;">
+    <div style="text-align: center; margin-bottom: 12px;">
+      <div class="farm-modal-icon" id="quickPlantEmoji" style="font-size: 38px;">🌱</div>
+      <h3 style="margin: 0; color: #5c3a21;">Gieo Hạt Nhanh</h3>
+      <p class="muted-2" style="font-size: 13px; margin: 4px 0 0 0;" id="quickPlantSeedDesc">Đang chọn: Cà rốt</p>
+    </div>
 
+    <!-- Thông tin số ô trống -->
+    <div style="background: #f4faef; border: 1.5px solid #c9e0bf; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; color: #2b5624;">
+      <div>🌾 Tổng ô đất trống: <strong id="qpEmptyTilesCount">0</strong> ô</div>
+      <div>💰 Tiền hiện có: <strong id="qpUserCoins">0₵</strong></div>
+      <div>📦 Chi phí 1 hạt: <strong id="qpSeedCost">5₵</strong></div>
+    </div>
 
+    <!-- Tùy chọn chế độ gieo -->
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+      <label style="font-size: 13px; font-weight: 700; color: #435340;">Chọn chế độ gieo:</label>
+      
+      <!-- Nút Gieo Full -->
+      <button type="button" class="btn" id="qpBtnFull" style="width: 100%; background: linear-gradient(180deg, #6aa84f, #3e8a33); text-align: center; padding: 10px;">
+        ✨ Gieo Full Toàn Bộ Ô Trống
+      </button>
+
+      <div style="text-align: center; font-size: 12px; color: #8a8f94; margin: 2px 0;">Hoặc tùy chỉnh số lượng:</div>
+
+      <!-- Tăng giảm số lượng tùy chỉnh -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <button type="button" class="btn secondary" id="qpMinusBtn" style="width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; padding: 0;">-</button>
+        <input type="number" id="qpNumInput" min="1" value="1" 
+               style="width: 70px; text-align: center; font-size: 20px; font-weight: 800; color: #2e7d32; border: 1.5px solid #a8c99b; border-radius: 8px; padding: 4px; background: #fff; outline: none;">
+        <button type="button" class="btn" id="qpPlusBtn" style="width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; padding: 0; background: linear-gradient(180deg, #6aa84f, #3e8a33);">+</button>
+      </div>
+
+      <input type="range" id="qpRangeInput" min="1" max="1" value="1" style="width: 100%; accent-color: #6aa84f; margin-top: 4px;">
+    </div>
+
+    <!-- Dự toán chi phí -->
+    <div id="qpTotalCostPreview" style="font-size: 13px; font-weight: 700; color: #b35e00; margin-bottom: 14px; text-align: center;">
+      Tổng chi phí: 0₵
+    </div>
+
+    <div class="farm-modal-actions">
+      <button type="button" class="btn secondary" id="qpCancelBtn">Hủy</button>
+      <button type="button" class="btn" id="qpConfirmBtn" style="background: linear-gradient(180deg, #6aa84f, #3e8a33);">Xác Nhận Gieo</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP RIÊNG BIỆT DÀNH CHO MÀN HÌNH RỘNG (PC / LAPTOP) -->
+<div id="desktopCookingRecipeModal" class="farm-modal-overlay">
+  <div class="farm-modal-box desktop-recipe-modal-box">
+    <div class="desktop-recipe-header">
+      <div class="farm-modal-icon" style="font-size: 38px; margin-bottom: 2px;">📖🍳</div>
+      <h3>Cẩm Nang 30 Món Ăn Nông Trại</h3>
+      <div class="muted-2">Tra cứu công thức kết hợp từ 1 đến 3 nguyên liệu</div>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div class="desktop-recipe-content" id="desktopCookingRecipeContent"></div>
+
+    <div class="farm-modal-actions" style="margin-top: 16px;">
+      <button class="btn" id="closeDesktopCookingRecipeBtn" style="width: 100%; background: linear-gradient(180deg, #ea580c, #c2410c); padding: 10px; font-size: 15px;">
+        Đóng Sổ Tay
+      </button>
+    </div>
+  </div>
+</div>
 <script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
@@ -3116,6 +3446,8 @@ let state = {
     totalCoinsEarned: 0
   },
   unlockedTitles: [],
+  claimedFarmRewards: [],   // 👈 Thêm dòng này để lưu phần thưởng danh hiệu trồng cây đã nhận
+  claimedRanchRewards: [],  // 👈 Thêm dòng này để lưu phần thưởng danh hiệu chăn nuôi đã nhận
 
   // 🤖 CƠ CHẾ NẤU ĂN TỰ ĐỘNG (THUÊ 3 NGÀY - TREO MÁY):
   autoCookExpiresAt: 0,     // Mốc hết hạn 3 ngày tính theo thời gian thực (0 = chưa thuê hoặc hết hạn)
@@ -3650,7 +3982,12 @@ function save(){
     activeOrders: state.activeOrders,
     lastOrderReset: state.lastOrderReset,
     fusionRewardClaimed: state.fusionRewardClaimed,
-    ranchOrderChallengeClaimed: state.ranchOrderChallengeClaimed, // 👈 Thêm dòng này để lưu mốc thưởng thử thách giao đơn chăn nuôi
+    ranchOrderChallengeClaimed: state.ranchOrderChallengeClaimed,
+    
+    // 🎁 LƯU TRẠNG THÁI ĐÃ NHẬN QUÀ DANH HIỆU
+    claimedFarmRewards: state.claimedFarmRewards || [],
+    claimedRanchRewards: state.claimedRanchRewards || [],
+
     // 🏡 LƯU TÊN VÀ BIỂU TƯỢNG TRANG TRẠI:
     farmName: state.farmName || 'Trang trại của bạn',
     farmIcon: state.farmIcon || '🚜',
@@ -3715,7 +4052,12 @@ function load(){
         activeOrders: [], 
         lastOrderReset: 0, 
         fusionRewardClaimed: null,
-        ranchOrderChallengeClaimed: null, // 👈 Thêm giá trị mặc định vào initialState
+        ranchOrderChallengeClaimed: null,
+        
+        // 🎁 KHỞI TẠO MẶC ĐỊNH MẢNG NHẬN QUÀ DANH HIỆU
+        claimedFarmRewards: [],
+        claimedRanchRewards: [],
+
         farmName: 'Trang trại của bạn',
         farmIcon: '🚜',
         equippedTitle: null,
@@ -3787,8 +4129,12 @@ function load(){
                 if(parsed.activeOrders) state.activeOrders = parsed.activeOrders;
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
-                if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed; // 👈 Phục hồi dữ liệu khi load
+                if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed;
                 
+                // 🎁 PHỤC HỒI TRẠNG THÁI ĐÃ NHẬN QUÀ KHI LOAD
+                state.claimedFarmRewards = Array.isArray(parsed.claimedFarmRewards) ? parsed.claimedFarmRewards : [];
+                state.claimedRanchRewards = Array.isArray(parsed.claimedRanchRewards) ? parsed.claimedRanchRewards : [];
+
                 state.farmName = parsed.farmName || 'Trang trại của bạn';
                 state.farmIcon = parsed.farmIcon || '🚜';
 
@@ -4548,6 +4894,10 @@ function renderRecipeTable(){
     const searchInput = document.getElementById('recipeSearchInput');
     const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
+    // 👉 LẤY GIÁ TRỊ CẤP ĐỘ ĐƯỢC CHỌN TỪ Ô SELECT
+    const tierSelect = document.getElementById('recipeTierFilterSelect');
+    const selectedTierFilter = tierSelect ? tierSelect.value : 'ALL';
+
     let html = '';
 
     // Bảng cấu hình màu sắc đồng bộ theo Cấp độ (Header, Border và Background)
@@ -4570,6 +4920,9 @@ function renderRecipeTable(){
     };
 
     for (const nextLevel in fusionRecipes) {
+        // 👉 NẾU NGƯỜI DÙNG CHỌN LỌC THEO CẤP ĐỘ CỤ THỂ KHÁC 'ALL' THÌ BỎ QUA CÁC CẤP KHÁC
+        if (selectedTierFilter !== 'ALL' && selectedTierFilter !== nextLevel) continue;
+
         const recipeGroup = fusionRecipes[nextLevel];
         const isSpecialLevel = nextLevel === 'Mythic' || nextLevel === 'Divine';
         
@@ -4679,14 +5032,11 @@ function renderRecipeTable(){
     }
 
     if (!html) {
-        html = `<div class="muted" style="text-align:center; padding:12px;">Không tìm thấy công thức nào cho từ khóa "${keyword}".</div>`;
+        html = `<div class="muted" style="text-align:center; padding:12px;">Không tìm thấy công thức nào cho bộ lọc đã chọn.</div>`;
     }
 
     recipeTableEl.innerHTML = html;
 }
-
-
-
 
   // Thêm vào khu vực RENDERING FUNCTIONS
 function renderInventory() {
@@ -5217,7 +5567,6 @@ function selectFusionTile(id){
   renderTileInfo(id); // Cập nhật trạng thái hiển thị
 }
 
-// Sửa đổi doCrossBreed để hoạt động với tất cả cấp độ
 // Sửa đổi doCrossBreed để cập nhật chỉ số danh hiệu phối giống & mở khóa hạt giống
 function doCrossBreed(){
     if (selectedFusionTiles.length === 0) return;
@@ -5314,6 +5663,13 @@ function doCrossBreed(){
             
             log(`Phối giống THÀNH CÔNG! Tạo ra ${resultSeed.name} ${resultSeed.emoji} (Chín trong ${adjustedTime.toFixed(0)}s) tại ô ${plantedTileId}.`);
             
+            // 👉 THÔNG BÁO TOAST THÀNH CÔNG
+            showTopToast(
+                'PHỐI GIỐNG THÀNH CÔNG! 🎉',
+                `Đã lai tạo ra giống mới: <strong style="color:#2e7d32;">${resultSeed.name} ${resultSeed.emoji}</strong>!`,
+                '🧬'
+            );
+
             // Mở khóa hạt giống fusion
             if (!state.unlockedSeeds.includes(resultSeed.id)) {
                 state.unlockedSeeds.push(resultSeed.id);
@@ -5332,6 +5688,13 @@ function doCrossBreed(){
         // 🎵 PHÁT ÂM THANH PHỐI GIỐNG THẤT BẠI
         SoundEngine.fusionFail();
         log(`Phối giống THẤT BẠI! Mất ${selectedFusionTiles.length} cây gốc.`);
+
+        // 👉 THÔNG BÁO TOAST THẤT BẠI
+        showTopToast(
+            'PHỐI GIỐNG THẤT BẠI ❌',
+            `Quá trình đột biến không thành công, các cây gốc đã bị tiêu hao.`,
+            '💥'
+        );
     }
 
     // 8. Reset và Render
@@ -5872,7 +6235,7 @@ applyStep2Btn.onclick = () => {
   showStep1();
 };
 
-  // ===========================================
+// ===========================================
 // 🎖️ 10 DANH HIỆU THÀNH TỰU NÔNG TRẠI
 // ===========================================
 const FARM_TITLES = [
@@ -5881,6 +6244,8 @@ const FARM_TITLES = [
     title: 'Gieo Mầm Chăm Chỉ 🌱',
     desc: 'Gieo hạt đủ 100 lần trên ruộng',
     icon: '🌱',
+    reward: { seedId: 'strawberry', type: 'seed', altCoins: 200 },
+    rewardDesc: 'Mở khóa hạt giống Dâu (Nếu đã có: +200 xu)',
     check: () => {
       const cur = state.stats?.plantedCount || 0;
       return { cur, max: 100, done: cur >= 100, text: `${Math.min(cur, 100)}/100 lần` };
@@ -5891,6 +6256,8 @@ const FARM_TITLES = [
     title: 'Đại Nông Bội Thu 🌾',
     desc: 'Thu hoạch đạt mốc 150 nông sản các loại',
     icon: '🌾',
+    reward: { coins: 300 },
+    rewardDesc: 'Tặng 300 xu',
     check: () => {
       const cur = state.stats?.harvestedCount || 0;
       return { cur, max: 150, done: cur >= 150, text: `${Math.min(cur, 150)}/150 cây` };
@@ -5901,6 +6268,8 @@ const FARM_TITLES = [
     title: 'Bàn Tay Lai Tạo 🧪',
     desc: 'Phối giống thành công 10 lần giống cây mới',
     icon: '🧪',
+    reward: { water: 100 },
+    rewardDesc: 'Tặng 100L nước',
     check: () => {
       const cur = state.stats?.fusionSuccessCount || 0;
       return { cur, max: 10, done: cur >= 10, text: `${Math.min(cur, 10)}/10 lần` };
@@ -5911,6 +6280,8 @@ const FARM_TITLES = [
     title: 'Bậc Thầy Đột Biến 🧬',
     desc: 'Thực hiện 25 lần lai tạo bất kể thành bại',
     icon: '🧬',
+    reward: { coins: 300, water: 70 },
+    rewardDesc: 'Tặng 300 xu + 70L nước',
     check: () => {
       const cur = state.stats?.fusionTryCount || 0;
       return { cur, max: 25, done: cur >= 25, text: `${Math.min(cur, 25)}/25 lần` };
@@ -5921,6 +6292,8 @@ const FARM_TITLES = [
     title: 'Tài Xế Giao Hàng 🚚',
     desc: 'Hoàn thành và bàn giao 10 đơn hàng khách',
     icon: '🚚',
+    reward: { coins: 1000 },
+    rewardDesc: 'Tặng 1.000 xu',
     check: () => {
       const cur = state.stats?.ordersCompleted || 0;
       return { cur, max: 10, done: cur >= 10, text: `${Math.min(cur, 10)}/10 đơn` };
@@ -5931,6 +6304,8 @@ const FARM_TITLES = [
     title: 'Người Hứng Mưa 💧',
     desc: 'Nhận thưởng 15 nhiệm vụ tích lũy nước tưới',
     icon: '💧',
+    reward: { water: 80 },
+    rewardDesc: 'Tặng 80L nước',
     check: () => {
       const cur = state.stats?.questsClaimed || 0;
       return { cur, max: 15, done: cur >= 15, text: `${Math.min(cur, 15)}/15 nv` };
@@ -5941,6 +6316,8 @@ const FARM_TITLES = [
     title: 'Nhà Thực Vật Học 📖',
     desc: 'Mở khóa được 20 giống cây khác nhau',
     icon: '📖',
+    reward: { tier: 'Legendary', altCoins: 1500 },
+    rewardDesc: 'Tặng 1 hạt giống Legendary bất kì (Nếu đã có: +1.500 xu)',
     check: () => {
       const cur = (state.unlockedSeeds || []).length;
       return { cur, max: 20, done: cur >= 20, text: `${Math.min(cur, 20)}/20 hạt` };
@@ -5951,6 +6328,8 @@ const FARM_TITLES = [
     title: 'Bách Khoa Nông Học 🌿',
     desc: 'Mở khóa được 40 giống cây khác nhau',
     icon: '🌿',
+    reward: { tier: 'Mythic', altCoins: 2500 },
+    rewardDesc: 'Tặng 1 hạt giống Mythic bất kì (Nếu đã có: +2.500 xu)',
     check: () => {
       const cur = (state.unlockedSeeds || []).length;
       return { cur, max: 40, done: cur >= 40, text: `${Math.min(cur, 40)}/40 hạt` };
@@ -5961,6 +6340,8 @@ const FARM_TITLES = [
     title: 'Thương Gia Nông Sản 🧺',
     desc: 'Bán trực tiếp 100 sản phẩm từ kho hàng',
     icon: '🧺',
+    reward: { coins: 700 },
+    rewardDesc: 'Tặng 700 xu',
     check: () => {
       const cur = state.stats?.cropsSold || 0;
       return { cur, max: 100, done: cur >= 100, text: `${Math.min(cur, 100)}/100 cái` };
@@ -5971,6 +6352,8 @@ const FARM_TITLES = [
     title: 'Phú Hộ Đất Đai 💰',
     desc: 'Tích lũy tổng doanh thu đạt 20.000 xu',
     icon: '👑',
+    reward: { coins: 10000 },
+    rewardDesc: 'Tặng 10.000 xu',
     check: () => {
       const cur = state.stats?.totalCoinsEarned || 0;
       return { cur, max: 20000, done: cur >= 20000, text: `${Math.min(cur, 20000).toLocaleString('vi-VN')}/20.000₵` };
@@ -6051,9 +6434,7 @@ function renderTitles() {
   if (!listEl) return;
 
   if (!state.unlockedTitles) state.unlockedTitles = [];
-  if (!state.stats) {
-    state.stats = { plantedCount:0, harvestedCount:0, fusionSuccessCount:0, fusionTryCount:0, ordersCompleted:0, questsClaimed:0, cropsSold:0, totalCoinsEarned:0 };
-  }
+  if (!state.claimedFarmRewards) state.claimedFarmRewards = [];
 
   listEl.innerHTML = '';
   let unlockedTotal = 0;
@@ -6062,18 +6443,22 @@ function renderTitles() {
     const res = t.check();
     const isUnlocked = state.unlockedTitles.includes(t.id);
     const isEquipped = state.equippedTitle === t.id;
+    const isClaimed = state.claimedFarmRewards.includes(t.id);
     if (isUnlocked) unlockedTotal++;
 
     const pct = Math.min(100, Math.floor((res.cur / res.max) * 100));
 
-    // Nút hành động đeo/tháo
     let actionBtnHtml = '';
     if (isUnlocked) {
-      if (isEquipped) {
-        actionBtnHtml = `<button class="badge-action-btn btn-equipped" onclick="toggleEquipTitle('${t.id}')">★ Đang Đeo (Gỡ)</button>`;
-      } else {
-        actionBtnHtml = `<button class="badge-action-btn btn-equip" onclick="toggleEquipTitle('${t.id}')">⚡ Đeo Danh Hiệu</button>`;
-      }
+      const claimBtn = !isClaimed 
+        ? `<button class="badge-action-btn" style="background:linear-gradient(180deg,#ff9800,#e65100); color:#fff; margin-right:4px;" onclick="claimFarmBadgeReward('${t.id}')">🎁 Nhận Quà</button>`
+        : `<button class="badge-action-btn btn-equipped" disabled style="opacity:0.7; margin-right:4px;">Đã Nhận Quà ✓</button>`;
+
+      const equipBtn = isEquipped 
+        ? `<button class="badge-action-btn btn-equipped" onclick="toggleEquipTitle('${t.id}')">★ Gỡ</button>`
+        : `<button class="badge-action-btn btn-equip" onclick="toggleEquipTitle('${t.id}')">⚡ Đeo</button>`;
+
+      actionBtnHtml = `<div style="display:flex; gap:4px; margin-top:6px;">${claimBtn}${equipBtn}</div>`;
     }
 
     const card = document.createElement('div');
@@ -6083,6 +6468,7 @@ function renderTitles() {
       <div class="badge-info">
         <div class="badge-title">${t.title}</div>
         <div class="badge-desc">${t.desc}</div>
+        <div style="font-size:11px; color:#b45309; margin-top:2px; font-weight:600;">🎁 ${t.rewardDesc}</div>
         <div style="display:flex; justify-content:space-between; font-size:10px; color:#657e62; margin-top:4px;">
           <span>${res.text}</span>
           <span>${pct}%</span>
@@ -6098,6 +6484,71 @@ function renderTitles() {
 
   if (countEl) countEl.textContent = `Đã đạt: ${unlockedTotal}/${FARM_TITLES.length}`;
   renderEquippedTitle();
+}
+
+// Hàm nhận thưởng danh hiệu trồng cây
+function claimFarmBadgeReward(titleId) {
+  if (!currentUser) return;
+  if (!state.claimedFarmRewards) state.claimedFarmRewards = [];
+  if (state.claimedFarmRewards.includes(titleId)) return;
+
+  const titleObj = FARM_TITLES.find(t => t.id === titleId);
+  if (!titleObj || !state.unlockedTitles.includes(titleId)) return;
+
+  const reward = titleObj.reward;
+  let rewardMsg = '';
+
+  if (reward.seedId === 'strawberry') {
+    if (!state.unlockedSeeds.includes('strawberry')) {
+      state.unlockedSeeds.push('strawberry'); // 👈 Mở khóa hạt Dâu
+      rewardMsg = 'Mở khóa thành công hạt giống Dâu 🍓!';
+      log(`Nhận thưởng danh hiệu [${titleObj.title}]: Mở khóa hạt Dâu.`);
+    } else {
+      state.coins += reward.altCoins;
+      rewardMsg = `Bạn đã có sẵn hạt Dâu nên được tặng +${reward.altCoins.toLocaleString('vi-VN')} xu!`;
+      log(`Nhận thưởng danh hiệu [${titleObj.title}]: +${reward.altCoins}₵ (đã có hạt Dâu).`);
+    }
+  } else if (reward.tier) {
+    // Lấy danh sách hạt theo tier (Legendary hoặc Mythic)
+    const candidates = Object.values(state.seeds).filter(s => s.level === reward.tier);
+    const randomSeed = candidates[Math.floor(Math.random() * candidates.length)];
+    
+    if (randomSeed) {
+      if (!state.unlockedSeeds.includes(randomSeed.id)) {
+        state.unlockedSeeds.push(randomSeed.id); // 👈 Tự động mở khóa hạt giống nhận được
+        rewardMsg = `Tặng hạt giống ${reward.tier}: [${randomSeed.name} ${randomSeed.emoji}] (Đã mở khóa)!`;
+        log(`Nhận thưởng danh hiệu [${titleObj.title}]: Mở khóa hạt ${randomSeed.name}.`);
+      } else {
+        state.coins += reward.altCoins;
+        rewardMsg = `Đã sở hữu hạt ${randomSeed.name} trước đó, được tặng +${reward.altCoins.toLocaleString('vi-VN')} xu!`;
+        log(`Nhận thưởng danh hiệu [${titleObj.title}]: +${reward.altCoins}₵ (đã sở hữu).`);
+      }
+    }
+  }
+
+  if (reward.coins) {
+    state.coins += reward.coins;
+    rewardMsg += ` +${reward.coins.toLocaleString('vi-VN')} xu`;
+    log(`Nhận thưởng danh hiệu [${titleObj.title}]: +${reward.coins}₵.`);
+  }
+  if (reward.water) {
+    state.water += reward.water;
+    rewardMsg += ` +${reward.water}L nước`;
+    log(`Nhận thưởng danh hiệu [${titleObj.title}]: +${reward.water}L nước.`);
+  }
+
+  state.claimedFarmRewards.push(titleId);
+  save();
+  renderTitles();
+  renderSeeds();
+  renderShop(); // 👈 Cập nhật lại giao diện cửa hàng hạt giống để chuyển nút thành "Đã sở hữu"
+  renderWater();
+  coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+
+  showTopToast('NHẬN THƯỞNG THÀNH CÔNG', rewardMsg, titleObj.icon);
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
 }
 
 // HÀM BÙ ĐẮP TIẾN ĐỘ DÀNH RIÊNG CHO ACC TẠO TRƯỚC BẢN UPDATE
@@ -6757,19 +7208,182 @@ const FOOD_ORDERS_POOL = [
 ];
 
 
-// 3. 10 DANH HIỆU KHU CHĂN NUÔI
+// ===========================================
+// 🎖️ 10 DANH HIỆU KHU CHĂN NUÔI
+// ===========================================
 const RANCH_TITLES = [
-  { id:'rt_egg', title:'Thợ Nhặt Trứng 🥚', desc:'Thu hoạch 80 quả trứng các loại', icon:'🥚', check: () => { const c = state.ranchStats?.eggsCollected || 0; return { cur:c, max:80, done:c>=80, text:`${Math.min(c,80)}/80 quả` }; } },
-  { id:'rt_milk', title:'Vua Sữa Tươi 🥛', desc:'Thu hoạch 60 bình sữa từ bò hoặc dê', icon:'🥛', check: () => { const c = state.ranchStats?.milkCollected || 0; return { cur:c, max:60, done:c>=60, text:`${Math.min(c,60)}/60 bình` }; } },
-  { id:'rt_feed', title:'Chuyên Gia Dinh Dưỡng 🌾', desc:'Tiêu thụ hoặc mua 150kg thức ăn', icon:'🌾', check: () => { const c = Math.floor(state.ranchStats?.feedUsed || 0); return { cur:c, max:150, done:c>=150, text:`${Math.min(c,150)}/150 kg` }; } },
-  { id:'rt_barns', title:'Chủ Trang Trại Mở Rộng 🏡', desc:'Sở hữu từ 8 ô chuồng gia súc trở lên', icon:'🏡', check: () => { const c = (state.barns||[]).length; return { cur:c, max:8, done:c>=8, text:`${Math.min(c,8)}/8 chuồng` }; } },
-  { id:'rt_delivery', title:'Tài Xế Thực Phẩm 🚚', desc:'Hoàn thành 10 đơn hàng thực phẩm lớn', icon:'🚚', check: () => { const c = state.ranchStats?.foodOrdersCompleted || 0; return { cur:c, max:10, done:c>=10, text:`${Math.min(c,10)}/10 đơn` }; } },
-  { id:'rt_wool', title:'Thợ Cắt Lông Cừu 🧶', desc:'Thu hoạch 40 bó len cừu', icon:'🧶', check: () => { const c = state.ranchStats?.woolCollected || 0; return { cur:c, max:40, done:c>=40, text:`${Math.min(c,40)}/40 bó` }; } },
-  { id:'rt_zoo', title:'Nhà Động Vật Học 📖', desc:'Mở khóa 6 loài gia súc khác nhau', icon:'📖', check: () => { const c = (state.unlockedAnimals||[]).length; return { cur:c, max:6, done:c>=6, text:`${Math.min(c,6)}/6 loài` }; } },
-  { id:'rt_mythic', title:'Thuần Hóa Thần Thú 🐉', desc:'Mở khóa Thiên Nga Tuyết hoặc Long Thú', icon:'🐉', check: () => { const has = (state.unlockedAnimals||[]).some(x => x==='swan'||x==='dragon_pet'); return { cur:has?1:0, max:1, done:has, text:has?'Đã có':'Chưa có' }; } },
-  { id:'rt_wholesale', title:'Thương Gia Bán Buôn 🧺', desc:'Bán 100 thực phẩm hoặc món ăn chế biến', icon:'🧺', check: () => { const c = state.ranchStats?.foodSoldDirectly || 0; return { cur:c, max:100, done:c>=100, text:`${Math.min(c,100)}/100 món` }; } },
-  { id:'rt_tycoon', title:'Đại Gia Trại Gia Súc 👑', desc:'Kiếm được 25.000 xu từ chăn nuôi', icon:'👑', check: () => { const c = state.ranchStats?.ranchCoinsEarned || 0; return { cur:c, max:25000, done:c>=25000, text:`${Math.min(c,25000).toLocaleString('vi-VN')}/25.000₵` }; } }
+  { 
+    id:'rt_egg', 
+    title:'Thợ Nhặt Trứng 🥚', 
+    desc:'Thu hoạch 80 quả trứng các loại', 
+    icon:'🥚', 
+    reward: { feed: 50 },
+    rewardDesc: 'Tặng 50 lúa',
+    check: () => { const c = state.ranchStats?.eggsCollected || 0; return { cur:c, max:80, done:c>=80, text:`${Math.min(c,80)}/80 quả` }; } 
+  },
+  { 
+    id:'rt_milk', 
+    title:'Vua Sữa Tươi 🥛', 
+    desc:'Thu hoạch 60 bình sữa từ bò hoặc dê', 
+    icon:'🥛', 
+    reward: { feed: 70 },
+    rewardDesc: 'Tặng 70 lúa',
+    check: () => { const c = state.ranchStats?.milkCollected || 0; return { cur:c, max:60, done:c>=60, text:`${Math.min(c,60)}/60 bình` }; } 
+  },
+  { 
+    id:'rt_feed', 
+    title:'Chuyên Gia Dinh Dưỡng 🌾', 
+    desc:'Tiêu thụ hoặc mua 150kg thức ăn', 
+    icon:'🌾', 
+    reward: { animalId: 'pig', altCoins: 500 },
+    rewardDesc: 'Tặng giống con heo thịt (Nếu đã có: +500 xu)',
+    check: () => { const c = Math.floor(state.ranchStats?.feedUsed || 0); return { cur:c, max:150, done:c>=150, text:`${Math.min(c,150)}/150 kg` }; } 
+  },
+  { 
+    id:'rt_barns', 
+    title:'Chủ Trang Trại Mở Rộng 🏡', 
+    desc:'Sở hữu từ 8 ô chuồng gia súc trở lên', 
+    icon:'🏡', 
+    reward: { expandBarns: 2 },
+    rewardDesc: 'Tự động tặng thêm 2 ô đất mở rộng free',
+    check: () => { const c = (state.barns||[]).length; return { cur:c, max:8, done:c>=8, text:`${Math.min(c,8)}/8 chuồng` }; } 
+  },
+  { 
+    id:'rt_delivery', 
+    title:'Tài Xế Thực Phẩm 🚚', 
+    desc:'Hoàn thành 10 đơn hàng thực phẩm lớn', 
+    icon:'🚚', 
+    reward: { coins: 5000 },
+    rewardDesc: 'Tặng 5.000 xu',
+    check: () => { const c = state.ranchStats?.foodOrdersCompleted || 0; return { cur:c, max:10, done:c>=10, text:`${Math.min(c,10)}/10 đơn` }; } 
+  },
+  { 
+    id:'rt_wool', 
+    title:'Thợ Cắt Lông Cừu 🧶', 
+    desc:'Thu hoạch 40 bó len cừu', 
+    icon:'🧶', 
+    reward: { feed: 200 },
+    rewardDesc: 'Tặng 200 lúa',
+    check: () => { const c = state.ranchStats?.woolCollected || 0; return { cur:c, max:40, done:c>=40, text:`${Math.min(c,40)}/40 bó` }; } 
+  },
+  { 
+    id:'rt_zoo', 
+    title:'Nhà Động Vật Học 📖', 
+    desc:'Mở khóa 6 loài gia súc khác nhau', 
+    icon:'📖', 
+    reward: { excludeBasicAndHigh: true, altCoins: 3000 },
+    rewardDesc: 'Tặng 1 con giống ngẫu nhiên (trừ gà, vịt, mythic và divine) (Nếu đã sở hữu tất cả: +3.000 xu)',
+    check: () => { const c = (state.unlockedAnimals||[]).length; return { cur:c, max:6, done:c>=6, text:`${Math.min(c,6)}/6 loài` }; } 
+  },
+  { 
+    id:'rt_mythic', 
+    title:'Thuần Hóa Thần Thú 🐉', 
+    desc:'Mở khóa Thiên Nga Tuyết hoặc Long Thú', 
+    icon:'🐉', 
+    reward: { coins: 5000, feed: 200 },
+    rewardDesc: 'Tặng 5.000 xu và 200 lúa',
+    check: () => { const has = (state.unlockedAnimals||[]).some(x => x==='swan'||x==='dragon_pet'); return { cur:has?1:0, max:1, done:has, text:has?'Đã có':'Chưa có' }; } 
+  },
+  { 
+    id:'rt_wholesale', 
+    title:'Thương Gia Bán Buôn 🧺', 
+    desc:'Bán 100 thực phẩm hoặc món ăn chế biến', 
+    icon:'🧺', 
+    reward: { coins: 500 },
+    rewardDesc: 'Tặng 500 xu',
+    check: () => { const c = state.ranchStats?.foodSoldDirectly || 0; return { cur:c, max:100, done:c>=100, text:`${Math.min(c,100)}/100 món` }; } 
+  },
+  { 
+    id:'rt_tycoon', 
+    title:'Đại Gia Trại Gia Súc 👑', 
+    desc:'Kiếm được 25.000 xu từ chăn nuôi', 
+    icon:'👑', 
+    reward: { coins: 10000, feed: 500 },
+    rewardDesc: 'Tặng 10.000 xu và 500 lúa',
+    check: () => { const c = state.ranchStats?.ranchCoinsEarned || 0; return { cur:c, max:25000, done:c>=25000, text:`${Math.min(c,25000).toLocaleString('vi-VN')}/25.000₵` }; } 
+  }
 ];
+
+// Hàm nhận thưởng danh hiệu chăn nuôi
+function claimRanchBadgeReward(titleId) {
+  if (!currentUser) return;
+  if (!state.claimedRanchRewards) state.claimedRanchRewards = [];
+  if (state.claimedRanchRewards.includes(titleId)) return;
+
+  const tObj = RANCH_TITLES.find(t => t.id === titleId);
+  if (!tObj || !state.unlockedRanchTitles.includes(titleId)) return;
+
+  const reward = tObj.reward;
+  let rewardMsg = '';
+
+  if (reward.feed) {
+    state.feed = (state.feed || 0) + reward.feed;
+    rewardMsg += `+${reward.feed} lúa 🌾`;
+    logRanch(`Nhận thưởng [${tObj.title}]: +${reward.feed} lúa.`);
+  }
+  if (reward.coins) {
+    state.coins += reward.coins;
+    rewardMsg += ` +${reward.coins.toLocaleString('vi-VN')} xu ₵`;
+    logRanch(`Nhận thưởng [${tObj.title}]: +${reward.coins} xu.`);
+  }
+  if (reward.animalId) {
+    if (!state.unlockedAnimals.includes(reward.animalId)) {
+      state.unlockedAnimals.push(reward.animalId); // 👈 Mở khóa con giống Heo thịt
+      const an = ANIMALS_DB[reward.animalId];
+      rewardMsg += ` Mở khóa giống ${an.name} ${an.emoji}!`;
+      logRanch(`Nhận thưởng [${tObj.title}]: Mở khóa ${an.name}.`);
+    } else {
+      state.coins += reward.altCoins;
+      rewardMsg += ` Đã có giống heo thịt trước đó, nhận +${reward.altCoins.toLocaleString('vi-VN')} xu!`;
+      logRanch(`Nhận thưởng [${tObj.title}]: +${reward.altCoins}₵ (đã có giống heo).`);
+    }
+  }
+  if (reward.expandBarns) {
+    const cur = state.barns.length;
+    for (let i = 0; i < reward.expandBarns; i++) {
+      state.barns.push({ id:`barn-${cur + i}`, occupied:false, animalId:null, cycleStart:null, cycleEnd:null });
+    }
+    rewardMsg += ` Mở rộng thêm ${reward.expandBarns} ô chuồng miễn phí!`;
+    logRanch(`Nhận thưởng [${tObj.title}]: +${reward.expandBarns} ô chuồng.`);
+  }
+  if (reward.excludeBasicAndHigh) {
+    // Lọc bỏ gà, vịt, mythic và divine (chỉ giữ Uncommon, Rare, Legendary)
+    const validAnimals = Object.values(ANIMALS_DB).filter(a => 
+      !['chicken', 'duck'].includes(a.id) && 
+      ['Uncommon', 'Rare', 'Legendary'].includes(a.level)
+    );
+
+    // Lọc tiếp những con mà người chơi chưa sở hữu
+    const unownedAnimals = validAnimals.filter(a => !state.unlockedAnimals.includes(a.id));
+
+    if (unownedAnimals.length > 0) {
+      // Chọn ngẫu nhiên 1 con chưa có
+      const randomAnimal = unownedAnimals[Math.floor(Math.random() * unownedAnimals.length)];
+      state.unlockedAnimals.push(randomAnimal.id); // 👈 Tự động mở khóa con giống nhận được
+      rewardMsg += ` Tặng giống ${randomAnimal.name} ${randomAnimal.emoji} (Đã mở khóa)!`;
+      logRanch(`Nhận thưởng [${tObj.title}]: Tặng con giống ${randomAnimal.name}.`);
+    } else {
+      // Nếu đã sở hữu hết thì quy đổi thành xu
+      state.coins += reward.altCoins;
+      rewardMsg += ` Đã sở hữu toàn bộ con giống trong danh mục, nhận +${reward.altCoins.toLocaleString('vi-VN')} xu!`;
+      logRanch(`Nhận thưởng [${tObj.title}]: +${reward.altCoins}₵ (đã sở hữu hết).`);
+    }
+  }
+
+  state.claimedRanchRewards.push(titleId);
+  save();
+  renderRanchTitles();
+  renderFeedResource();
+  renderBarns();
+  renderSelectedAnimalDisplay();
+  renderAnimalShop(); // 👈 Cập nhật lại giao diện cửa hàng con giống để chuyển nút thành "Đã sở hữu"
+  coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
+
+  showTopToast('NHẬN THƯỞNG TRẠI', rewardMsg, tObj.icon);
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.coinReward) {
+    SoundEngine.coinReward();
+  }
+}
 
 // ==========================================================================
 // NHIỆM VỤ HÀNG NGÀY CHĂN NUÔI (THƯỞNG THỨC ĂN 🌾)
@@ -7722,25 +8336,43 @@ function renderRanchTitles() {
   container.innerHTML = '';
   let unlocked = 0;
 
+  if (!state.claimedRanchRewards) state.claimedRanchRewards = [];
+
   RANCH_TITLES.forEach(t => {
     const res = t.check();
     const isUnlocked = (state.unlockedRanchTitles || []).includes(t.id);
     const isEquipped = state.ranchEquippedTitle === t.id;
+    const isClaimed = state.claimedRanchRewards.includes(t.id);
     if (isUnlocked) unlocked++;
 
     const pct = Math.min(100, Math.floor((res.cur / res.max) * 100));
     const card = document.createElement('div');
     card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+
+    let actionBtnHtml = '';
+    if (isUnlocked) {
+      const claimBtn = !isClaimed 
+        ? `<button class="badge-action-btn" style="background:linear-gradient(180deg,#f59e0b,#b45309); color:#fff; margin-right:4px;" onclick="claimRanchBadgeReward('${t.id}')">🎁 Nhận Quà</button>`
+        : `<button class="badge-action-btn btn-equipped" disabled style="opacity:0.7; margin-right:4px;">Đã Nhận Quà ✓</button>`;
+
+      const equipBtn = isEquipped 
+        ? `<button class="badge-action-btn btn-equipped" onclick="toggleEquipRanchTitle('${t.id}')">★ Gỡ</button>`
+        : `<button class="badge-action-btn btn-equip" onclick="toggleEquipRanchTitle('${t.id}')">⚡ Đeo</button>`;
+
+      actionBtnHtml = `<div style="display:flex; gap:4px; margin-top:6px;">${claimBtn}${equipBtn}</div>`;
+    }
+
     card.innerHTML = `
       <div class="badge-icon">${t.icon}</div>
       <div class="badge-info">
         <div class="badge-title">${t.title}</div>
         <div class="badge-desc">${t.desc}</div>
+        <div style="font-size:11px; color:#b45309; margin-top:2px; font-weight:600;">🎁 ${t.rewardDesc}</div>
         <div style="display:flex; justify-content:space-between; font-size:10px; color:#657e62; margin-top:4px;">
           <span>${res.text}</span><span>${pct}%</span>
         </div>
         <div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${pct}%;"></div></div>
-        ${isUnlocked ? `<button class="badge-action-btn ${isEquipped ? 'btn-equipped' : 'btn-equip'}" onclick="toggleEquipRanchTitle('${t.id}')">${isEquipped ? '★ Đang Đeo (Gỡ)' : '⚡ Đeo Danh Hiệu'}</button>` : ''}
+        ${actionBtnHtml}
       </div>
     `;
     container.appendChild(card);
@@ -8196,7 +8828,7 @@ function sellDishItem(dishId) {
   showTopToast('ĐÃ BÁN MÓN ĂN', `Thu về <strong style="color:#b35e00;">+${totalEarn.toLocaleString('vi-VN')}₵</strong>!`, '💰');
 }
 
-// Popup Sổ tay công thức
+// Popup Sổ tay công thức (Dành riêng cho điện thoại)
 const cookingRecipeModal = document.getElementById('cookingRecipeModal');
 const btnOpenRecipeBook = document.getElementById('btnOpenRecipeBook');
 const closeCookingRecipeBtn = document.getElementById('closeCookingRecipeBtn');
@@ -8204,13 +8836,31 @@ const cookingRecipeModalContent = document.getElementById('cookingRecipeModalCon
 
 if (btnOpenRecipeBook && cookingRecipeModal) {
   btnOpenRecipeBook.onclick = () => {
+    // Nếu là máy tính hoặc iPad (từ 1024px trở lên) thì bỏ qua, để popup màn hình rộng lo
+    if (window.innerWidth >= 1024) {
+      return;
+    }
+
+    // Chỉ chạy code render 1 cột dọc này trên điện thoại
+    currentRecipeSearch = "";
+    currentRecipeTierFilter = "ALL";
     renderRecipeBookContent();
     cookingRecipeModal.classList.add('open');
+    
+    if (typeof SoundEngine !== 'undefined') SoundEngine.click();
   };
 }
+
 if (closeCookingRecipeBtn && cookingRecipeModal) {
   closeCookingRecipeBtn.onclick = () => cookingRecipeModal.classList.remove('open');
 }
+
+// Bấm ra ngoài vùng mờ để đóng popup trên điện thoại
+window.addEventListener('click', (e) => {
+  if (e.target === cookingRecipeModal) {
+    cookingRecipeModal.classList.remove('open');
+  }
+});
 
 let isRecipeBookRendered = false; // Cờ kiểm tra đã dựng giao diện chưa
 
@@ -8222,7 +8872,7 @@ let recipeSearchTimer = null; // Biến chống giật (debounce)
 function renderRecipeBookContent() {
   if (!cookingRecipeModalContent) return;
 
-  // Kiểm tra xem modal đã có sẵn thanh tìm kiếm và bộ lọc chưa, nếu chưa thì tạo khung sườn một lần duy nhất
+  // Kiểm tra xem modal đã có sẵn khung sườn chưa, nếu chưa thì tạo cấu trúc lưới 2 cột ngay từ đầu
   let wrapper = document.getElementById('recipe-book-wrapper');
   if (!wrapper) {
     cookingRecipeModalContent.innerHTML = `
@@ -8235,28 +8885,27 @@ function renderRecipeBookContent() {
             <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 14px;">🔍</span>
           </div>
 
-          <div id="recipe-tier-buttons" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;"></div>
+          <div id="recipe-tier-buttons" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; box-sizing: border-box;"></div>
         </div>
 
-        <!-- 2. DANH SÁCH KẾT QUẢ CÔNG THỨC -->
-        <div id="recipe-results-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box;"></div>
+        <!-- 2. DANH SÁCH KẾT QUẢ CÔNG THỨC (Ép chuẩn Lưới 2 Cột Trái - Phải) -->
+        <div id="recipe-results-container" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; box-sizing: border-box; align-items: start;"></div>
       </div>
     `;
 
-    // Gắn sự kiện gõ phím mượt mà bằng Debounce (chỉ render sau khi người dùng ngừng gõ 250ms)
+    // Gắn sự kiện gõ phím mượt mà bằng Debounce
     const inputEl = document.getElementById('recipe-search-input');
     if (inputEl) {
       inputEl.addEventListener('input', (e) => {
         currentRecipeSearch = e.target.value;
         clearTimeout(recipeSearchTimer);
         recipeSearchTimer = setTimeout(() => {
-          updateRecipeResultsOnly(); // Chỉ render lại danh sách bên dưới, KHÔNG làm mất focus ô input
+          updateRecipeResultsOnly();
         }, 250);
       });
     }
   }
 
-  // Cập nhật lại giao diện nút bấm cấp độ và danh sách kết quả
   updateTierButtonsUI();
   updateRecipeResultsOnly();
 }
@@ -8297,9 +8946,10 @@ function updateRecipeResultsOnly() {
   const container = document.getElementById('recipe-results-container');
   if (!container) return;
 
-  let fullHtml = '';
-  let hasAnyMatch = false;
+  // Xóa sạch nội dung cũ trước khi render lại
+  container.innerHTML = '';
 
+  let hasAnyMatch = false;
   const keyword = currentRecipeSearch.toLowerCase().trim();
 
   ['Easy', 'Medium', 'Hard', 'SuperHard'].forEach(tierKey => {
@@ -8308,14 +8958,11 @@ function updateRecipeResultsOnly() {
     const conf = COOKING_TIERS[tierKey];
     const tierDishes = DISHES_DB.filter(d => {
       const matchTier = (d.tier === tierKey);
-      
       if (!keyword) return matchTier;
 
-      // 1. Kiểm tra khớp tên món ăn hoặc emoji món ăn
       const matchDishName = d.name.toLowerCase().includes(keyword);
       const matchDishEmoji = d.emoji && d.emoji.includes(keyword);
 
-      // 2. Kiểm tra khớp nguyên liệu (Tên nguyên liệu tiếng Việt hoặc Emoji của nguyên liệu)
       const matchIngredient = d.ingredients.some(ingId => {
         const an = ANIMALS_DB[ingId];
         const foodName = (an ? an.foodName : ingId).toLowerCase();
@@ -8392,28 +9039,29 @@ function updateRecipeResultsOnly() {
       `;
     });
 
-    fullHtml += `
-      <div class="recipe-section-card" style="width:100%; box-sizing:border-box; margin-bottom: 12px;">
-        <div class="recipe-tier-header" style="background:${headerBg}; color:${headerColor}; font-size:15px; font-weight:900; padding:10px 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; border:2px solid ${borderColor}; border-radius:8px 8px 0 0;">
-          <span style="letter-spacing:0.3px;">🍳 ${conf.title}</span>
-          <span style="font-size:12px; font-weight:700; background:rgba(255,255,255,0.8); padding:2px 8px; border-radius:12px; border:1px solid ${headerColor};">Tỉ lệ thành công: ${conf.rate * 100}%</span>
-        </div>
-        <div class="recipe-tier-body" style="background:#fffaf5; border: 2px solid ${borderColor}; border-top: none; border-radius: 0 0 8px 8px; width:100%; box-sizing:border-box; padding:8px 10px; display:flex; flex-direction:column; gap:6px;">
-          ${listHtml}
-        </div>
+    // Tạo trực tiếp thẻ card và gắn vào container lưới để lấp đầy cả 2 cột trái - phải
+    const cardEl = document.createElement('div');
+    cardEl.className = 'recipe-section-card';
+    cardEl.style.cssText = 'width:100%; box-sizing:border-box; margin-bottom:0 !important;';
+    cardEl.innerHTML = `
+      <div class="recipe-tier-header" style="background:${headerBg}; color:${headerColor}; font-size:15px; font-weight:900; padding:10px 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; border:2px solid ${borderColor}; border-radius:8px 8px 0 0;">
+        <span style="letter-spacing:0.3px;">🍳 ${conf.title}</span>
+        <span style="font-size:12px; font-weight:700; background:rgba(255,255,255,0.8); padding:2px 8px; border-radius:12px; border:1px solid ${headerColor};">Tỉ lệ thành công: ${conf.rate * 100}%</span>
+      </div>
+      <div class="recipe-tier-body" style="background:#fffaf5; border: 2px solid ${borderColor}; border-top: none; border-radius: 0 0 8px 8px; width:100%; box-sizing:border-box; padding:8px 10px; display:flex; flex-direction:column; gap:6px;">
+        ${listHtml}
       </div>
     `;
+    container.appendChild(cardEl);
   });
 
   if (!hasAnyMatch) {
-    fullHtml += `
-      <div style="text-align:center; padding: 24px; color: #78716c; font-size: 13px; font-weight: 600;">
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align:center; padding: 24px; color: #78716c; font-size: 13px; font-weight: 600;">
         ❌ Không tìm thấy món ăn nào phù hợp với từ khóa hoặc cấp độ đã chọn!
       </div>
     `;
   }
-
-  container.innerHTML = fullHtml;
 }
 
 // Bắt sự kiện bấm nút mở sổ tay:
@@ -9513,7 +10161,583 @@ function loadCustomNpcOnStartup() {
   }
 }
 
+// --- LOGIC POPUP GIEO HẠT NHANH ---
+const quickPlantModal = document.getElementById('quickPlantModal');
+const btnOpenQuickPlant = document.getElementById('btnOpenQuickPlant');
+const qpCancelBtn = document.getElementById('qpCancelBtn');
+const qpConfirmBtn = document.getElementById('qpConfirmBtn');
+const qpBtnFull = document.getElementById('qpBtnFull');
 
+const quickPlantEmoji = document.getElementById('quickPlantEmoji');
+const quickPlantSeedDesc = document.getElementById('quickPlantSeedDesc');
+const qpEmptyTilesCount = document.getElementById('qpEmptyTilesCount');
+const qpUserCoins = document.getElementById('qpUserCoins');
+const qpSeedCost = document.getElementById('qpSeedCost');
+const qpNumInput = document.getElementById('qpNumInput');
+const qpRangeInput = document.getElementById('qpRangeInput');
+const qpMinusBtn = document.getElementById('qpMinusBtn');
+const qpPlusBtn = document.getElementById('qpPlusBtn');
+const qpTotalCostPreview = document.getElementById('qpTotalCostPreview');
+
+let qpMaxAllowed = 1;
+let qpSelectedQty = 1;
+let qpIsFullMode = false; // false: tùy chọn số lượng, true: gieo full ô trống
+
+function openQuickPlantModal() {
+  if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
+
+  const seed = state.seeds[state.selectedSeed];
+  if (!seed) { alert('Vui lòng chọn một hạt giống trước!'); return; }
+
+  // Đếm số ô đất đang trống
+  const emptyTiles = state.tiles.filter(t => !t.planted);
+  if (emptyTiles.length === 0) {
+    alert('Tất cả các ô đất trên ruộng đều đã được trồng cây!');
+    return;
+  }
+
+  // Tính số lượng tối đa có thể mua dựa theo tiền hiện có và số ô trống
+  const maxCanAffordByCoins = seed.cost > 0 ? Math.floor(state.coins / seed.cost) : emptyTiles.length;
+  qpMaxAllowed = Math.min(emptyTiles.length, maxCanAffordByCoins);
+
+  if (qpMaxAllowed <= 0) {
+    alert(`Bạn không đủ tiền để mua hạt giống ${seed.name}! Cần ${seed.cost}₵/hạt.`);
+    return;
+  }
+
+  quickPlantEmoji.textContent = seed.emoji;
+  quickPlantSeedDesc.textContent = `Hạt đang chọn: ${seed.name} (${seed.level})`;
+  qpEmptyTilesCount.textContent = emptyTiles.length;
+  qpUserCoins.textContent = Number(state.coins || 0).toLocaleString('vi-VN') + '₵';
+  qpSeedCost.textContent = seed.cost + '₵';
+
+  qpRangeInput.max = qpMaxAllowed;
+  qpIsFullMode = false;
+  updateQpQtyDisplay(Math.min(1, qpMaxAllowed));
+
+  quickPlantModal.classList.add('open');
+}
+
+function closeQuickPlantModal() {
+  quickPlantModal.classList.remove('open');
+}
+
+function updateQpQtyDisplay(val) {
+  qpIsFullMode = false;
+  qpSelectedQty = Math.max(1, Math.min(val, qpMaxAllowed));
+  qpNumInput.value = qpSelectedQty;
+  qpRangeInput.value = qpSelectedQty;
+
+  const seed = state.seeds[state.selectedSeed];
+  const totalCost = qpSelectedQty * seed.cost;
+  qpTotalCostPreview.innerHTML = `Tùy chọn: Gieo <strong>${qpSelectedQty} ô</strong> — Tổng chi phí: <strong style="color:#b35e00;">${totalCost.toLocaleString('vi-VN')}₵</strong>`;
+  qpBtnFull.style.border = 'none';
+}
+
+if (btnOpenQuickPlant) btnOpenQuickPlant.onclick = openQuickPlantModal;
+if (qpCancelBtn) qpCancelBtn.onclick = closeQuickPlantModal;
+
+if (qpMinusBtn) qpMinusBtn.onclick = () => updateQpQtyDisplay(qpSelectedQty - 1);
+if (qpPlusBtn) qpPlusBtn.onclick = () => updateQpQtyDisplay(qpSelectedQty + 1);
+if (qpNumInput) qpNumInput.oninput = (e) => updateQpQtyDisplay(parseInt(e.target.value) || 1);
+if (qpRangeInput) qpRangeInput.oninput = (e) => updateQpQtyDisplay(parseInt(e.target.value) || 1);
+
+// Nút chọn Gieo Full
+if (qpBtnFull) {
+  qpBtnFull.onclick = () => {
+    qpIsFullMode = true;
+    const seed = state.seeds[state.selectedSeed];
+    const emptyTiles = state.tiles.filter(t => !t.planted);
+    const maxCanAffordByCoins = seed.cost > 0 ? Math.floor(state.coins / seed.cost) : emptyTiles.length;
+    const fullQty = Math.min(emptyTiles.length, maxCanAffordByCoins);
+
+    qpSelectedQty = fullQty;
+    qpNumInput.value = fullQty;
+    qpRangeInput.value = fullQty;
+
+    const totalCost = fullQty * seed.cost;
+    qpTotalCostPreview.innerHTML = `Chế độ: <strong style="color:#2e7d32;">Gieo Full (${fullQty} ô)</strong> — Tổng chi phí: <strong style="color:#b35e00;">${totalCost.toLocaleString('vi-VN')}₵</strong>`;
+    qpBtnFull.style.border = '2px solid #fff';
+  };
+}
+
+// Xác nhận gieo hạt nhanh
+if (qpConfirmBtn) {
+  qpConfirmBtn.onclick = () => {
+    if (qpSelectedQty <= 0) {
+      alert('Số lượng gieo phải lớn hơn 0!');
+      return;
+    }
+
+    const seed = state.seeds[state.selectedSeed];
+    const totalCost = qpSelectedQty * seed.cost;
+
+    if (state.coins < totalCost) {
+      alert('Bạn không đủ tiền để thực hiện giao dịch này!');
+      return;
+    }
+
+    // Cập nhật nước trước khi trồng hàng loạt
+    updateWater();
+
+    // Lấy danh sách các ô đất trống
+    const emptyTiles = state.tiles.filter(t => !t.planted);
+    const tilesToPlant = emptyTiles.slice(0, qpSelectedQty);
+
+    if (tilesToPlant.length === 0) {
+      alert('Không còn ô đất trống nào!');
+      closeQuickPlantModal();
+      return;
+    }
+
+    // Trừ tiền
+    state.coins -= totalCost;
+
+    // Tính thời gian chín điều chỉnh theo nước
+    const growRatio = getGrowTimeRatio();
+    const adjustedTime = seed.time / growRatio;
+    const now = Date.now();
+
+    tilesToPlant.forEach(tile => {
+      tile.planted = true;
+      tile.seedId = seed.id;
+      tile.plantedAt = now;
+      tile.growUntil = now + adjustedTime * 1000;
+      tile.isFusionResult = false;
+    });
+
+    // Cập nhật chỉ số thống kê gieo hạt cho danh hiệu
+    if (!state.stats) state.stats = {};
+    state.stats.plantedCount = (state.stats.plantedCount || 0) + tilesToPlant.length;
+    checkTitles();
+
+    // Âm thanh gieo hạt
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.plant) {
+      SoundEngine.plant();
+    }
+
+    log(`⚡ Gieo nhanh x${tilesToPlant.length} [${seed.name}] (-${totalCost}₵).`);
+    showTopToast('GIEO HẠT THÀNH CÔNG', `Đã gieo nhanh <strong>x${tilesToPlant.length} ${seed.name}</strong> lên ruộng!`, seed.emoji);
+
+    closeQuickPlantModal();
+    save();
+    renderFarm();
+    renderWater();
+  };
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === quickPlantModal) closeQuickPlantModal();
+});
+
+// Hàm xử lý khi bấm vào số dư Nước (ở Trồng Cây) hoặc Lúa (ở Chăn Nuôi)
+function handleResourceClick() {
+  if (!currentUser) return;
+
+  if (typeof activeTab !== 'undefined' && activeTab === 'ranch') {
+    // Đang ở khu Chăn Nuôi -> Cuộn xuống Cửa Hàng Năng Lượng (chứa gói lúa/thức ăn)
+    const ranchShopEl = document.getElementById('specialRanchShopList');
+    if (ranchShopEl) {
+      ranchShopEl.closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showTopToast('ĐIỀU HƯỚNG', 'Đã chuyển đến Cửa Hàng Năng Lượng!', '🌾');
+    }
+  } else {
+    // Đang ở khu Trồng Cây -> Cuộn xuống Cửa Hàng Đặc Biệt (chứa gói nước)
+    const specialShopEl = document.getElementById('specialShopList');
+    if (specialShopEl) {
+      specialShopEl.closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showTopToast('ĐIỀU HƯỚNG', 'Đã chuyển đến Cửa Hàng Đặc Biệt!', '✨');
+    }
+  }
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+    SoundEngine.click();
+  }
+}
+
+// Hàm xử lý khi bấm vào số dư Lửa ở Bếp nấu
+function scrollToRanchEnergyShop() {
+  if (!currentUser) return;
+
+  const ranchShopEl = document.getElementById('specialRanchShopList');
+  if (ranchShopEl) {
+    ranchShopEl.closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showTopToast('ĐIỀU HƯỚNG', 'Đã chuyển đến Cửa Hàng Năng Lượng (Gói Lửa)!', '🔥');
+  }
+
+  if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+    SoundEngine.click();
+  }
+}
+
+// --- LOGIC HƯỚNG DẪN HẠT GIỐNG ---
+const seedGuideModal = document.getElementById('seedGuideModal');
+const btnOpenSeedHelp = document.getElementById('btnOpenSeedHelp');
+const closeSeedGuideModalBtn = document.getElementById('closeSeedGuideModalBtn');
+
+if (btnOpenSeedHelp && seedGuideModal) {
+  btnOpenSeedHelp.onclick = () => {
+    seedGuideModal.classList.add('open');
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+      SoundEngine.click();
+    }
+  };
+}
+
+if (closeSeedGuideModalBtn && seedGuideModal) {
+  closeSeedGuideModalBtn.onclick = () => {
+    seedGuideModal.classList.remove('open');
+  };
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === seedGuideModal) {
+    seedGuideModal.classList.remove('open');
+  }
+});
+
+// --- LOGIC HƯỚNG DẪN CÔNG THỨC PHỐI GIỐNG ---
+const recipeGuideModal = document.getElementById('recipeGuideModal');
+const btnOpenRecipeHelp = document.getElementById('btnOpenRecipeHelp');
+const closeRecipeGuideModalBtn = document.getElementById('closeRecipeGuideModalBtn');
+
+if (btnOpenRecipeHelp && recipeGuideModal) {
+  btnOpenRecipeHelp.onclick = () => {
+    recipeGuideModal.classList.add('open');
+    if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
+      SoundEngine.click();
+    }
+  };
+}
+
+if (closeRecipeGuideModalBtn && recipeGuideModal) {
+  closeRecipeGuideModalBtn.onclick = () => {
+    recipeGuideModal.classList.remove('open');
+  };
+}
+
+window.addEventListener('click', (e) => {
+  if (e.target === recipeGuideModal) {
+    recipeGuideModal.classList.remove('open');
+  }
+});
+
+// --- LOGIC TÁCH BIỆT POPUP MÀN HÌNH RỘNG VÀ ĐIỆN THOẠI ---
+let deskSearch = "";
+let deskTierFilter = "ALL";
+let deskTimer = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const deskModal = document.getElementById('desktopCookingRecipeModal');
+  const btnBook = document.getElementById('btnOpenRecipeBook');
+  const btnCloseDesk = document.getElementById('closeDesktopCookingRecipeBtn');
+  const deskContent = document.getElementById('desktopCookingRecipeContent');
+
+  if (btnBook) {
+    btnBook.onclick = () => {
+      // Nếu màn hình từ 1024px trở lên -> Mở popup màn hình rộng riêng biệt
+      if (window.innerWidth >= 1024) {
+        deskSearch = "";
+        deskTierFilter = "ALL";
+        renderDeskRecipeBook(deskContent);
+        if (deskModal) deskModal.classList.add('open');
+      } else {
+        // Điện thoại -> Dùng popup dọc cũ
+        if (typeof renderRecipeBookContent === 'function') renderRecipeBookContent();
+        const mobileModal = document.getElementById('cookingRecipeModal');
+        if (mobileModal) mobileModal.classList.add('open');
+      }
+      if (typeof SoundEngine !== 'undefined') SoundEngine.click();
+    };
+  }
+
+  if (btnCloseDesk && deskModal) {
+    btnCloseDesk.onclick = () => {
+      deskModal.classList.remove('open');
+    };
+  }
+
+  window.addEventListener('click', (e) => {
+    if (deskModal && e.target === deskModal) {
+      deskModal.classList.remove('open');
+    }
+  });
+});
+
+function renderDeskRecipeBook(contentContainer) {
+  if (!contentContainer) return;
+
+  contentContainer.innerHTML = `
+    <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 12px;">
+      <!-- Thanh tìm kiếm & Bộ lọc cấp độ -->
+      <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box;">
+        <div style="position: relative; width: 100%;">
+          <input type="text" id="desk-search-input" placeholder="Tìm kiếm tên món ăn, icon hoặc nguyên liệu..." value="${deskSearch}" 
+                 style="width: 100%; padding: 10px 14px 10px 36px; border: 1.5px solid #fed7aa; border-radius: 8px; font-size: 14px; outline: none; background: #fffdfa; box-sizing: border-box;" />
+          <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px;">🔍</span>
+        </div>
+
+        <div id="desk-tier-buttons" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; box-sizing: border-box; margin-top: 4px;"></div>
+      </div>
+
+      <!-- Danh sách kết quả: Cố định chuẩn Lưới 2 Cột Trái - Phải -->
+      <div id="desk-results-container" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-flow: dense; gap: 16px; width: 100%; box-sizing: border-box; align-items: start;"></div>
+    </div>
+  `;
+
+  const inputEl = document.getElementById('desk-search-input');
+  if (inputEl) {
+    inputEl.addEventListener('input', (e) => {
+      deskSearch = e.target.value;
+      clearTimeout(deskTimer);
+      deskTimer = setTimeout(() => {
+        updateDeskRecipeResults();
+      }, 250);
+    });
+  }
+
+  updateDeskTierButtonsUI();
+  updateDeskRecipeResults();
+}
+
+function updateDeskTierButtonsUI() {
+  const btnContainer = document.getElementById('desk-tier-buttons');
+  if (!btnContainer) return;
+
+  const tiers = [
+    { key: 'ALL', label: '✨ Tất cả', activeBg: '#ea580c', inactiveBg: '#fff7ed', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'Easy', label: '🟢 Cấp Dễ', activeBg: '#ea580c', inactiveBg: '#fff7ed', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'Medium', label: '🟡 Cấp Vừa', activeBg: '#b45309', inactiveBg: '#fef3c7', activeColor: '#fff', inactiveColor: '#b45309', border: '#fde68a' },
+    { key: 'Hard', label: '🔴 Cấp Khó', activeBg: '#c2410c', inactiveBg: '#ffedd5', activeColor: '#fff', inactiveColor: '#c2410c', border: '#fed7aa' },
+    { key: 'SuperHard', label: '🟣 Siêu Khó', activeBg: '#b91c1c', inactiveBg: '#fee2e2', activeColor: '#fff', inactiveColor: '#b91c1c', border: '#fecaca' }
+  ];
+
+  btnContainer.innerHTML = tiers.map(t => {
+    const isActive = deskTierFilter === t.key;
+    return `
+      <button onclick="setDeskTierFilter('${t.key}')" 
+              style="width: 100%; box-sizing: border-box; text-align: center; padding: 8px; border-radius: 8px; font-weight: 800; cursor: pointer; border: 1px solid ${t.border}; background: ${isActive ? t.activeBg : t.inactiveBg}; color: ${isActive ? t.activeColor : t.inactiveColor};">
+        ${t.label}
+      </button>
+    `;
+  }).join('');
+}
+
+function setDeskTierFilter(tierKey) {
+  deskTierFilter = tierKey;
+  updateDeskTierButtonsUI();
+  updateDeskRecipeResults();
+}
+
+function updateDeskRecipeResults() {
+  const container = document.getElementById('desk-results-container') || document.getElementById('desktop-recipe-results-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+  let hasAnyMatch = false;
+  const keyword = deskSearch.toLowerCase().trim();
+
+  // Kiểm tra xem đang ở chế độ xem tất cả hay xem theo 1 cấp độ cụ thể
+  const isAllMode = (deskTierFilter === 'ALL');
+
+  ['Easy', 'Medium', 'Hard', 'SuperHard'].forEach(tierKey => {
+    if (!isAllMode && deskTierFilter !== tierKey) return;
+
+    const conf = COOKING_TIERS[tierKey];
+    const tierDishes = DISHES_DB.filter(d => {
+      const matchTier = (d.tier === tierKey);
+      if (!keyword) return matchTier;
+
+      const matchDishName = d.name.toLowerCase().includes(keyword);
+      const matchDishEmoji = d.emoji && d.emoji.includes(keyword);
+      const matchIngredient = d.ingredients.some(ingId => {
+        const an = ANIMALS_DB[ingId];
+        const foodName = (an ? an.foodName : ingId).toLowerCase();
+        const foodEmoji = (an ? an.foodEmoji : '🥩');
+        return foodName.includes(keyword) || foodEmoji.includes(keyword) || ingId.toLowerCase().includes(keyword);
+      });
+
+      return matchTier && (matchDishName || matchDishEmoji || matchIngredient);
+    });
+
+    if (tierDishes.length === 0) return;
+    hasAnyMatch = true;
+
+    let headerColor = '#c2410c'; 
+    let headerBg = '#fff7ed';
+    let borderColor = '#fed7aa';
+    let badgeBg = '#ffedd5';
+
+    if (tierKey === 'Medium') { 
+      headerColor = '#b45309'; headerBg = '#fef3c7'; borderColor = '#fde68a'; badgeBg = '#fef9c3';
+    } else if (tierKey === 'Hard') { 
+      headerColor = '#c2410c'; headerBg = '#ffedd5'; borderColor = '#fed7aa'; badgeBg = '#ffedd5';
+    } else if (tierKey === 'SuperHard') { 
+      headerColor = '#b91c1c'; headerBg = '#fee2e2'; borderColor = '#fecaca'; badgeBg = '#fee2e2';
+    }
+
+    if (isAllMode) {
+      // --- CHẾ ĐỘ XEM TẤT CẢ: Xé rời từng ô món ăn để lưới tự động dồn khít, không để lại khoảng trống ---
+      tierDishes.forEach(d => {
+        const ingsHtml = d.ingredients.map(ing => {
+          const an = ANIMALS_DB[ing];
+          return `<span style="font-size:20px;" title="${an ? an.foodName : ing}">${an ? an.foodEmoji : '🥩'}</span>`;
+        }).join(' + ');
+
+        const hasEnoughIngredients = d.ingredients.every(ingId => {
+          const qty = (state.inventory && state.inventory[ingId]) || (state.foodInventory && state.foodInventory[ingId]) || 0;
+          return qty > 0;
+        });
+
+        const statusBadgeHtml = hasEnoughIngredients 
+          ? `<div style="font-size:11px; font-weight:800; color:#ea580c; background:#fff7ed; border:1.5px solid #fed7aa; padding:3px 8px; border-radius:6px; text-align:center;">🔥 Đủ nguyên liệu</div>`
+          : `<div style="font-size:11px; font-weight:600; color:#94a3b8; background:#f8fafc; border:1.5px solid #e2e8f0; padding:3px 8px; border-radius:6px; text-align:center;">❌ Thiếu nguyên liệu</div>`;
+
+        const tierLabelText = tierKey === 'Medium' ? 'Cấp Vừa' : tierKey === 'Hard' ? 'Cấp Khó' : tierKey === 'SuperHard' ? 'Siêu Khó' : 'Cấp Dễ';
+
+        const cardEl = document.createElement('div');
+        cardEl.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          width: 100%;
+          box-sizing: border-box;
+          background: #ffffff;
+          border: 2px solid ${borderColor};
+          border-radius: 10px;
+          padding: 10px 12px;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+        `;
+
+        cardEl.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; border-bottom:1px dashed ${borderColor}; padding-bottom:6px;">
+            <div style="display:inline-flex; align-items:center; gap:4px; background:${headerBg}; color:${headerColor}; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; border:1px solid ${borderColor};">
+              <span>🍳 ${tierLabelText} (${conf.rate * 100}%)</span>
+            </div>
+            <div>${statusBadgeHtml}</div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; padding: 2px 0;">
+            ${ingsHtml}
+            <span style="color:#ea580c; font-weight:900; font-size:16px;">➔</span>
+            <div style="display:inline-flex; align-items:center; gap:6px; background:${badgeBg}; border:1.5px solid ${borderColor}; padding:3px 9px; border-radius:6px; font-weight:800; font-size:13px; color:${headerColor};">
+              <span>${d.emoji}</span>
+              <span>${d.name}</span>
+            </div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; background:${headerBg}; padding:6px 8px; border-radius:6px; font-size:11px; color:#431407; text-align:center; border:1px solid ${borderColor}; width:100%; box-sizing:border-box;">
+            <div style="border-right:1px solid ${borderColor}; padding-right:2px;">
+              Phí nấu: <strong style="display:block; font-size:11.5px; font-weight:800; color:#111827; margin-top:1px;">${conf.cost}₵</strong>
+            </div>
+            <div style="border-right:1px solid ${borderColor}; padding-right:2px;">
+              Lửa tiêu hao: <strong style="display:block; font-size:11.5px; font-weight:800; color:#dc2626; margin-top:1px;">${conf.fire}🔥</strong>
+            </div>
+            <div>
+              Giá bán: <strong style="display:block; font-size:11.5px; font-weight:800; color:#15803d; margin-top:1px;">${d.value.toLocaleString('vi-VN')}₵</strong>
+            </div>
+          </div>
+        `;
+        container.appendChild(cardEl);
+      });
+
+    } else {
+      // --- CHẾ ĐỘ XEM TỪNG CẤP: Tiêu đề kéo dài trọn vẹn 2 cột, các ô món ăn tách rời thành 2 cột ---
+      
+      // 1. Tạo thanh tiêu đề cấp độ (chiếm trọn 2 cột)
+      const headerEl = document.createElement('div');
+      headerEl.style.cssText = `
+        grid-column: span 2;
+        background: ${headerBg};
+        color: ${headerColor};
+        font-size: 16px;
+        font-weight: 900;
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 2px solid ${borderColor};
+        border-radius: 10px;
+        box-sizing: border-box;
+      `;
+      headerEl.innerHTML = `
+        <span>🍳 ${conf.title}</span>
+        <span style="font-size:12.5px; font-weight:700; background:rgba(255,255,255,0.85); padding:3px 10px; border-radius:12px; border:1px solid ${headerColor};">Tỉ lệ thành công: ${conf.rate * 100}%</span>
+      `;
+      container.appendChild(headerEl);
+
+      // 2. Tạo từng ô món ăn riêng biệt (xếp thành 2 cột tự nhiên trong lưới)
+      tierDishes.forEach(d => {
+        const ingsHtml = d.ingredients.map(ing => {
+          const an = ANIMALS_DB[ing];
+          return `<span style="font-size:20px;" title="${an ? an.foodName : ing}">${an ? an.foodEmoji : '🥩'}</span>`;
+        }).join(' + ');
+
+        const hasEnoughIngredients = d.ingredients.every(ingId => {
+          const qty = (state.inventory && state.inventory[ingId]) || (state.foodInventory && state.foodInventory[ingId]) || 0;
+          return qty > 0;
+        });
+
+        const statusBadgeHtml = hasEnoughIngredients 
+          ? `<div style="font-size:11.5px; font-weight:800; color:#ea580c; background:#fff7ed; border:1px solid #fed7aa; padding:4px 10px; border-radius:6px; text-align:center;">🔥 Đủ nguyên liệu</div>`
+          : `<div style="font-size:11.5px; font-weight:600; color:#94a3b8; background:#f8fafc; border:1px solid #e2e8f0; padding:4px 10px; border-radius:6px; text-align:center;">❌ Thiếu nguyên liệu</div>`;
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'recipe-item-row';
+        itemEl.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          width: 100%;
+          box-sizing: border-box;
+          background: #ffffff;
+          border: 1px solid ${borderColor};
+          border-radius: 8px;
+          padding: 10px 12px;
+          margin-bottom: 0;
+          height: 100%;
+        `;
+        itemEl.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border-bottom:1px dashed ${borderColor}; padding-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700;">
+              ${ingsHtml}
+              <span style="color:#ea580c; font-weight:900; font-size:16px;">➔</span>
+              <div style="display:inline-flex; align-items:center; gap:6px; background:${badgeBg}; border:1.5px solid ${borderColor}; padding:3px 9px; border-radius:6px; font-weight:800; font-size:13px; color:${headerColor};">
+                <span>${d.emoji}</span>
+                <span>${d.name}</span>
+              </div>
+            </div>
+            <div>${statusBadgeHtml}</div>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; background:${headerBg}; padding:8px 10px; border-radius:6px; font-size:12px; color:#431407; text-align:center; border:1px solid ${borderColor}; width:100%; box-sizing:border-box;">
+            <div style="border-right:1px solid ${borderColor}; padding-right:4px;">
+              Phí nấu: <strong style="display:block; font-size:12px; font-weight:800; color:#111827; margin-top:2px;">${conf.cost}₵</strong>
+            </div>
+            <div style="border-right:1px solid ${borderColor}; padding-right:4px;">
+              Lửa tiêu hao: <strong style="display:block; font-size:12px; font-weight:800; color:#dc2626; margin-top:2px;">${conf.fire}🔥</strong>
+            </div>
+            <div style="">
+              Giá bán: <strong style="display:block; font-size:12px; font-weight:800; color:#15803d; margin-top:2px;">${d.value.toLocaleString('vi-VN')}₵</strong>
+            </div>
+            <div style="grid-column: span 3; border-right:none; border-top:1px dashed ${borderColor}; padding-top:6px; margin-top:2px; text-align:center;">
+              Tỉ lệ thành công: <strong style="color:${conf.rate === 1 ? '#15803d' : '#b45309'}; font-weight:800;">${conf.rate * 100}%</strong> <span style="color:#78716c; font-weight:normal;">(${100 - conf.rate * 100}% rủi ro cháy khét)</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+  });
+
+  if (!hasAnyMatch) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align:center; padding: 32px; color: #78716c; font-size: 14px; font-weight: 600;">
+        ❌ Không tìm thấy món ăn nào phù hợp với từ khóa hoặc cấp độ đã chọn!
+      </div>
+    `;
+  }
+}
 </script>
 </body>
 </html>
