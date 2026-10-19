@@ -2052,6 +2052,24 @@ body:not(.logged-out) #game-npc-widget {
         border-radius: 6px;
     }
 }
+
+/* Giới hạn chiều cao & thêm thanh cuộn cho Cửa hàng Đặc biệt */
+#specialShopList {
+    max-height: 250px;       /* Chiều cao tối đa (có thể điều chỉnh tu ý) */
+    overflow-y: auto;        /* Kích hoạt cuộn dọc khi danh sách dài */
+    overflow-x: hidden;      /* Ẩn cuộn ngang */
+    padding-right: 6px;      /* Khoảng đệm để thanh cuộn không đè lên viền */
+}
+
+/* Tùy chỉnh thanh cuộn mượt mà cho Cửa hàng Đặc biệt */
+#specialShopList::-webkit-scrollbar {
+    width: 6px;
+}
+#specialShopList::-webkit-scrollbar-thumb {
+    background: #a8c99b;     /* Màu thanh cuộn tone xanh nông trại */
+    border-radius: 6px;
+}
+
   </style>
 </head>
 <body>
@@ -3570,7 +3588,10 @@ let state = {
   // CỬA HÀNG ĐẶC BIỆT (Nằm cùng cấp với seeds)
   specialShopItems: {
     // NEW: Gói mua nước
-    water_50l: { name:'Gói Nước (50L)', value:50, cost:200, type:'water' },
+    water_50l: { name:'Gói 50 Nước', value:50, cost:200, type:'water' },
+    water_500: { name: 'Gói 500 Nước', value: 500, cost: 1800, type: 'water' },
+    water_1000: { name: 'Gói 1.000 Nước', value: 1000, cost: 3400, type: 'water' },
+
     // Gói tiền
     pack10k: { name:'Gói 10k', value:10000, cost:500000, type:'coin' },
     pack20k: { name:'Gói 20k', value:20000, cost:650000, type:'coin' },
@@ -5298,7 +5319,13 @@ function buyWater(amount, cost) {
       state.water += amount;
       
       const logMsg = `Đã mua ${amount}L nước với giá ${Number(cost).toLocaleString('vi-VN')}₵.`;
-      log(logMsg);
+      
+      // Ghi log đúng theo tab hiện tại (nếu có biến activeTab)
+      if (typeof activeTab !== 'undefined' && activeTab === 'ranch') {
+        logRanch(logMsg);
+      } else {
+        log(logMsg, 'farm');
+      }
       
       showTopToast(
         'Bổ Sung Nước Thành Công', 
