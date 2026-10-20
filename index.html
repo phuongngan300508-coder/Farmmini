@@ -2135,6 +2135,28 @@ body:not(.logged-out) #game-npc-widget {
     border-radius: 6px;
 }
 
+/* Huy hiệu hiển thị số lượng con vật đang nuôi trên chuồng trại */
+.animal-count-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: linear-gradient(135deg, #f59e0b, #dc2626);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+  border: 1.5px solid #ffffff;
+  letter-spacing: 0.2px;
+  z-index: 2;
+}
+
+/* Đảm bảo khung thẻ con giống ở mục "Đã sở hữu" hiển thị relative để chứa badge */
+#selectedAnimalDisplay .seed {
+  position: relative !important;
+}
+
   </style>
 </head>
 <body>
@@ -2613,7 +2635,7 @@ body:not(.logged-out) #game-npc-widget {
 <div class="panel controls">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
     <h2 style="margin:0; color:#b45309;">Cửa Hàng Năng Lượng 🌾🔥</h2>
-    <button class="btn" onclick="document.getElementById('ranchContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(180,83,9,0.25);">⬆ Lên Chuồng Trại</button>
+    <button class="btn" onclick="document.getElementById('ranchContainer').scrollIntoView({behavior:'smooth', block:'start'});" style="background:linear-gradient(180deg,#f59e0b,#b45309); font-size:11px; padding:5px 12px; border:none; box-shadow:0 2px 6px rgba(180,83,9,0.25);">🏡 Lên Chuồng ⬆</button>
   </div>
   <div class="muted" style="margin-bottom:10px;">Bổ sung thức ăn và nhiệt lượng nấu nướng:</div>
   <div id="specialRanchShopList" class="seed-list"></div>
@@ -7781,6 +7803,16 @@ function renderSelectedAnimalDisplay() {
     state.unlockedAnimals = ['chicken', 'duck'];
   }
 
+  // 1. Thống kê số lượng từng con vật đang được thả nuôi trong các ô chuồng
+  const animalCounts = {};
+  if (state.barns) {
+    state.barns.forEach(b => {
+      if (b.occupied && b.animalId) {
+        animalCounts[b.animalId] = (animalCounts[b.animalId] || 0) + 1;
+      }
+    });
+  }
+
   // Lấy danh sách các giống đã mở khóa
   const ownedAnimals = state.unlockedAnimals
     .map(id => ANIMALS_DB[id])
@@ -7793,11 +7825,18 @@ function renderSelectedAnimalDisplay() {
 
   ownedAnimals.forEach(animal => {
     const isSelected = state.selectedAnimal === animal.id;
+    const countOnTiles = animalCounts[animal.id] || 0; // Số ô đang nuôi con này
+
     const div = document.createElement('div');
     div.className = 'seed' + (isSelected ? ' active' : '');
     div.dataset.level = animal.level;
 
     div.innerHTML = `
+      <!-- Huy hiệu số lượng ô đất/chuồng đang nuôi (Nổi bật) -->
+      <span class="animal-count-badge" title="Đang nuôi trên ${countOnTiles} ô chuồng">
+        🏠 Đã có ${countOnTiles} ô
+      </span>
+
       <div class="emoji">${animal.emoji}</div>
       <div class="meta">
         <div style="font-weight:700">${animal.name} <span class="muted">(${animal.time}s)</span></div>
@@ -7829,6 +7868,7 @@ function renderSelectedAnimalDisplay() {
     container.appendChild(div);
   });
 }
+
 
 function onBarnClick(barnId) {
   const barn = state.barns.find(b => b.id === barnId);
@@ -7869,6 +7909,10 @@ function onBarnClick(barnId) {
         renderBarns();
         renderBarnInfo(barn.id);
         renderFeedResource();
+        
+        // 👈 BỔ SUNG DÒNG NÀY: Tự động cập nhật lại huy hiệu số lượng ô của con giống ngay lập tức
+        renderSelectedAnimalDisplay(); 
+
         coinsEl.textContent = '💰 ' + Number(state.coins || 0).toLocaleString('vi-VN');
         showTopToast('ĐÃ THẢ GIA SÚC', `Chuồng nuôi đã đón <strong>${animal.name}</strong>!`, animal.emoji);
       }
@@ -7877,6 +7921,7 @@ function onBarnClick(barnId) {
     renderBarnInfo(barn.id);
   }
 }
+
 
 
 function renderBarnInfo(barnId) {
