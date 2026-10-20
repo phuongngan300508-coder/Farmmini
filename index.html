@@ -1030,12 +1030,34 @@ body:not(.logged-out) .app {
     border-radius: 6px;
   }
 
-  /* Giới hạn chiều cao & thêm thanh cuộn cho mục Con Giống Đã Sở Hữu */
-#selectedAnimalDisplay {
-  max-height: 260px;       /* Giới hạn chiều cao vừa đủ hiển thị 2-3 con, cuộn mượt mà khi mở khóa nhiều */
-  overflow-y: auto;        /* Tự động bật thanh cuộn dọc */
+#foodOrderList, 
+#animalShopList, 
+#specialRanchShopList, 
+#foodInventoryList, 
+#dishInventoryList,
+#onlineOrdersList {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Giới hạn chiều cao & thêm thanh cuộn mượt mà cho khu chuồng trại gia súc */
+#ranchBarns {
+  max-height: 420px;       /* Chiều cao tối đa vừa tầm mắt trên iPad/PC */
+  overflow-y: auto !important;        /* Bật cuộn dọc */
   overflow-x: hidden;      /* Ẩn cuộn ngang */
-  padding: 6px 8px;        /* Khoảng đệm để viền sáng active không bị cắt mép */
+  -webkit-overflow-scrolling: touch; /* Hỗ trợ trượt mượt mà trên iOS/iPadOS */
+  padding-right: 8px;      
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+/* Giới hạn chiều cao & thêm thanh cuộn cho mục Con Giống Đã Sở Hữu */
+#selectedAnimalDisplay {
+  max-height: 260px;       
+  overflow-y: auto !important;        
+  overflow-x: hidden;      
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 8px;        
   box-sizing: border-box;
 }
 
@@ -1068,16 +1090,6 @@ body:not(.logged-out) .app {
   .right {
     padding-top: 0;
   }
-}
-
-/* Giới hạn chiều cao & thêm thanh cuộn cho khu chuồng trại gia súc */
-#ranchBarns {
-  max-height: 420px;       /* Giới hạn chiều cao vừa tầm mắt, hiển thị khoảng 2-3 hàng chuồng */
-  overflow-y: auto;        /* Tự động kích hoạt thanh cuộn dọc khi mở rộng nhiều chuồng */
-  overflow-x: hidden;      /* Ẩn cuộn ngang */
-  padding-right: 8px;      /* Khoảng đệm để thanh cuộn không đè vào ô chuồng */
-  padding-bottom: 6px;
-  box-sizing: border-box;
 }
 
 /* Tùy chỉnh thanh cuộn màu gỗ mộc đồng bộ với khu chăn nuôi */
@@ -1177,11 +1189,12 @@ body:not(.logged-out) .app {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  /* Khóa cứng kích thước giống y chang #ranchBarns */
-  max-height: 420px;
-  overflow-y: auto;
+  max-height: 420px;       /* Khóa cứng chiều cao y hệt chuồng trại */
+  overflow-y: auto !important;        /* Bật cuộn dọc */
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Trượt mượt trên iPad */
 }
+
 
 .kitchen-card::-webkit-scrollbar {
   width: 6px;
