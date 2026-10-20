@@ -1040,18 +1040,25 @@ body:not(.logged-out) .app {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Giới hạn chiều cao & thêm thanh cuộn mượt mà cho khu chuồng trại gia súc trên iPad/Mobile/PC */
 #ranchBarns {
-  max-height: 420px;                 /* Chiều cao tối đa vừa tầm mắt */
-  overflow-y: auto !important;       /* Bật cuộn dọc bắt buộc */
-  overflow-x: hidden;                /* Ẩn cuộn ngang */
-  -webkit-overflow-scrolling: touch !important; /* Kích hoạt quán tính trượt mượt trên iOS/iPadOS */
-  touch-action: pan-y !important;    /* 👈 BẮT BUỘC: Cho phép iPad nhận diện ngón tay vuốt dọc trong khung này */
-  overscroll-behavior-y: contain;    /* 👈 Ngăn việc kéo tràn làm trượt cả trang web phía sau */
+  max-height: 420px !important;
+  min-height: 0 !important;         /* 👈 BẮT BUỘC: Khắc phục lỗi Safari/iPadOS không cuộn trong flex/grid */
+  overflow-y: auto !important;      /* Bật cuộn dọc bắt buộc */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch !important; /* Quán tính mượt trên iOS/iPad */
+  touch-action: pan-y !important;   /* Cho phép ngón tay vuốt dọc */
   padding-right: 8px;      
   padding-bottom: 6px;
   box-sizing: border-box;
 }
+
+/* Đảm bảo khung panel chứa chuồng trại cũng không bị tràn flex item trên Safari */
+#ranchContainer .panel {
+  min-height: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
 
 
 /* Giới hạn chiều cao & thêm thanh cuộn cho mục Con Giống Đã Sở Hữu */
@@ -10817,6 +10824,22 @@ function updateDeskRecipeResults() {
     `;
   }
 }
+
+// Lắng nghe sự kiện ấn vào bất kỳ ô chuồng nào để "đánh thức" vùng cuộn trên iPad
+document.addEventListener('click', (e) => {
+  const clickedBarn = e.target.closest('#ranchBarns .tile');
+  if (clickedBarn) {
+    const barnsContainer = document.getElementById('ranchBarns');
+    if (barnsContainer) {
+      // Ép iPad nhận diện ngữ cảnh đang tương tác trong khu chuồng trại
+      barnsContainer.style.overflowY = 'hidden';
+      setTimeout(() => {
+        barnsContainer.style.overflowY = 'auto';
+      }, 10);
+    }
+  }
+});
+
 </script>
 </body>
 </html>
