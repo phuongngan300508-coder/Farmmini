@@ -1040,16 +1040,19 @@ body:not(.logged-out) .app {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Giới hạn chiều cao & thêm thanh cuộn mượt mà cho khu chuồng trại gia súc */
+/* Giới hạn chiều cao & thêm thanh cuộn mượt mà cho khu chuồng trại gia súc trên iPad/Mobile/PC */
 #ranchBarns {
-  max-height: 420px;       /* Chiều cao tối đa vừa tầm mắt trên iPad/PC */
-  overflow-y: auto !important;        /* Bật cuộn dọc */
-  overflow-x: hidden;      /* Ẩn cuộn ngang */
-  -webkit-overflow-scrolling: touch; /* Hỗ trợ trượt mượt mà trên iOS/iPadOS */
+  max-height: 420px;                 /* Chiều cao tối đa vừa tầm mắt */
+  overflow-y: auto !important;       /* Bật cuộn dọc bắt buộc */
+  overflow-x: hidden;                /* Ẩn cuộn ngang */
+  -webkit-overflow-scrolling: touch !important; /* Kích hoạt quán tính trượt mượt trên iOS/iPadOS */
+  touch-action: pan-y !important;    /* 👈 BẮT BUỘC: Cho phép iPad nhận diện ngón tay vuốt dọc trong khung này */
+  overscroll-behavior-y: contain;    /* 👈 Ngăn việc kéo tràn làm trượt cả trang web phía sau */
   padding-right: 8px;      
   padding-bottom: 6px;
   box-sizing: border-box;
 }
+
 
 /* Giới hạn chiều cao & thêm thanh cuộn cho mục Con Giống Đã Sở Hữu */
 #selectedAnimalDisplay {
@@ -1100,6 +1103,27 @@ body:not(.logged-out) .app {
   background: #e2b97f;
   border-radius: 6px;
 }
+
+/* Ép toàn bộ các khung có thanh cuộn trên iPad nhận diện cảm ứng mượt mà */
+#ranchBarns,
+#selectedAnimalDisplay,
+#foodInventoryList,
+#dishInventoryList,
+#foodOrderList,
+#animalShopList,
+#specialRanchShopList,
+#onlineOrdersList,
+#inventoryList,
+#seedList,
+#dailyQuestsList,
+#dailyRanchQuestsList,
+.kitchen-card {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important; /* Buộc iPadOS kích hoạt quán tính cuộn bằng tay */
+    touch-action: pan-y !important;             /* Cho phép ngón tay nhận diện cử chỉ lướt dọc */
+    overscroll-behavior-y: contain;             /* Ngăn việc lướt chạm bị tràn kéo dãn cả trang web */
+}
+
   
   /* Hiệu ứng nhấp nháy phát sáng khi có đơn hàng chăn nuôi sẵn sàng giao */
 @keyframes glowRanchOrderBtn {
@@ -1177,6 +1201,21 @@ body:not(.logged-out) .app {
   pointer-events: auto;
   opacity: 1;
 }
+
+.flip-face-front, .flip-face-back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Đảm bảo khi ẩn đi thì không chặn sự kiện chạm, khi hiện lên thì nhận diện trọn vẹn */
+}
+
+.flip-door-card.is-flipped .flip-face-front {
+    pointer-events: none !important;
+}
+
+.flip-door-card.is-flipped .flip-face-back {
+    pointer-events: auto !important;
+}
+
 /* ======================================================== */
 /* CỐ ĐỊNH KHUNG BẾP Y HỆT CHUỒNG TRẠI (CHỐNG TRÀN TUYỆT ĐỐI) */
 /* ======================================================== */
