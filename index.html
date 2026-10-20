@@ -1042,15 +1042,21 @@ body:not(.logged-out) .app {
 
 #ranchBarns {
   max-height: 420px !important;
-  min-height: 0 !important;         /* 👈 BẮT BUỘC: Khắc phục lỗi Safari/iPadOS không cuộn trong flex/grid */
-  overflow-y: auto !important;      /* Bật cuộn dọc bắt buộc */
+  min-height: 0 !important;
+  overflow-y: auto !important;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch !important; /* Quán tính mượt trên iOS/iPad */
-  touch-action: pan-y !important;   /* Cho phép ngón tay vuốt dọc */
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;       /* Cho phép vuốt dọc toàn cục trong vùng này */
   padding-right: 8px;      
   padding-bottom: 6px;
   box-sizing: border-box;
 }
+
+/* 👈 QUAN TRỌNG: Giúp iOS nhận diện thao tác kéo (pan/scroll) xuyên suốt trên cả các ô chuồng */
+#ranchBarns .tile {
+  touch-action: pan-y pinch-zoom !important; 
+}
+
 
 /* Đảm bảo khung panel chứa chuồng trại cũng không bị tràn flex item trên Safari */
 #ranchContainer .panel {
