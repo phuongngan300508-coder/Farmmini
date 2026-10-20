@@ -2249,7 +2249,7 @@ body:not(.logged-out) #game-npc-widget {
         <div id="farm" class="farm-grid" aria-label="Farm grid"></div>
 
        <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
-    <button class="btn" id="btnExpand">Mua thêm ô (+6) — 100₵</button>
+    <button class="btn" id="btnExpand">Mua thêm ô (+6) — 300₵</button>
     <button class="btn" id="btnOpenQuickPlant" style="background:linear-gradient(180deg,#7c3aed,#5b21b6);">⚡ Gieo hạt nhanh</button>
     <button class="btn" id="btnHarvestAll" style="background:linear-gradient(180deg,#f59e0b,#c2410c);">🌾 Thu hoạch tất cả (Đã chín)</button>     
     <button class="btn" id="btnQuickFusion" style="background:linear-gradient(180deg,#9c27b0,#6a1b9a);">⚡ Chọn phối nhiều ô</button>
@@ -5893,8 +5893,8 @@ function checkQuestProgress(type, data) {
 // Event Listeners for Game Buttons (Đã thêm kiểm tra đăng nhập)
 btnExpand.onclick = ()=>{
     if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
-    if(state.coins < 100){ alert('Cần 100₵ để mở rộng'); return; }
-    state.coins -= 100;
+    if(state.coins < 300){ alert('Cần 300₵ để mở rộng'); return; }
+    state.coins -= 300;
     
     const r = state.rows; // Hàng mới
     // Thêm các ô đất mới (theo số cột hiện tại)
@@ -5903,10 +5903,16 @@ btnExpand.onclick = ()=>{
         state.tiles.push({ id: `${r}-${c}`, planted:false, seedId:null, plantedAt:null, growUntil:null, isFusionResult: false });
     }
     state.rows += 1; // Tăng số hàng
+    
     save();
     renderFarm();
-    log('Mở rộng trang trại +1 hàng');
+    log('Mở rộng trang trại +1 hàng (-300₵)');
+
+    // 👈 THÊM DÒNG NÀY: Gọi thông báo Toast khi mua ô thành công
+    showTopToast('MỞ RỘNG ĐẤT THÀNH CÔNG', 'Đã mua thêm <strong>+6 ô đất</strong> (-300₵)!', '🚜');
 };
+
+
 
 // Gán sự kiện cho nút Thu hoạch tất cả (ĐÃ THÊM DÒNG NÀY)
 btnHarvestAll.onclick = harvestAllTiles;
