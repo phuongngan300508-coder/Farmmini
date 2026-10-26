@@ -834,17 +834,25 @@ body:not(.logged-out) .app {
   transition: all 0.3s ease;
   cursor: pointer;
   user-select: none;
+  
+  /* --- BỔ SUNG CÁC THUỘC TÍNH NÀY ĐỂ CHỐNG BÓP MÉO TRÊN IOS --- */
+  flex-shrink: 0 !important;       /* Ngăn không cho flexbox cha bóp méo khung */
+  -webkit-flex-shrink: 0 !important;
+  white-space: nowrap !important;   /* Buộc chữ bên trong luôn nằm trên 1 dòng, không bị bẻ ngắt dòng */
+  min-width: max-content;           /* Đảm bảo khung luôn giãn đủ ôm trọn nội dung bên trong */
+  box-sizing: border-box;
 }
+
 .active-title-badge:hover {
   transform: translateY(-1px);
 }
 
-/* Các kiểu màu riêng biệt cho từng danh hiệu */
-.title-style-default {
-  background: #f1f8ed;
-  color: #3b6e22;
-  border: 1.5px solid #8cb87c;
+/* Đảm bảo các thành phần chữ/icon bên trong không bị co lại trên Safari */
+.active-title-badge span {
+  flex-shrink: 0 !important;
+  -webkit-flex-shrink: 0 !important;
 }
+
 .title-style-t_plant_master {
   background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
   color: #1b5e20;
