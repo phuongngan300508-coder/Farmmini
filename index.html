@@ -745,27 +745,13 @@ body:not(.logged-out) .app {
     gap: 10px !important;
     max-height: 320px !important;
     overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important; /* Mượt mà trên iOS Safari */
-    touch-action: pan-y !important;
-    padding-right: 4px !important;
-    
-    /* --- BỔ SUNG CÁC THUỘC TÍNH NÀY ĐỂ ÉP KHÔNG BỊ CO HẸP TRÊN iPHONE --- */
+    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
     box-sizing: border-box !important;
-    flex-shrink: 0 !important;
-    -webkit-flex-shrink: 0 !important;
 }
-
-/* Trên màn hình nhỏ dưới 600px (iPhone): Ép về 1 cột để rỗng rãi tuyệt đối, không bao giờ bị bóp méo */
 @media (max-width: 600px) {
-    .badge-grid { 
-        grid-template-columns: 1fr !important; 
-        width: 100% !important;
-    }
+    .badge-grid { grid-template-columns: 1fr !important; }
 }
-
 .badge-card {
     background: #ffffff !important;
     border: 1px solid #dce8d5 !important;
@@ -10928,6 +10914,85 @@ document.addEventListener('click', (e) => {
   }
 });
 
+  // ==========================================================================
+// HÀM ĐẶC BIỆT XỬ LÝ RIÊNG CHO iPHONE / iPAD (KHẮC PHỤC TRIỆT ĐỂ LỖI CO HẸP)
+// ==========================================================================
+function fixIosBadgeLayout() {
+    // Kiểm tra xem người dùng có đang dùng thiết bị iOS (iPhone, iPad, iPod) không
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (!isIOS) return; // Nếu không phải iOS thì bỏ qua
+
+    // 1. Ép cứng toàn bộ bảng vinh danh bên chăn nuôi và trồng cây trên iOS
+    const badgeGrids = document.querySelectorAll('.badge-grid');
+    badgeGrids.forEach(grid => {
+        grid.style.cssText = `
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            max-height: 300px !important;
+            overflow-y: auto !important.important;
+            -webkit-overflow-scrolling: touch !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding-right: 6px !important;
+        `;
+    });
+
+    // 2. Ép cứng các thẻ card danh hiệu không bị bóp méo
+    const badgeCards = document.querySelectorAll('.badge-card');
+    badgeCards.forEach(card => {
+        card.style.cssText = `
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            width: 100% !important;
+            min-width: 100% !important;
+            box-sizing: border-box !important;
+            background: #ffffff !important;
+            border: 1px solid #dce8d5 !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+        `;
+    });
+
+    // 3. Ép cứng khung huy hiệu hiển thị trên đầu (cả 2 bên)
+    const activeBadges = document.querySelectorAll('.active-title-badge');
+    activeBadges.forEach(b => {
+        b.style.cssText += `
+            display: inline-flex !important;
+            flex-shrink: 0 !important;
+            -webkit-flex-shrink: 0 !important;
+            white-space: nowrap !important;
+            min-width: max-content !important;
+            box-sizing: border-box !important;
+        `;
+    });
+}
+
+// Gọi hàm fix này ngay khi tải trang và mỗi khi render lại khu chăn nuôi / danh hiệu
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(fixIosBadgeLayout, 500);
+});
+
+// Móc vào các hàm render có sẵn để đảm bảo iPhone luôn được áp dụng sau khi vẽ UI
+const originalRenderTitles = window.renderTitles;
+if (typeof renderTitles === 'function') {
+    window.renderTitles = function() {
+        if (originalRenderTitles) originalRenderTitles();
+        setTimeout(fixIosBadgeLayout, 50);
+    };
+}
+
+const originalRenderRanchTitles = window.renderRanchTitles;
+if (typeof renderRanchTitles === 'function') {
+    window.renderRanchTitles = function() {
+        if (originalRenderRanchTitles) originalRenderRanchTitles();
+        setTimeout(fixIosBadgeLayout, 50);
+    };
+}
 </script>
 </body>
 </html>
