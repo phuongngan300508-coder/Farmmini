@@ -738,24 +738,31 @@ body:not(.logged-out) .app {
   font-size: 14px;
 }
 
- /* ================= KHU VỰC DANH HIỆU & BẢNG VINH DANH ================= */
+/* ================= KHU VỰC VINH DANH CHĂN NUÔI & TRỒNG CÂY ================= */
 .badge-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
     max-height: 320px !important;
     overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important; /* Kích hoạt quán tính cuộn cực mượt trên iPhone/iPad */
-    touch-action: pan-y !important;               /* Cho phép ngón tay lướt dọc dễ dàng trên iOS */
+    -webkit-overflow-scrolling: touch !important; /* Mượt mà trên iOS Safari */
+    touch-action: pan-y !important;
     padding-right: 4px !important;
+    
+    /* --- BỔ SUNG CÁC THUỘC TÍNH NÀY ĐỂ ÉP KHÔNG BỊ CO HẸP TRÊN iPHONE --- */
     width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    -webkit-flex-shrink: 0 !important;
 }
 
-/* Trên điện thoại nhỏ: Chuyển về 1 cột để khung không bị bóp nghẹt */
+/* Trên màn hình nhỏ dưới 600px (iPhone): Ép về 1 cột để rỗng rãi tuyệt đối, không bao giờ bị bóp méo */
 @media (max-width: 600px) {
     .badge-grid { 
         grid-template-columns: 1fr !important; 
+        width: 100% !important;
     }
 }
 
@@ -769,6 +776,8 @@ body:not(.logged-out) .app {
     gap: 10px !important;
     position: relative !important;
     overflow: hidden !important;
+    
+    /* Ép thẻ con không bị bóp méo trong lưới grid */
     width: 100% !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
