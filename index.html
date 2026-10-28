@@ -5246,7 +5246,8 @@ function save(){
 }
 
                 
-function load(){
+                        
+    function load(){
     if (!currentUser) return; 
 
     currentStorageKey = STORAGE_KEY_PREFIX + currentUser;
@@ -5654,7 +5655,7 @@ function load(){
         if (typeof checkRanchTitles === 'function') checkRanchTitles();
         log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
-}
+  }
 
 
 
@@ -5709,100 +5710,8 @@ function updateLoginStatusUI(){
 
 
 // --- RENDERING FUNCTIONS ---
-
-function renderSeeds(){
-  if (!currentUser) return;
-
-  seedListEl.innerHTML = '';
   
-  // Lấy từ khóa từ thanh tìm kiếm (nếu có)
-  const searchInput = document.getElementById('inventorySeedSearchInput');
-  const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
-
-  // Lọc các hạt giống đã mở khóa VÀ khớp với từ khóa (tên hoặc emoji)
-  const availableSeeds = Object.values(state.seeds).filter(s => {
-    if (!state.unlockedSeeds.includes(s.id)) return false;
-    if (!keyword) return true;
-    
-    const name = (s.name || '').toLowerCase();
-    const emoji = s.emoji || '';
-    return name.includes(keyword) || emoji.includes(keyword);
-  });
-  
-  const categorizedSeeds = {
-    'Common': [],
-    'Uncommon': [],
-    'Rare': [],
-    'Legendary': [],
-    'Mythic': [],
-    'Divine': [],
-    'Seasonal': [],         // Mục chứa hạt giống sự kiện (mua từ shop sự kiện)
-    'EventUltimate': []     // 🌟 Mục mới: Chứa các hạt giống sự kiện đã được lai tạo thành công (Cấp EventDivine)
-  };
-  
-  availableSeeds.forEach(s => {
-    let targetCat = s.level;
-    
-    // Phân tách rõ: Nếu là hạt do lai tạo (Cấp EventDivine hoặc id có chứa các mã kết quả tối thượng)
-    if (s.level === 'EventDivine' || /(_ev_res_|sup_seed|_res_)/i.test(s.id)) {
-      targetCat = 'EventUltimate';
-    } else if (s.isEventShopItem || s.level === 'Seasonal') {
-      targetCat = 'Seasonal';
-    }
-
-    if (!categorizedSeeds[targetCat]) {
-      targetCat = 'Common';
-    }
-    categorizedSeeds[targetCat].push(s);
-  });
-
-  const levelMap = {
-    'Common': '🌱 Bình thường',
-    'Uncommon': '🌿 Trung bình',
-    'Rare': '💎 Hiếm',
-    'Legendary': '✨ Huyền thoại',
-    'Mythic': '👑 Thần thánh',
-    'Divine': '⭐ Thần Tối Thượng',
-    'Seasonal': '🎪 Hạt Giống Sự Kiện',
-    'EventUltimate': '🌟 Hạt Giống Sự Kiện Tối Thượng' // 🌟 Tiêu đề danh mục mới
-  };
-
-  let totalVisibleSeeds = 0;
-
-  for (const level in categorizedSeeds) {
-    const seeds = categorizedSeeds[level];
-    if (seeds.length > 0) {
-      totalVisibleSeeds += seeds.length;
-      const header = document.createElement('h3');
-      header.style.fontSize = '14px';
-      header.style.margin = '10px 0 5px 0';
-      
-      const baseTitle = levelMap[level] || '🎪 Hạt Giống Sự Kiện';
-      
-      // Áp dụng màu sắc đặc trưng cho danh mục mới (Màu vàng cam rực rỡ độc quyền)
-      const tierColorMap = {
-        'Common': '#6aa84f',       // Xanh lá
-        'Uncommon': '#e6a800',     // Vàng đậm
-        'Rare': '#8e44ad',         // Tím
-        'Legendary': '#ff9800',    // Cam vàng rực
-        'Mythic': '#ff00ff',       // Hồng / Magenta neon
-        'Divine': '#d4af37',       // Vàng kim thần thoại
-        'Seasonal': '#ff5722',     // Cam đỏ rực rỡ sự kiện
-        'EventUltimate': '#b45309' // Nâu vàng kim/Cam lửa tối thượng cho hạt lai tạo
-      };
-
-      const highlightColor = tierColorMap[level] || '#ff5722';
-
-      header.innerHTML = `${baseTitle} <span style="color: ${highlightColor}; font-weight: bold;">(Đang có ${seeds.length} hạt)</span>`;
-      seedListEl.appendChild(header);
-
-      seeds.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'seed' + (state.selectedSeed===s.id ? ' active' : '');
-        div.dataset.seed = s.id;
-        
-        // Đặt dataset level tương ứng để CSS nhận diện màu viền (dùng style của Seasonal/EventDivine)
-function renderSeeds(){
+  function renderSeeds(){
   if (!currentUser) return;
 
   seedListEl.innerHTML = '';
