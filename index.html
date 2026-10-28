@@ -5793,10 +5793,134 @@ function renderSeeds(){
         div.dataset.seed = s.id;
         
         // Đặt dataset level tương ứng để CSS nhận diện màu viền (dùng style của Seasonal/EventDivine)
+function renderSeeds(){
+  if (!currentUser) return;
+
+  seedListEl.innerHTML = '';
+  
+  const searchInput = document.getElementById('inventorySeedSearchInput');
+  const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  let availableSeeds = Object.values(state.seeds).filter(s => {
+    if (!state.unlockedSeeds.includes(s.id)) return false;
+    if (!keyword) return true;
+    
+    const name = (s.name || '').toLowerCase();
+    const emoji = s.emoji || '';
+    return name.includes(keyword) || emoji.includes(keyword);
+  });
+  
+  const parseCleanNumber = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    const cleaned = String(val).replace(/[,.\s₵]/g, '');
+    const num = Number(cleaned);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const categorizedSeeds = {
+    'Common': [],
+    'Uncommon': [],
+    'Rare': [],
+    'Legendary': [],
+    'Mythic': [],
+    'Divine': [],
+    'Seasonal': [],         
+    'EventUltimate': []     
+  };
+  
+  availableSeeds.forEach(s => {
+    let targetCat = s.level || 'Common';
+    
+    if (typeof targetCat === 'string') {
+      const lower = targetCat.toLowerCase();
+      if (lower.includes('trung bình') || lower === 'uncommon') targetCat = 'Uncommon';
+      else if (lower.includes('bình thường') || lower === 'common') targetCat = 'Common';
+      else if (lower.includes('hiếm') || lower === 'rare') targetCat = 'Rare';
+      else if (lower.includes('huyền thoại') || lower === 'legendary') targetCat = 'Legendary';
+      else if (lower.includes('thần thánh') || lower === 'mythic') targetCat = 'Mythic';
+      else if (lower.includes('tối thượng') || lower === 'divine') targetCat = 'Divine';
+    }
+    
+    if (s.level === 'EventDivine' || /(_ev_res_|sup_seed|_res_)/i.test(s.id)) {
+      targetCat = 'EventUltimate';
+    } else if (s.isEventShopItem || s.level === 'Seasonal') {
+      targetCat = 'Seasonal';
+    }
+
+    if (!categorizedSeeds[targetCat]) targetCat = 'Common';
+    categorizedSeeds[targetCat].push(s);
+  });
+
+  const levelMap = {
+    'Common': '🌱 Bình thường',
+    'Uncommon': '🌿 Trung bình',
+    'Rare': '💎 Hiếm',
+    'Legendary': '✨ Huyền thoại',
+    'Mythic': '👑 Thần thánh',
+    'Divine': '⭐ Thần Tối Thượng',
+    'Seasonal': '🎪 Hạt Giống Sự Kiện',
+    'EventUltimate': '🌟 Hạt Giống Sự Kiện Tối Thượng'
+  };
+
+  let totalVisibleSeeds = 0;
+
+  for (const level in categorizedSeeds) {
+    const seeds = categorizedSeeds[level];
+    if (seeds.length > 0) {
+      totalVisibleSeeds += seeds.length;
+
+      // 🌟 ÉP SẮP XẾP TUYỆT ĐỐI THEO BẢNG THỨ TỰ ID (Đảm bảo Cà phê luôn đứng trước Nho)
+      seeds.sort((a, b) => {
+        // Bảng quy định thứ tự ưu tiên chính xác cho từng ID hạt giống trong game
+        const exactOrder = {
+          // Cấp Common
+          'cucumber': 1, 'potato': 2, 'carrot': 3, 'tomato': 4, 'corn': 5,
+          // Cấp Uncommon (Sắp xếp chuẩn từ rẻ đến đắt: Bắp cải -> Dâu -> Bí đỏ -> Cà phê -> Nho)
+          'cabbage': 10, 'strawberry': 11, 'pumpkin': 12, 'coffee': 13, 'grape': 14,
+          // Các hạt fusion uncommon
+          'carno': 20, 'tomcar': 21, 'potcorn': 22, 'tomcumber': 23, 'potcumber': 24
+        };
+
+        const orderA = exactOrder[a.id] !== undefined ? exactOrder[a.id] : 999;
+        const orderB = exactOrder[b.id] !== undefined ? exactOrder[b.id] : 999;
+
+        if (orderA !== orderB) {
+          return orderA - orderB; // Sắp xếp theo đúng thứ tự thủ công đã định nghĩa
+        }
+
+        // Nếu không nằm trong bảng thủ công thì so sánh theo giá tiền (cost)
+        const costA = parseCleanNumber(a.cost);
+        const costB = parseCleanNumber(b.cost);
+        if (costA !== costB) {
+          return costA - costB;
+        }
+
+        return parseCleanNumber(a.time) - parseCleanNumber(b.time);
+      });
+
+      const header = document.createElement('h3');
+      header.style.fontSize = '14px';
+      header.style.margin = '10px 0 5px 0';
+      
+      const baseTitle = levelMap[level] || '🎪 Hạt Giống Sự Kiện';
+      const tierColorMap = {
+        'Common': '#6aa84f', 'Uncommon': '#e6a800', 'Rare': '#8e44ad',         
+        'Legendary': '#ff9800', 'Mythic': '#ff00ff', 'Divine': '#d4af37',       
+        'Seasonal': '#ff5722', 'EventUltimate': '#b45309' 
+      };
+
+      header.innerHTML = `${baseTitle} <span style="color: ${tierColorMap[level] || '#ff5722'}; font-weight: bold;">(Đang có ${seeds.length} hạt)</span>`;
+      seedListEl.appendChild(header);
+
+      seeds.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'seed' + (state.selectedSeed===s.id ? ' active' : '');
+        div.dataset.seed = s.id;
         div.dataset.level = (level === 'EventUltimate' || s.level === 'EventDivine' || s.level === 'Seasonal' || s.isEventShopItem) ? 'Seasonal' : s.level; 
         
-        const costStr = Number(s.cost || 0).toLocaleString('vi-VN');
-        const valStr = Number(s.value || 0).toLocaleString('vi-VN');
+        const costStr = Number(parseCleanNumber(s.cost)).toLocaleString('vi-VN');
+        const valStr = Number(parseCleanNumber(s.value)).toLocaleString('vi-VN');
 
         div.innerHTML = `<div class="emoji">${s.emoji}</div>
           <div class="meta">
@@ -5804,13 +5928,9 @@ function renderSeeds(){
             <div class="muted">Giá gieo: ${costStr}₵ • Bán: ${valStr}₵</div>
           </div>`;
         
-        div.onclick = ()=>{ 
+        div.onclick = () => { 
           if (!currentUser) { alert('Vui lòng đăng nhập để chơi.'); return; }
-
-          if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
-            SoundEngine.selectSeed();
-          }
-
+          if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) SoundEngine.selectSeed();
           state.selectedSeed = s.id; 
           renderSeeds(); 
           log(`Chọn hạt: ${s.name}`); 
@@ -5820,11 +5940,11 @@ function renderSeeds(){
     }
   }
 
-  // Nếu tìm kiếm mà không thấy hạt nào khớp
   if (totalVisibleSeeds === 0) {
     seedListEl.innerHTML = `<div class="muted" style="text-align:center; padding:15px;">Không tìm thấy hạt giống phù hợp với "${keyword}".</div>`;
   }
 }
+
 
 
 // Thêm vào sau renderSeeds()
