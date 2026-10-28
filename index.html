@@ -5711,7 +5711,7 @@ function updateLoginStatusUI(){
 
 // --- RENDERING FUNCTIONS ---
   
-  function renderSeeds(){
+    function renderSeeds(){
   if (!currentUser) return;
 
   seedListEl.innerHTML = '';
@@ -5788,13 +5788,12 @@ function updateLoginStatusUI(){
     if (seeds.length > 0) {
       totalVisibleSeeds += seeds.length;
 
-      // 🌟 ÉP SẮP XẾP TUYỆT ĐỐI THEO BẢNG THỨ TỰ ID (Đảm bảo Cà phê luôn đứng trước Nho)
+      // 🌟 ÉP SẮP XẾP: CÀ RỐT LÊN ĐẦU, TIẾP ĐẾN CÁC HẠT KHÁC VÀ GIỮ CHUẨN CÀ PHÊ -> NHO
       seeds.sort((a, b) => {
-        // Bảng quy định thứ tự ưu tiên chính xác cho từng ID hạt giống trong game
         const exactOrder = {
-          // Cấp Common
-          'cucumber': 1, 'potato': 2, 'carrot': 3, 'tomato': 4, 'corn': 5,
-          // Cấp Uncommon (Sắp xếp chuẩn từ rẻ đến đắt: Bắp cải -> Dâu -> Bí đỏ -> Cà phê -> Nho)
+          // Cấp Common (Cà rốt số 1 để đứng đầu bảng)
+          'carrot': 1, 'cucumber': 2, 'potato': 3, 'tomato': 4, 'corn': 5,
+          // Cấp Uncommon (Bắp cải -> Dâu -> Bí đỏ -> Cà phê -> Nho)
           'cabbage': 10, 'strawberry': 11, 'pumpkin': 12, 'coffee': 13, 'grape': 14,
           // Các hạt fusion uncommon
           'carno': 20, 'tomcar': 21, 'potcorn': 22, 'tomcumber': 23, 'potcumber': 24
@@ -5804,10 +5803,9 @@ function updateLoginStatusUI(){
         const orderB = exactOrder[b.id] !== undefined ? exactOrder[b.id] : 999;
 
         if (orderA !== orderB) {
-          return orderA - orderB; // Sắp xếp theo đúng thứ tự thủ công đã định nghĩa
+          return orderA - orderB; 
         }
 
-        // Nếu không nằm trong bảng thủ công thì so sánh theo giá tiền (cost)
         const costA = parseCleanNumber(a.cost);
         const costB = parseCleanNumber(b.cost);
         if (costA !== costB) {
@@ -5862,7 +5860,6 @@ function updateLoginStatusUI(){
     seedListEl.innerHTML = `<div class="muted" style="text-align:center; padding:15px;">Không tìm thấy hạt giống phù hợp với "${keyword}".</div>`;
   }
 }
-
 
 
 // Thêm vào sau renderSeeds()
