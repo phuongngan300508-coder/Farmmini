@@ -5245,6 +5245,7 @@ function save(){
   }));
 }
 
+                
 function load(){
     if (!currentUser) return; 
 
@@ -5253,7 +5254,7 @@ function load(){
 
     const DEFAULT_UNLOCKED_SEEDS = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
 
-    // 🌟 KHỞI TẠO DANH SÁCH CỬA HÀNG ĐẶC BIỆT MỚI (CHỈ CÓ NƯỚC VÀ GÓI 30K, 40K, 50K)
+    // 🌟 KHỞI TẠO DANH SÁCH CỬA HÀNG ĐẶC BIỆT MỚI
     const NEW_SPECIAL_SHOP_ITEMS = {
         water_50l: { name:'Gói 50 Nước', value:50, cost:200, type:'water' },
         water_500: { name: 'Gói 500 Nước', value: 500, cost: 1800, type: 'water' },
@@ -5340,7 +5341,6 @@ function load(){
         dailyRanchQuests: [],
         lastRanchQuestReset: 0,
 
-        seeds: state.seeds,
         specialShopItems: NEW_SPECIAL_SHOP_ITEMS
     }));
     
@@ -5355,7 +5355,11 @@ function load(){
                 state = initialState;
                 state = Object.assign(state, parsed);
                 
-                // 🌟 CƯỠNG CHẾ CẬP NHẬT: Dù trong tài khoản cũ lưu gì, shop đặc biệt vẫn phải dùng bộ mới này!
+                // 🌟 GIỮ NGUYÊN HOẶC HỢP NHẤT KHO HẠT GIỐNG TỪ LOCALSTORAGE (NẾU ĐÃ CÓ)
+                if (parsed.seeds) {
+                    state.seeds = Object.assign({}, state.seeds || {}, parsed.seeds);
+                }
+
                 state.specialShopItems = NEW_SPECIAL_SHOP_ITEMS;
                 
                 if(parsed.inventory) state.inventory = parsed.inventory;
@@ -5487,6 +5491,11 @@ function load(){
         save();
     }
     
+    // Đảm bảo dữ liệu seeds gốc được nạp đủ
+    if (typeof state.seeds === 'undefined' || !state.seeds) {
+        state.seeds = {};
+    }
+
     if (typeof DETAILED_SEASONAL_EVENT_RECIPES_DB !== 'undefined') {
         Object.keys(DETAILED_SEASONAL_EVENT_RECIPES_DB).forEach(seasonKey => {
             const recipes = DETAILED_SEASONAL_EVENT_RECIPES_DB[seasonKey];
