@@ -10161,11 +10161,12 @@ function buyAnimalSpecies(animalId) {
   );
 }
 
-// 7. KHO THỰC PHẨM & BÁN LẺ
+// 7. KHO THỰC PHẨM & BÁN LẺ (SẮP XẾP THEO MẢNG THỨ TỰ CHUẨN XÁC TUYỆT ĐỐI)
 function renderFoodInventory() {
   const container = document.getElementById('foodInventoryList');
   if (!container) return;
   container.innerHTML = '';
+  
   const entries = Object.entries(state.foodInventory).filter(([, q]) => q > 0);
 
   if (entries.length === 0) {
@@ -10173,11 +10174,28 @@ function renderFoodInventory() {
     return;
   }
 
+  // 🌟 MẢNG ĐỊNH NGHĨA THỨ TỰ CON GIỐNG TỪ THẤP ĐẾN CAO
+  // (Bạn hãy thay thế các chữ 'chicken', 'pig', 'cow', 'sheep'... bằng đúng ID con giống trong game của bạn)
+  const RANCH_SORT_ORDER = ['chicken', 'duck', 'pig', 'cow', 'sheep', 'goat', 'ostrich', 'horse', 'buffalo']; // <-- Thay đổi ID các con vật ở đây cho khớp với game của bạn
+
+  entries.sort(([idA], [idB]) => {
+    let indexA = RANCH_SORT_ORDER.indexOf(idA);
+    let indexB = RANCH_SORT_ORDER.indexOf(idB);
+    
+    // Nếu con nào không có trong mảng định nghĩa thì mặc định đẩy xuống cuối
+    if (indexA === -1) indexA = 999;
+    if (indexB === -1) indexB = 999;
+    
+    return indexA - indexB;
+  });
+
   entries.forEach(([animalId, qty]) => {
     const animal = ANIMALS_DB[animalId];
+    if (!animal) return;
+
     const div = document.createElement('div');
     div.className = 'seed';
-    div.dataset.level = animal.level;
+    div.dataset.level = animal.level || 1;
     div.innerHTML = `
       <div class="emoji">${animal.foodEmoji}</div>
       <div class="meta">
@@ -10193,6 +10211,7 @@ function renderFoodInventory() {
     container.appendChild(div);
   });
 }
+
 
 
 function sellFoodItem(animalId) {
@@ -10810,9 +10829,24 @@ function renderKitchenFace() {
   container.innerHTML = '';
 
   const ownedFoods = Object.entries(state.foodInventory || {}).filter(([, q]) => q > 0);
+  
   if (ownedFoods.length === 0) {
     container.innerHTML = '<div class="muted" style="grid-column: 1/-1; text-align:center;">Kho thực phẩm thô đang trống! Hãy thu hoạch từ chuồng.</div>';
   } else {
+    // 🌟 ĐỊNH NGHĨA THỨ TỰ ƯU TIÊN TỪ THẤP ĐẾN CAO (Sửa lại các ID cho khớp với ANIMALS_DB của bạn)
+    const KITCHEN_SORT_ORDER = ['chicken', 'duck', 'pig', 'cow', 'sheep', 'goat', 'ostrich', 'horse', 'buffalo']; 
+
+    ownedFoods.sort(([idA], [idB]) => {
+      let indexA = KITCHEN_SORT_ORDER.indexOf(idA);
+      let indexB = KITCHEN_SORT_ORDER.indexOf(idB);
+      
+      // Nếu con nào không có trong mảng thì mặc định đẩy xuống cuối
+      if (indexA === -1) indexA = 999;
+      if (indexB === -1) indexB = 999;
+      
+      return indexA - indexB;
+    });
+
     ownedFoods.forEach(([animalId, qty]) => {
       const animal = ANIMALS_DB[animalId];
       if (!animal) return;
@@ -10831,6 +10865,7 @@ function renderKitchenFace() {
   }
   updateCookingSlotsUI();
 }
+
 
 function addIngredientToCooking(animalId) {
   if (selectedCookingIngredients.length >= 3) {
