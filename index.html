@@ -2662,6 +2662,17 @@ body:not(.logged-out) #eventIconButton {
     border: 1px solid #fed7aa;
     margin-top: 6px;
 }
+
+@media (min-width: 768px) {
+    .music-modal-responsive-box {
+        max-width: 650px !important; /* Mở rộng bề ngang popup trên PC */
+    }
+    .music-content-grid {
+        display: grid !important;
+        grid-template-columns: 1.2fr 1fr !important; /* Chia 2 cột: Cột trái danh sách rộng hơn, cột phải công cụ */
+        gap: 14px !important;
+    }
+}
   </style>
 </head>
 <body>
@@ -2724,7 +2735,7 @@ body:not(.logged-out) #eventIconButton {
           <div class="sub">Trồng — Chăm — Thu hoạch — Đổi quà</div>
         </div>
       </div>
-      <div class="status">
+     <div class="status">
     <div class="resource" id="coins">💰 0</div>
     <div class="resource" id="waterAmount" onclick="handleResourceClick()" title="Nhấp để chuyển nhanh tới cửa hàng" style="cursor: pointer; transition: transform 0.15s ease;">💧 50L</div>
     
@@ -2733,8 +2744,13 @@ body:not(.logged-out) #eventIconButton {
         ID:<span id="idTextVal">------</span>
     </div>
 
+    <!-- Thêm nút mở popup danh sách nhạc -->
+<button class="btn secondary" id="openMusicModalBtn" onclick="openMusicPopup()" title="Mở danh sách nhạc" style="padding: 6px 10px; font-size: 13px;">🎶</button>
     <button class="btn secondary" id="loginStatusBtn" title="Tài khoản & Cài đặt" style="padding: 6px 10px; font-size: 11px;">🧑‍🌾 Thoát</button>
 </div>
+
+<!-- Khung chứa API của YouTube (Đặt kích thước 1px để không ảnh hưởng giao diện nhưng vẫn chạy được) -->
+<div id="youtubeAudioPlayerContainer" style="width:1px; height:1px; overflow:hidden; position:absolute; left:-9999px;"></div>
     </header>
     
           <!-- NÚT ICON SỰ KIỆN GÓC TRÊN BÊN PHẢI -->
@@ -4594,6 +4610,83 @@ body:not(.logged-out) #eventIconButton {
       <button class="btn secondary" id="closeInterfaceModalBtn" style="width: 100%;">Đóng</button>
     </div>
   </div>
+</div>
+
+<!-- ========================================================== -->
+<!-- POPUP DANH SÁCH NHẠC NỀN & SỰ KIỆN TRONG GAME (LINH HOẠT PC & MOBILE) -->
+<!-- ========================================================== -->
+<div id="gameMusicModal" class="farm-modal-overlay">
+    <!-- Thêm class và style linh hoạt cho khung hộp popup -->
+    <div class="farm-modal-box music-modal-responsive-box" style="max-width: 380px; width: 92%; text-align: left; transition: max-width 0.3s ease;">
+        <div style="text-align: center; border-bottom: 2px dashed #93c5fd; padding-bottom: 8px; margin-bottom: 12px;">
+            <div class="farm-modal-icon" style="font-size: 38px;">🎵</div>
+            <h3 style="margin: 0; color: #1e40af;">Góc Âm Nhạc Nông Trại</h3>
+            <p class="muted-2" style="font-size: 12px; margin: 4px 0 0 0;" id="musicPopupSubtitle">Danh sách phát theo mùa sự kiện hiện tại</p>
+        </div>
+
+        <!-- 🌟 KHU VỰC NỘI DUNG: Sẽ tự động chuyển thành 2 cột trên màn hình rộng, giữ nguyên 1 cột trên điện thoại -->
+        <div class="music-content-grid" style="display: flex; flex-direction: column; gap: 10px;">
+            
+            <!-- Khung chứa danh sách bài hát -->
+            <div>
+                <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 4px;">Danh sách phát:</div>
+                <div id="musicPlaylistContainer" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+                    <!-- Render tự động qua JS -->
+                </div>
+            </div>
+
+            <!-- Khung nhóm các công cụ phụ (Thêm nhạc + Trang thái đang phát) -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- KHUNG THÊM NHẠC TÙY CHỈNH -->
+                <div style="background: #eff6ff; border: 1.5px dashed #3b82f6; border-radius: 10px; padding: 10px;">
+                    <div style="font-size: 11.5px; font-weight: 700; color: #1e40af; margin-bottom: 6px;">➕ Thêm bài hát YouTube của riêng bạn:</div>
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" id="customTrackNameInput" placeholder="Tên bài hát (VD: Nhạc farm chill)" style="flex: 1; padding: 5px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="customTrackLinkInput" placeholder="Dán link YouTube (VD: https://youtu.be/...)" style="flex: 1; padding: 5px 8px; font-size: 11px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+                        <button class="btn" onclick="addNewCustomTrack()" style="background: #2563eb; font-size: 11px; padding: 5px 10px; flex-shrink: 0; border: none; color: white; border-radius: 6px; cursor: pointer;">Thêm</button>
+                    </div>
+                </div>
+
+                <!-- Khung hiển thị bài đang chọn -->
+                <div id="activeMusicPlayerBox" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 8px; text-align: center;">
+                    <div id="nowPlayingTitle" style="font-size: 12px; font-weight: 700; color: #166534;">Đang chọn: Chưa phát bài nào</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="farm-modal-actions" style="margin-top: 12px;">
+            <button class="btn secondary" onclick="closeMusicPopup()" style="width: 100%;">Đóng Cửa Sổ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================== -->
+<!-- KHUNG PHÁT NHẠC YOUTUBE API & NÚT ẨN/HIỆN NGẦM -->
+<!-- ========================================================== -->
+
+<!-- Thư viện API chính thức của YouTube -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<!-- Khung video nổi ở góc màn hình -->
+<div id="ytFloatingContainer" style="position: fixed; bottom: 16px; left: 16px; z-index: 400; display: none; background: #000; border: 2px solid #22c55e; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+    <!-- Thanh tiêu đề điều khiển -->
+    <div style="background: #15803d; color: white; font-size: 11px; padding: 5px 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; gap: 8px;">
+        <span id="ytFloatingTitle" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">🎶 Đang phát nhạc</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <button onclick="hideYtFrameOnly()" style="background: #166534; border: none; color: white; cursor: pointer; font-size: 10px; padding: 2px 6px; border-radius: 4px;" title="Ẩn khung, nhạc vẫn chạy">👁️‍🗨️ Ẩn khung</button>
+            <button onclick="closeYtPlayerCompletely()" style="background: none; border: none; color: white; cursor: pointer; font-size: 13px; font-weight: bold;" title="Tắt hẳn nhạc">✕</button>
+        </div>
+    </div>
+    <!-- Vùng chứa YouTube Player ngầm -->
+    <div id="youtubePlayerBox" style="width: 200px; height: 112px; background: #000;"></div>
+</div>
+
+<!-- 🌟 Nút tròn nhỏ khi ẩn khung: Đã được chỉnh dịch xuống sát góc dưới cùng bên trái -->
+<div id="restoreYtBtn" onclick="restoreYtFrame()" style="position: fixed; bottom: 16px; left: 16px; z-index: 399; display: none; background: #22c55e; color: white; border: 2px solid #15803d; border-radius: 50%; width: 42px; height: 42px; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 20px;" title="Hiện lại khung video">
+    🎵
 </div>
 <script>
 /*
@@ -12475,14 +12568,15 @@ window.addEventListener('click', (e) => {
 
 // Danh sách các mẹo chơi game với thẻ <strong> chuẩn xác
 const npcTips = [
-  "Khi mới bắt đầu, bạn nên phối cây <strong>🥔🥒</strong> vì nó được phối từ <strong>2 hạt giống free</strong>. Nó cũng là cây bán được <strong>nhiều tiền nhất</strong> trong các cây phối free còn lại. Cứ trồng rồi bán, spam đến mốc <strong>5.000 xu</strong> rồi bạn hãy mua hạt giống mới và bắt đầu làm nhiệm vụ.",
-  "Khu trồng cây là nơi thích hợp để <strong>cày tiền</strong>, hãy spam tiền bên này rồi qua khu chăn nuôi chơi.",
-  "Số dư <strong>nước 💧, thức ăn 🌾</strong> và <strong>lửa 🔥</strong> có thể <strong>ấn vô</strong> để <strong>dịch chuyển xuống cửa hàng nhanh</strong> đó nha! Hãy dùng nó để <strong>tiết kiệm thời gian</strong> lướt nhiều hơn nha.",
-  "Bạn nhớ để ý <strong>nước 💧 và lúa 🌾</strong> nha! Xuống <strong>0</strong> nước và lúa là tốc độ phát triển cây và động vật sẽ <strong>giảm 50%</strong> đó! Có thể mua thêm ở cửa hàng bên dưới.",
-  "Nên dùng các <strong>nút tiện ích</strong> để hỗ trợ bạn nhiều hơn nè!",
-  "<strong>Đơn hàng sự kiện</strong> sẽ <strong>không được tính</strong> trong việc làm <strong>nhiệm vụ</strong> và <strong>thử thách</strong> đâu nhé!",
+  "Khi mới bắt đầu, bạn nên phối cây <strong>🥔🥒</strong> vì nó được phối từ <strong>2 hạt giống free</strong>. Nó cũng là cây bán được <strong>nhiều tiền nhất</strong> trong các cây phối free còn lại. Cứ trồng rồi bán, spam đến mốc <strong>5.000 xu</strong> rồi bạn hãy mua hạt giống mới và bắt đầu làm nhiệm vụ. 🌾",
+  "Ở <strong>Góc chọn nhạc 🎵</strong>, bạn có thể <strong>thêm bất kì video nào</strong> trên YouTube để xem chứ <strong>không nhất thiết là nhạc</strong> nhé! 📺✨",
+  "Số dư <strong>nước 💧, thức ăn 🌾</strong> và <strong>lửa 🔥</strong> có thể <strong>ấn vô</strong> để <strong>dịch chuyển xuống cửa hàng nhanh</strong> đó nha! Hãy dùng nó để <strong>tiết kiệm thời gian</strong> lướt nhiều hơn nha. ⚡",
+  "Bạn nhớ để ý <strong>nước 💧 và lúa 🌾</strong> nha! Xuống <strong>0</strong> nước và lúa là tốc độ phát triển cây và động vật sẽ <strong>giảm 50%</strong> đó! Có thể mua thêm ở cửa hàng bên dưới. ⚠️",
+  "Nên dùng các <strong>nút tiện ích</strong> để hỗ trợ bạn nhiều hơn nè! 🛠️",
+  "Khu trồng cây là nơi thích hợp để <strong>cày tiền</strong>, hãy spam tiền bên này rồi qua khu chăn nuôi chơi. 💰",
+  "<strong>Đơn hàng sự kiện</strong> sẽ <strong>không được tính</strong> trong việc làm <strong>nhiệm vụ</strong> và <strong>thử thách</strong> đâu nhé! 📋",
   "Việc <strong>phối giống cây sự kiện</strong> sẽ <strong>không tính vào tiến độ nhiệm vụ sự kiện</strong> đâu nhé, hãy lưu ý khi làm nhiệm vụ nha! 🌿✨"
-];
+  ];
 
 let currentTipIndex = 0;
 
@@ -13720,7 +13814,7 @@ document.getElementById('closeEventModalBtn').onclick = () => {
 // ==========================================
 let TEST_OVERRIDE_STATUS = {
   type: null, // 'active', 'countdown', 'waiting', hoặc null
-  month: 10,      // 10 = Tháng 10 (Halloween)
+  month: 2,      // 10 = Tháng 10 (Halloween)
   day: 1          // Ngày muốn test (ví dụ: ngày 1, ngày 5, ngày 12,...)
 };
 
@@ -17606,8 +17700,305 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ==========================================================================
+// 🎶 HỆ THỐNG QUẢN LÝ NHẠC YOUTUBE API + TÙY CHỈNH THÊM/XÓA BÀI HÁT VĨNH VIỄN
+// ==========================================================================
+
+// ==========================================================================
+// 🎶 DANH SÁCH NHẠC NỀN & SỰ KIỆN 12 THÁNG (ĐÃ CẬP NHẬT CHUẨN ID YOUTUBE)
+// ==========================================================================
+
+let NORMAL_MUSIC_TRACKS = [
+    { name: "Nhạc nền chill 01", id: "IaXFyrJ7dGY" },
+    { name: "Nhạc nền vui tươi 02", id: "KIunwCFWDUE" },
+    { name: "Nhạc nền thư giãn 03", id: "hfavqkBrwXI" },
+    { name: "Nhạc nền acoustic 04", id: "aIMhtT52fi8" },
+    { name: "Nhạc nền êm dịu 05", id: "dQop7JvC67o" }
+];
+
+let SEASONAL_MUSIC_TRACKS = {
+    tet_duong: { name: "🎆 Nhạc Sự Kiện: Tết Dương Lịch", id: "qK3BDRNm0CQ" },
+    tet_am: { name: "🧧 Nhạc Sự Kiện: Tết Âm Lịch", id: "iKNN4Y4LLw4" },
+    '8_thang_3': { name: "🌹 Nhạc Sự Kiện: Quốc Tế Phụ Nữ", id: "JCn0hoILmyw" },
+    ca_thang_tu: { name: "🃏 Nhạc Sự Kiện: Cá Tháng Tư", id: "BqbF2W0gwyg" },
+    he_thang_5: { name: "☀️ Nhạc Sự Kiện: Mùa Hè Tháng 5", id: "rA0XEb6ZBeU" },
+    he_thang_6: { name: "🏖️ Nhạc Sự Kiện: Mùa Hè Tháng 6", id: "KSSNnBHSfKY" },
+    co_hon_7: { name: "👻 Nhạc Sự Kiện: Tháng Cô Hồn (7)", id: "NMu6PjdTIgk" },
+    co_hon_8: { name: "🏮 Nhạc Sự Kiện: Tháng Cô Hồn (8)", id: "T8VIWbAf4zU" },
+    trung_thu: { name: "🥮 Nhạc Sự Kiện: Tết Trung Thu", id: "8lqIviL8itA" },
+    halloween: { name: "🎃 Nhạc Sự Kiện: Tháng 10 (Halloween)", id: "vuPhCSunt5U" },
+    noel_11: { name: "🎄 Nhạc Sự Kiện: Tháng 11", id: "C1itkpVcKIE" },
+    noel_12: { name: "🎅 Nhạc Sự Kiện: Tháng 12 (Năm Mới)", id: "m2attzCq4CY" }
+};
+
+let ytPlayer = null;
+let currentPlayingYtId = null;
+let currentPlayingYtName = "";
+
+// 🌟 TẢI CÁC BÀI HÁT TỰ THÊM TỪ LOCALSTORAGE KHI VÀO GAME
+let customUserTracks = [];
+try {
+    const saved = localStorage.getItem('farm_mini_custom_tracks');
+    if (saved) {
+        customUserTracks = JSON.parse(saved);
+    }
+} catch (e) {
+    customUserTracks = [];
+}
+
+// Hàm bóc tách YouTube ID từ bất kỳ link nào người chơi dán vào
+function extractYouTubeId(url) {
+    if (!url) return null;
+    let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    let match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// 🌟 HÀM THÊM BÀI HÁT MỚI (LƯU VĨNH VIỄN)
+function addNewCustomTrack() {
+    const nameInput = document.getElementById('customTrackNameInput');
+    const linkInput = document.getElementById('customTrackLinkInput');
+    
+    if (!nameInput || !linkInput) return;
+
+    const trackName = nameInput.value.trim();
+    const trackLink = linkInput.value.trim();
+
+    if (!trackName) {
+        alert("Vui lòng nhập tên bài hát!");
+        return;
+    }
+
+    const videoId = extractYouTubeId(trackLink);
+    if (!videoId) {
+        alert("Link YouTube không hợp lệ! Vui lòng kiểm tra lại đường dẫn.");
+        return;
+    }
+
+    // Thêm vào mảng bài tự chọn
+    const newTrack = { id: videoId, name: `⭐ ${trackName}`, isCustom: true };
+    customUserTracks.push(newTrack);
+
+    // Lưu vào localStorage để giữ vĩnh viễn
+    try {
+        localStorage.setItem('farm_mini_custom_tracks', JSON.stringify(customUserTracks));
+    } catch (e) {}
+
+    // Reset ô input và render lại popup
+    nameInput.value = '';
+    linkInput.value = '';
+    renderYtMusicPlaylistUI();
+    showTopToast('THÀNH CÔNG', `Đã thêm bài hát "${trackName}" vào danh sách!`, '🎵');
+}
+
+// 🌟 HÀM XÓA BÀI HÁT TÙY CHỈNH
+function removeCustomTrack(videoId) {
+    customUserTracks = customUserTracks.filter(t => t.id !== videoId);
+    
+    try {
+        localStorage.setItem('farm_mini_custom_tracks', JSON.stringify(customUserTracks));
+    } catch (e) {}
+
+    // Nếu đang phát bài bị xóa thì dừng luôn
+    if (currentPlayingYtId === videoId) {
+        closeYtPlayerCompletely();
+    } else {
+        renderYtMusicPlaylistUI();
+    }
+    
+    showTopToast('ĐÃ XÓA', 'Đã xóa bài hát khỏi danh sách.', '🗑️');
+}
+
+// Mở Popup Danh Sách Nhạc
+function openMusicPopup() {
+    const modal = document.getElementById('gameMusicModal');
+    if (modal) {
+        renderYtMusicPlaylistUI();
+        modal.classList.add('open');
+        if (typeof SoundEngine !== 'undefined') SoundEngine.click();
+    }
+}
+
+// Đóng Popup Danh Sách Nhạc
+function closeMusicPopup() {
+    const modal = document.getElementById('gameMusicModal');
+    if (modal) modal.classList.remove('open');
+}
+
+// Render danh sách bài hát lên popup (Chỉ hiện nhạc sự kiện khi có sự kiện đang diễn ra)
+function renderYtMusicPlaylistUI() {
+    const container = document.getElementById('musicPlaylistContainer');
+    const subtitleEl = document.getElementById('musicPopupSubtitle');
+    const nowPlayingTitleEl = document.getElementById('nowPlayingTitle');
+    
+    if (!container) return;
+
+    if (nowPlayingTitleEl) {
+        if (currentPlayingYtId) {
+            nowPlayingTitleEl.innerHTML = `Đang chọn: <strong style="color: #15803d;">${currentPlayingYtName}</strong>`;
+        } else {
+            nowPlayingTitleEl.textContent = "Đang chọn: Chưa phát bài nào";
+        }
+    }
+
+    container.innerHTML = '';
+
+    const status = typeof getCurrentEventStatus === 'function' ? getCurrentEventStatus() : null;
+    let activeList = [];
+    let seasonNameStr = "Danh sách phát thông thường (Bình thường)";
+
+    // 🌟 Kiểm tra trạng thái sự kiện: Nếu có sự kiện active -> CHỈ LẤY NHẠC SỰ KIỆN ĐÓ
+    if (status && status.type === 'active' && SEASONAL_MUSIC_TRACKS[status.config.prefix]) {
+        const eventTrack = SEASONAL_MUSIC_TRACKS[status.config.prefix];
+        activeList = [eventTrack]; // Chỉ chứa duy nhất bài của sự kiện
+        seasonNameStr = `Đang trong mùa: ${status.config.name} 🎪 (Đã ẩn nhạc thường)`;
+    } else {
+        // Nếu không có sự kiện nào, hiển thị danh sách nhạc nền bình thường
+        activeList = NORMAL_MUSIC_TRACKS;
+    }
+
+    // Vẫn giữ lại các bài do người chơi tự thêm (customUserTracks) để họ nghe lúc nào cũng được
+    let finalDisplayList = [...customUserTracks, ...activeList];
+
+    if (subtitleEl) subtitleEl.textContent = seasonNameStr + (customUserTracks.length > 0 ? ` (+ ${customUserTracks.length} bài tự thêm)` : '');
+
+    finalDisplayList.forEach(track => {
+        const isPlaying = (currentPlayingYtId === track.id);
+        const card = document.createElement('div');
+        card.style.cssText = `
+            display: flex; align-items: center; justify-content: space-between;
+            background: ${isPlaying ? '#f0fdf4' : '#ffffff'};
+            border: 1.5px solid ${isPlaying ? '#22c55e' : '#e2e8f0'};
+            border-radius: 8px; padding: 8px 12px;
+        `;
+
+        // Phần thông tin bài hát (bấm vào để nghe / dừng)
+        let trackInfoDiv = document.createElement('div');
+        trackInfoDiv.style.cssText = `display: flex; align-items: center; gap: 8px; flex-grow: 1; overflow: hidden; cursor: pointer;`;
+        trackInfoDiv.innerHTML = `
+            <span style="font-size: 18px;">${isPlaying ? '▶️' : '🎵'}</span>
+            <span style="font-size: 12.5px; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${track.name}">${track.name}</span>
+        `;
+        trackInfoDiv.onclick = () => {
+            if (isPlaying) {
+                closeYtPlayerCompletely();
+            } else {
+                playYtTrack(track.id, track.name);
+            }
+        };
+
+        // Nhóm nút thao tác
+        let actionsDiv = document.createElement('div');
+        actionsDiv.style.cssText = `display: flex; gap: 4px; align-items: center; flex-shrink: 0;`;
+
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'btn';
+        actionBtn.style.cssText = `font-size: 11px; padding: 4px 10px; background: ${isPlaying ? '#dc2626' : '#2563eb'};`;
+        actionBtn.textContent = isPlaying ? 'Dừng phát' : 'Nghe ngay';
+        actionBtn.onclick = () => {
+            if (isPlaying) {
+                closeYtPlayerCompletely();
+            } else {
+                playYtTrack(track.id, track.name);
+            }
+        };
+        actionsDiv.appendChild(actionBtn);
+
+        // Nút xóa nếu là bài do người chơi tự thêm
+        if (track.isCustom) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.style.cssText = `background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 4px; font-size: 11px; padding: 4px 6px; cursor: pointer;`;
+            deleteBtn.textContent = '🗑️';
+            deleteBtn.title = 'Xóa bài hát này vĩnh viễn';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm(`Bạn có chắc chắn muốn xóa bài "${track.name}" không?`)) {
+                    removeCustomTrack(track.id);
+                }
+            };
+            actionsDiv.appendChild(deleteBtn);
+        }
+
+        card.appendChild(trackInfoDiv);
+        card.appendChild(actionsDiv);
+        container.appendChild(card);
+    });
+}
+
+// Phát bài hát qua YouTube API
+function playYtTrack(trackId, trackName) {
+    currentPlayingYtId = trackId;
+    currentPlayingYtName = trackName;
+
+    const wrapper = document.getElementById('ytFloatingContainer');
+    const titleBox = document.getElementById('ytFloatingTitle');
+    const restoreBtn = document.getElementById('restoreYtBtn');
+
+    if (titleBox) titleBox.textContent = `🎶 ${trackName}`;
+    if (wrapper) wrapper.style.display = 'block';
+    if (restoreBtn) restoreBtn.style.display = 'none';
+
+    if (!ytPlayer) {
+        ytPlayer = new YT.Player('youtubePlayerBox', {
+            height: '112',
+            width: '200',
+            videoId: trackId,
+            playerVars: {
+                'autoplay': 1,
+                'enablejsapi': 1,
+                'controls': 1
+            },
+            events: {
+                'onReady': (e) => e.target.playVideo()
+            }
+        });
+    } else {
+        ytPlayer.loadVideoById(trackId);
+    }
+
+    renderYtMusicPlaylistUI(); 
+    showTopToast('PHÁT NHẠC', `Đang phát: <strong>${trackName}</strong>`, '🎵');
+}
+
+// Ẩn khung video nhưng nhạc vẫn chạy ngầm
+function hideYtFrameOnly() {
+    const wrapper = document.getElementById('ytFloatingContainer');
+    const restoreBtn = document.getElementById('restoreYtBtn');
+
+    if (wrapper) wrapper.style.display = 'none';
+    if (restoreBtn) restoreBtn.style.display = 'flex';
+
+    showTopToast('ĐÃ ẨN KHUNG', 'Khung video đã ẩn, nhạc nền vẫn tiếp tục phát ngầm.', '👁️‍🗨️');
+}
+
+// Hiện lại khung video
+function restoreYtFrame() {
+    const wrapper = document.getElementById('ytFloatingContainer');
+    const restoreBtn = document.getElementById('restoreYtBtn');
+
+    if (wrapper) wrapper.style.display = 'block';
+    if (restoreBtn) restoreBtn.style.display = 'none';
+}
+
+// Tắt hẳn nhạc và hủy player
+function closeYtPlayerCompletely() {
+    currentPlayingYtId = null;
+    currentPlayingYtName = "";
+    if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+        ytPlayer.stopVideo();
+    }
+
+    const wrapper = document.getElementById('ytFloatingContainer');
+    const restoreBtn = document.getElementById('restoreYtBtn');
+
+    if (wrapper) wrapper.style.display = 'none';
+    if (restoreBtn) restoreBtn.style.display = 'none';
+
+    renderYtMusicPlaylistUI();
+    showTopToast('TẮT NHẠC', 'Đã dừng phát nhạc hoàn toàn.', '🔇');
+}
 </script>
 </body>
 </html>
-  
   
