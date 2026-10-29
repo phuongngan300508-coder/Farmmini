@@ -4749,6 +4749,8 @@ let state = {
   autoCookEnabled: false,   // false: tắt, true: đang bật nấu tự động khi treo máy
   autoCookTargetDish: null, // Lưu ID món ăn được chọn (ví dụ: 'dish_01', 'dish_15'...)
 
+  // 🌟 LƯU DANH SÁCH NHẠC / VIDEO YOUTUBE TỰ THÊM VĨNH VIỄN
+  customTracks: [],
 
   
   seeds: {
@@ -5423,6 +5425,7 @@ function load(){
         lastRanchQuestReset: 0,
 
         specialShopItems: NEW_SPECIAL_SHOP_ITEMS,
+        customTracks: [],
 
         // 🌟 BỔ SUNG ĐẦY ĐỦ TOÀN BỘ KHO HẠT GIỐNG CHUẨN VÀO INITIAL STATE TRÁNH LỖI MẤT HẠT Ở ACC CŨ
         seeds: {
@@ -5604,6 +5607,12 @@ function load(){
 
                 state.dailyRanchQuests = Array.isArray(parsed.dailyRanchQuests) ? parsed.dailyRanchQuests : [];
                 state.lastRanchQuestReset = parsed.lastRanchQuestReset || 0;
+
+                // 🌟 KHÔI PHỤC DANH SÁCH NHẠC / VIDEO TỰ THÊM TỪ ĐÁM MÂY
+                state.customTracks = Array.isArray(parsed.customTracks) ? parsed.customTracks : [];
+                if (typeof customUserTracks !== 'undefined') {
+                    customUserTracks = state.customTracks;
+                }
 
                 if (Array.isArray(parsed.barns) && parsed.barns.length > 0) {
                     state.barns = parsed.barns;
@@ -17432,7 +17441,10 @@ function save(){
     unlockedRanchTitles: state.unlockedRanchTitles,
     ranchStats: state.ranchStats,
     dailyRanchQuests: state.dailyRanchQuests,
-    lastRanchQuestReset: state.lastRanchQuestReset
+    lastRanchQuestReset: state.lastRanchQuestReset,
+    
+    // 🌟 THÊM DÒNG NÀY ĐỂ LƯU VÀ ĐỒNG BỘ DANH SÁCH NHẠC / VIDEO TỰ THÊM LÊN ĐÁM MÂY
+    customTracks: state.customTracks || []
   };
 
   // Lưu cục bộ
@@ -17998,7 +18010,74 @@ function closeYtPlayerCompletely() {
     renderYtMusicPlaylistUI();
     showTopToast('TẮT NHẠC', 'Đã dừng phát nhạc hoàn toàn.', '🔇');
 }
+
+// 🌟 TẢI BÀI HÁT TỰ THÊM TỪ STATE CHUNG CỦA GAME
+function initCustomUserTracks() {
+    if (state && Array.isArray(state.customTracks)) {
+        customUserTracks = state.customTracks;
+    } else {
+        customUserTracks = [];
+    }
+}
+
+// 🌟 THÊM BÀI HÁT MỚI (ĐỒNG BỘ LÊN ĐÁM MÂY QUA MÃ ID)
+function addNewCustomTrack() {
+    const nameInput = document.getElementById('customTrackNameInput');
+    const linkInput = document.getElementById('customTrackLinkInput');
+    
+    if (!nameInput || !linkInput) return;
+
+    const trackName = nameInput.value.trim();
+    const trackLink = linkInput.value.trim();
+
+    if (!trackName) {
+        alert("Vui lòng nhập tên bài hát hoặc video!");
+        return;
+    }
+
+    const videoId = extractYouTubeId(trackLink);
+    if (!videoId) {
+        alert("Link YouTube không hợp lệ! Vui lòng kiểm tra lại đường dẫn.");
+        return;
+    }
+
+    // Thêm vào mảng trong state chung
+    const newTrack = { id: videoId, name: `⭐ ${trackName}`, isCustom: true };
+    
+    if (!state.customTracks) state.customTracks = [];
+    state.customTracks.push(newTrack);
+    customUserTracks = state.customTracks;
+
+    // Lưu và đồng bộ lên đám mây Firebase ngay lập tức
+    save();
+
+    // Reset ô input và render lại popup
+    nameInput.value = '';
+    linkInput.value = '';
+    renderYtMusicPlaylistUI();
+    showTopToast('THÀNH CÔNG', `Đã lưu và đồng bộ "${trackName}" lên đám mây!`, '🎵');
+}
+
+// 🌟 XÓA BÀI HÁT TÙY CHỈNH & ĐỒNG BỘ LÊN ĐÁM MÂY
+function removeCustomTrack(videoId) {
+    if (!state.customTracks) state.customTracks = [];
+    
+    state.customTracks = state.customTracks.filter(t => t.id !== videoId);
+    customUserTracks = state.customTracks;
+
+    // Lưu và đồng bộ lên đám mây Firebase
+    save();
+
+    if (currentPlayingYtId === videoId) {
+        closeYtPlayerCompletely();
+    } else {
+        renderYtMusicPlaylistUI();
+    }
+    
+    showTopToast('ĐÃ XÓA', 'Đã xóa bài hát và đồng bộ thay đổi.', '🗑️');
+}
 </script>
 </body>
 </html>
+  
   
