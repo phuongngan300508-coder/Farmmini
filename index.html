@@ -5245,9 +5245,7 @@ function save(){
   }));
 }
 
-                
-                        
-    function load(){
+function load(){
     if (!currentUser) return; 
 
     currentStorageKey = STORAGE_KEY_PREFIX + currentUser;
@@ -5261,11 +5259,11 @@ function save(){
         water_500: { name: 'Gói 500 Nước', value: 500, cost: 1800, type: 'water' },
         water_1000: { name: 'Gói 1.000 Nước', value: 1000, cost: 3400, type: 'water' },
         pack30k: { name:'Gói 30k', value:30000, cost:1500000, type:'coin' },
-        pack40k: { name:'Gói 40k', value:40000, cost:1750000, type:'coin' },
-        pack50k: { name:'Gói 50k', value:50000, cost:2000000, type:'coin' }
+        pack40k: { name: 'Gói 40k', value: 40000, cost: 1750000, type: 'coin' },
+        pack50k: { name: 'Gói 50k', value: 50000, cost: 2000000, type: 'coin' }
     };
 
-    // 💡 Tái tạo initialState an toàn
+    // 💡 Tái tạo initialState an toàn (ĐÃ BỔ SUNG ĐẦY ĐỦ BỘ SEEDS CHUẨN)
     let initialState = JSON.parse(JSON.stringify({ 
         coins: DEFAULT_COINS,
         water: DEFAULT_WATER,
@@ -5284,8 +5282,8 @@ function save(){
         ranchOrderChallengeClaimed: null,
         
         eventProgress: {
-          quests: EVENT_QUESTS_DEFINITIONS.map(q => ({ ...q, current: 0 })),
-          challenges: EVENT_CHALLENGES_DEFINITIONS.map(c => ({ ...c, current: 0 })),
+          quests: typeof EVENT_QUESTS_DEFINITIONS !== 'undefined' ? EVENT_QUESTS_DEFINITIONS.map(q => ({ ...q, current: 0 })) : [],
+          challenges: typeof EVENT_CHALLENGES_DEFINITIONS !== 'undefined' ? EVENT_CHALLENGES_DEFINITIONS.map(c => ({ ...c, current: 0 })) : [],
           rewardClaimed: false
         },
 
@@ -5297,14 +5295,9 @@ function save(){
         equippedTitle: null,
         statsMigrated: false,
         stats: {
-            plantedCount: 0,
-            harvestedCount: 0,
-            fusionSuccessCount: 0,
-            fusionTryCount: 0,
-            ordersCompleted: 0,
-            questsClaimed: 0,
-            cropsSold: 0,
-            totalCoinsEarned: 0
+            plantedCount: 0, harvestedCount: 0, fusionSuccessCount: 0,
+            fusionTryCount: 0, ordersCompleted: 0, questsClaimed: 0,
+            cropsSold: 0, totalCoinsEarned: 0
         },
         unlockedTitles: [],
 
@@ -5329,36 +5322,128 @@ function save(){
         ranchEquippedTitle: null,
         unlockedRanchTitles: [],
         ranchStats: {
-            eggsCollected: 0,
-            milkCollected: 0,
-            woolCollected: 0,
-            feedUsed: 0,
-            foodOrdersCompleted: 0,
-            foodSoldDirectly: 0,
-            ranchCoinsEarned: 0,
-            dishesCooked: 0
+            eggsCollected: 0, milkCollected: 0, woolCollected: 0, feedUsed: 0,
+            foodOrdersCompleted: 0, foodSoldDirectly: 0, ranchCoinsEarned: 0, dishesCooked: 0
         },
 
         dailyRanchQuests: [],
         lastRanchQuestReset: 0,
 
-        specialShopItems: NEW_SPECIAL_SHOP_ITEMS
+        specialShopItems: NEW_SPECIAL_SHOP_ITEMS,
+
+        // 🌟 BỔ SUNG ĐẦY ĐỦ TOÀN BỘ KHO HẠT GIỐNG CHUẨN VÀO INITIAL STATE TRÁNH LỖI MẤT HẠT Ở ACC CŨ
+        seeds: {
+            carrot: { id:'carrot', name:'Cà rốt', emoji:'🥕', time:20, cost:5, value:12, level:'Common' },
+            corn: { id:'corn', name:'Ngô', emoji:'🌽', time:30, cost:8, value:18, level:'Common' },
+            tomato: { id:'tomato', name:'Cà chua', emoji:'🍅', time:25, cost:7, value:15, level:'Common' },
+            potato: { id:'potato', name:'Khoai tây', emoji:'🥔', time:22, cost:6, value:13, level:'Common' },
+            cucumber: { id:'cucumber', name:'Dưa leo', emoji:'🥒', time:18, cost:5, value:11, level:'Common' },
+            strawberry: { id:'strawberry', name:'Dâu', emoji:'🍓', time:40, cost:12, value:30, level:'Uncommon', shopPrice: 150 },
+            coffee: { id:'coffee', name:'Cà phê', emoji:'☕', time:50, cost:15, value:38, level:'Uncommon', shopPrice: 180 },
+            cabbage: { id:'cabbage', name:'Bắp cải', emoji:'🥬', time:34, cost:10, value:24, level:'Uncommon', shopPrice: 130 },
+            pumpkin: { id:'pumpkin', name:'Bí đỏ', emoji:'🎃', time:45, cost:14, value:35, level:'Uncommon', shopPrice: 170 },
+            grape: { id:'grape', name:'Nho', emoji:'🍇', time:55, cost:18, value:46, level:'Uncommon', shopPrice: 220 },
+            carno: { id:'carno', name:'Carno', emoji:'🌽🥕', time:35, cost:15, value:63, level:'Uncommon', fusion: true },
+            tomcar: { id:'tomcar', name:'Tomcar', emoji:'🍅🥕', time:36, cost:16, value:65, level:'Uncommon', fusion: true },
+            potcorn: { id:'potcorn', name:'Potcorn', emoji:'🥔🌽', time:38, cost:17, value:68, level:'Uncommon', fusion: true },
+            tomcumber: { id:'tomcumber', name:'Tomcumber', emoji:'🍅🥒', time:35, cost:16, value:61, level:'Uncommon', fusion: true },
+            potcumber: { id:'potcumber', name:'Potcumber', emoji:'🥔🥒', time:40, cost:18, value:70, level:'Uncommon', fusion: true },
+            cacao: { id:'cacao', name:'Ca cao', emoji:'🍫', time:90, cost:30, value:85, level:'Rare', shopPrice: 400 },
+            moonflower: { id:'moonflower', name:'Cây Ánh Trăng', emoji:'🌙', time:85, cost:28, value:80, level:'Rare', shopPrice: 400 },
+            orchid: { id:'orchid', name:'Hoa lan', emoji:'🌸', time:75, cost:25, value:70, level:'Rare', shopPrice: 400 },
+            greentea: { id:'greentea', name:'Trà xanh', emoji:'🍵', time:70, cost:22, value:60, level:'Rare', shopPrice: 450 },
+            peach: { id:'peach', name:'Đào', emoji:'🍑', time:80, cost:26, value:75, level:'Rare', shopPrice: 450 },
+            blueberry: { id:'blueberry', name:'Việt Quất', emoji:'🫐', time:75, cost:28, value:78, level:'Rare', shopPrice: 420 },
+            honeytree: { id:'honeytree', name:'Cây mật ong', emoji:'🍯', time:100, cost:35, value:100, level:'Rare', shopPrice: 500 },
+            berrycaff: { id:'berrycaff', name:'BerryCaff', emoji:'☕🍓', time:85, cost:40, value:110, level:'Rare', fusion: true },
+            pumpgrap: { id:'pumpgrap', name:'PumpGrap', emoji:'🎃🍇', time:90, cost:42, value:150, level:'Rare', fusion: true },
+            pumpcabb: { id:'pumpcabb', name:'PumpCabb', emoji:'🎃🥬', time:88, cost:41, value:135, level:'Rare', fusion: true },
+            coffcabb: { id:'coffcabb', name:'CoffCabb', emoji:'☕🥬', time:80, cost:38, value:120, level:'Rare', fusion: true },
+            strawcabb: { id:'strawcabb', name:'StrawCabb', emoji:'🍓🥬', time:82, cost:39, value:130, level:'Rare', fusion: true },
+            mooncacao: { id:'mooncacao', name:'MoonCacao', emoji:'🌙🍫', time:120, cost:60, value:250, level:'Legendary', fusion: true },
+            berrypump: { id:'berrypump', name:'BerryPump', emoji:'☕🍓🎃🍇', time:125, cost:65, value:300, level:'Legendary', fusion: true },
+            coffstraw: { id:'coffstraw', name:'CoffStraw', emoji:'☕🍓🥬', time:115, cost:58, value:245, level:'Legendary', fusion: true },
+            honeygrap: { id:'honeygrap', name:'HoneyGrap', emoji:'🐝🍇🎃', time:130, cost:70, value:270, level:'Legendary', fusion: true },
+            orchidtea: { id:'orchidtea', name:'OrchidTea', emoji:'🌸🍵', time:120, cost:62, value:255, level:'Legendary', fusion: true },
+            mega_pump: { id:'mega_pump', name:'MegaPump', emoji:'🎃🎃', time:140, cost:75, value:350, level:'Legendary', fusion: true },
+            cacao_honey: { id:'cacao_honey', name:'Cacao Mật Ong', emoji:'🍫🍯', time:145, cost:80, value:380, level:'Legendary', fusion: true },
+            moon_orchid: { id:'moon_orchid', name:'Hoa Ánh Trăng', emoji:'🌙🌸', time:135, cost:70, value:310, level:'Legendary', fusion: true },
+            tea_honey: { id:'tea_honey', name:'Trà Mật Ong', emoji:'🍵🍯', time:150, cost:90, value:400, level:'Legendary', fusion: true },
+            peachtea: { id:'peachtea', name:'Trà Đào', emoji:'🍑🍵', time:120, cost:65, value:320, level:'Legendary', fusion: true },
+            blueberrycacao: { id:'blueberrycacao', name:'Blueberry Cacao', emoji:'🫐🍫', time:130, cost:70, value:330, level:'Legendary', fusion: true },
+            star_lotus: { id:'star_lotus', name:'Sen Sao', emoji:'⭐🌸', time:160, cost:150, value:450, level:'Legendary', fusion: true },
+            lava_fruit: { id:'lava_fruit', name:'Trái Dung Nham', emoji:'🔥🍒', time:170, cost:160, value:480, level:'Legendary', fusion: true },
+            crystal_tea: { id:'crystal_tea', name:'Trà Pha Lê', emoji:'💎🍵', time:148, cost:135, value:390, level:'Legendary', fusion: true },
+            aqua_berry: { id:'aqua_berry', name:'Việt Quất Nước', emoji:'💧🍓', time:152, cost:140, value:410, level:'Legendary', fusion: true },
+            shadow_bean: { id:'shadow_bean', name:'Đậu Bóng Tối', emoji:'🌑🌱', time:175, cost:170, value:500, level:'Legendary', fusion: true },
+            sunstone: { id:'sunstone', name:'Đá Mặt Trời', emoji:'🌞', time:180, cost:110, value:650, level:'Mythic', fusion: true },
+            dragonfruit: { id:'dragonfruit', name:'Thanh Long Rồng', emoji:'🐉', time:190, cost:115, value:680, level:'Mythic', fusion: true },
+            starcandy: { id:'starcandy', name:'Kẹo Sao', emoji:'🌟', time:200, cost:120, value:700, level:'Mythic', fusion: true },
+            phoenix: { id:'phoenix', name:'Phượng Hoàng', emoji:'🔥', time:195, cost:125, value:720, level:'Mythic', fusion: true },
+            galaxy: { id:'galaxy', name:'Cây Ngân Hà', emoji:'🌌', time:210, cost:140, value:800, level:'Mythic', fusion: true },
+            neptune: { id:'neptune', name:'Hải Vương', emoji:'🔱', time:215, cost:144, value:820, level:'Mythic', fusion: true },
+            m_diamond: { id:'m_diamond', name:'Kim Cương Mía', emoji:'💎', time:220, cost:148, value:850, level:'Mythic', fusion: true },
+            eternity: { id:'eternity', name:'Hoa Vĩnh Cửu', emoji:'♾️', time:230, cost:160, value:900, level:'Mythic', fusion: true },
+            rainbow: { id:'rainbow', name:'Cầu Vồng', emoji:'🌈', time:240, cost:180, value:1000, level:'Mythic', fusion: true },
+            celestial: { id:'celestial', name:'Thiên Thể', emoji:'💫', time:250, cost:200, value:1200, level:'Mythic', fusion: true },
+            aurora_seed: { id:'aurora_seed', name:'Hạt Cực Quang', emoji:'✨💚', time:260, cost:250, value:1300, level:'Mythic', fusion: true },
+            thunder_root: { id:'thunder_root', name:'Củ Sấm Sét', emoji:'⚡🍠', time:270, cost:270, value:1400, level:'Mythic', fusion: true },
+            comet_star: { id:'comet_star', name:'Sao Chổi', emoji:'☄️⭐', time:280, cost:300, value:1500, level:'Mythic', fusion: true },
+            wind_blossom: { id:'wind_blossom', name:'Hoa Gió', emoji:'💨🌬️', time:290, cost:330, value:1600, level:'Mythic', fusion: true },
+            siren_song: { id:'siren_song', name:'Khúc Hát Nàng Tiên Cá', emoji:'🧜‍♀️🎶', time:300, cost:350, value:1700, level:'Mythic', fusion: true },
+            star_tear: { id:'star_tear', name:'Lệ Tinh Tú', emoji:'✨💧', time:260, cost:300, value:1800, level:'Divine', fusion: true },
+            sun_crown: { id:'sun_crown', name:'Vương Miện Mặt Trời', emoji:'👑☀️', time:280, cost:350, value:2000, level:'Divine', fusion: true },
+            time_fruit: { id:'time_fruit', name:'Trái Cây Thời Gian', emoji:'⏳🍇', time:300, cost:400, value:2200, level:'Divine', fusion: true },
+            chaos_leaf: { id:'chaos_leaf', name:'Lá Hỗn Mang', emoji:'🌀🍃', time:320, cost:450, value:2500, level:'Divine', fusion: true },
+            void_rose: { id:'void_rose', name:'Hoa Hồng Hư Vô', emoji:'🖤🌹', time:340, cost:500, value:2800, level:'Divine', fusion: true },
+            soul_tree: { id:'soul_tree', name:'Cây Hồn', emoji:'👻🌳', time:360, cost:550, value:3000, level:'Divine', fusion: true },
+            diamond_heart: { id:'diamond_heart', name:'Kim Cương Trái Tim', emoji:'💖💎', time:380, cost:600, value:3200, level:'Divine', fusion: true },
+            ocean_pearl: { id:'ocean_pearl', name:'Ngọc Trai Đại Dương', emoji:'🌊⚪', time:400, cost:650, value:3500, level:'Divine', fusion: true },
+            aether: { id:'aether', name:'Tinh Chất Ether', emoji:'🧪💨', time:420, cost:700, value:3800, level:'Divine', fusion: true },
+            infinity: { id:'infinity', name:'Hoa Vô Cực', emoji:'🌸⚛️', time:450, cost:750, value:4500, level:'Divine', fusion: true },
+            nebula_core: { id:'nebula_core', name:'Lõi Tinh Vân', emoji:'💫🌌', time:510, cost:1000, value:5000, level:'Divine', fusion: true },
+            chronos_berry: { id:'chronos_berry', name:'Mạn Việt Quất Thời Gian', emoji:'⏳🫐', time:530, cost:1200, value:5500, level:'Divine', fusion: true },
+            cosmic_heart: { id:'cosmic_heart', name:'Trái Tim Vũ Trụ', emoji:'❤️‍🔥', time:550, cost:1400, value:6000, level:'Divine', fusion: true },
+            sacred_fire: { id:'sacred_fire', name:'Lửa Thiêng', emoji:'🔥🙏', time:570, cost:1600, value:6500, level:'Divine', fusion: true },
+            world_tree: { id:'world_tree', name:'Cây Thế Giới', emoji:'🌍🌳', time:600, cost:1800, value:7000, level:'Divine', fusion: true }
+        }
     }));
     
     initialState.tiles = createEmptyTiles(initialState.rows, initialState.cols);
-
     let isNewAccount = false; 
 
     if(raw){
         try{
             const parsed = JSON.parse(raw);
-            if(parsed && parsed.tiles){
-                state = initialState;
-                state = Object.assign(state, parsed);
+            if(parsed){
+                // 🛡️ TỰ ĐỘNG VÁ LỖI: Hợp nhất state cũ với state chuẩn
+                state = Object.assign({}, initialState, parsed);
                 
-                // 🌟 GIỮ NGUYÊN HOẶC HỢP NHẤT KHO HẠT GIỐNG TỪ LOCALSTORAGE (NẾU ĐÃ CÓ)
-                if (parsed.seeds) {
-                    state.seeds = Object.assign({}, state.seeds || {}, parsed.seeds);
+                if (!Array.isArray(state.tiles) || state.tiles.length === 0) {
+                    state.tiles = createEmptyTiles(state.rows || DEFAULT_ROWS, state.cols || DEFAULT_COLS);
+                }
+
+                if (!state.inventory) state.inventory = {};
+                if (!state.foodInventory) state.foodInventory = {};
+                if (!state.eventFoodInventory) state.eventFoodInventory = {};
+                if (!state.dishInventory) state.dishInventory = {};
+                if (!state.activeOrders) state.activeOrders = [];
+                
+                // 🌟 BẢO VỆ TÀI KHOẢN CŨ: Đảm bảo luôn sở hữu các hạt giống cơ bản
+                const baseUnlocked = DEFAULT_UNLOCKED_SEEDS;
+                if (!state.unlockedSeeds || !Array.isArray(state.unlockedSeeds)) {
+                    state.unlockedSeeds = baseUnlocked;
+                } else {
+                    baseUnlocked.forEach(bId => {
+                        if (!state.unlockedSeeds.includes(bId)) state.unlockedSeeds.push(bId);
+                    });
+                }
+
+                if (!state.unlockedAnimals) state.unlockedAnimals = ['chicken', 'duck'];
+
+                // 🌟 ĐỒNG BỘ TOÀN BỘ DANH MỤC HẠT GIỐNG MỚI (Tránh bị ẩn ở các acc cũ)
+                if (typeof initialState.seeds !== 'undefined' && initialState.seeds) {
+                    state.seeds = Object.assign({}, initialState.seeds, parsed.seeds || {});
                 }
 
                 state.specialShopItems = NEW_SPECIAL_SHOP_ITEMS;
@@ -5368,9 +5453,6 @@ function save(){
                 if(parsed.lastOrderReset) state.lastOrderReset = parsed.lastOrderReset;
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed;
-                
-                state.unlockedSeeds = Array.isArray(parsed.unlockedSeeds) ? parsed.unlockedSeeds : DEFAULT_UNLOCKED_SEEDS;
-                state.unlockedAnimals = Array.isArray(parsed.unlockedAnimals) ? parsed.unlockedAnimals : ['chicken', 'duck'];
 
                 if (parsed && parsed.eventProgress) {
                     const oldEventProg = parsed.eventProgress;
@@ -5379,31 +5461,12 @@ function save(){
                         rewardClaimed: oldEventProg.rewardClaimed || false,
                         quests: typeof EVENT_QUESTS_DEFINITIONS !== 'undefined' ? EVENT_QUESTS_DEFINITIONS.map(def => {
                             const oldQ = (oldEventProg.quests || []).find(q => q.id === def.id);
-                            return {
-                                ...def,
-                                current: oldQ ? (oldQ.current || 0) : 0,
-                                completed: oldQ ? !!oldQ.completed : false,
-                                claimed: oldQ ? !!oldQ.claimed : false
-                            };
+                            return { ...def, current: oldQ ? (oldQ.current || 0) : 0, completed: oldQ ? !!oldQ.completed : false, claimed: oldQ ? !!oldQ.claimed : false };
                         }) : [],
                         challenges: typeof EVENT_CHALLENGES_DEFINITIONS !== 'undefined' ? EVENT_CHALLENGES_DEFINITIONS.map(def => {
                             const oldC = (oldEventProg.challenges || []).find(c => c.id === def.id);
-                            return {
-                                ...def,
-                                current: oldC ? (oldC.current || 0) : 0,
-                                completed: oldC ? !!oldC.completed : false,
-                                claimed: oldC ? !!oldC.claimed : false
-                            };
+                            return { ...def, current: oldC ? (oldC.current || 0) : 0, completed: oldC ? !!oldC.completed : false, claimed: oldC ? !!oldC.claimed : false };
                         }) : []
-                    };
-                } else {
-                    const status = getCurrentEventStatus();
-                    const prefix = status.type === 'active' ? status.config.prefix : 'default';
-                    state.eventProgress = {
-                        eventPrefix: prefix,
-                        quests: typeof EVENT_QUESTS_DEFINITIONS !== 'undefined' ? JSON.parse(JSON.stringify(EVENT_QUESTS_DEFINITIONS)) : [],
-                        challenges: typeof EVENT_CHALLENGES_DEFINITIONS !== 'undefined' ? JSON.parse(JSON.stringify(EVENT_CHALLENGES_DEFINITIONS)) : [],
-                        rewardClaimed: false
                     };
                 }
 
@@ -5414,15 +5477,11 @@ function save(){
                 state.farmIcon = parsed.farmIcon || '🚜';
 
                 state.stats = Object.assign({
-                    plantedCount: 0,
-                    harvestedCount: 0,
-                    fusionSuccessCount: 0,
-                    fusionTryCount: 0,
-                    ordersCompleted: 0,
-                    questsClaimed: 0,
-                    cropsSold: 0,
-                    totalCoinsEarned: 0
+                    plantedCount: 0, harvestedCount: 0, fusionSuccessCount: 0,
+                    fusionTryCount: 0, ordersCompleted: 0, questsClaimed: 0,
+                    cropsSold: 0, totalCoinsEarned: 0
                 }, parsed.stats || {});
+                
                 state.unlockedTitles = Array.isArray(parsed.unlockedTitles) ? parsed.unlockedTitles : [];
                 state.equippedTitle = parsed.equippedTitle !== undefined ? parsed.equippedTitle : null;
                 state.statsMigrated = parsed.statsMigrated || false;
@@ -5446,14 +5505,8 @@ function save(){
                 state.ranchEquippedTitle = parsed.ranchEquippedTitle !== undefined ? parsed.ranchEquippedTitle : null;
                 state.unlockedRanchTitles = Array.isArray(parsed.unlockedRanchTitles) ? parsed.unlockedRanchTitles : [];
                 state.ranchStats = Object.assign({
-                    eggsCollected: 0,
-                    milkCollected: 0,
-                    woolCollected: 0,
-                    feedUsed: 0,
-                    foodOrdersCompleted: 0,
-                    foodSoldDirectly: 0,
-                    ranchCoinsEarned: 0,
-                    dishesCooked: 0
+                    eggsCollected: 0, milkCollected: 0, woolCollected: 0, feedUsed: 0,
+                    foodOrdersCompleted: 0, foodSoldDirectly: 0, ranchCoinsEarned: 0, dishesCooked: 0
                 }, parsed.ranchStats || {});
 
                 state.dailyRanchQuests = Array.isArray(parsed.dailyRanchQuests) ? parsed.dailyRanchQuests : [];
@@ -5494,75 +5547,7 @@ function save(){
     
     // Đảm bảo dữ liệu seeds gốc được nạp đủ
     if (typeof state.seeds === 'undefined' || !state.seeds) {
-        state.seeds = {};
-    }
-
-    if (typeof DETAILED_SEASONAL_EVENT_RECIPES_DB !== 'undefined') {
-        Object.keys(DETAILED_SEASONAL_EVENT_RECIPES_DB).forEach(seasonKey => {
-            const recipes = DETAILED_SEASONAL_EVENT_RECIPES_DB[seasonKey];
-            recipes.forEach(rec => {
-                if (!state.seeds[rec.id]) {
-                    state.seeds[rec.id] = {
-                        id: rec.id,
-                        name: rec.name,
-                        emoji: rec.emoji,
-                        time: 60,
-                        cost: 100,
-                        value: rec.value,
-                        level: 'EventDivine',
-                        isEventShopItem: true
-                    };
-                }
-            });
-        });
-    }
-
-    if (state.unlockedSeeds && Array.isArray(state.unlockedSeeds)) {
-        state.unlockedSeeds.forEach(sId => {
-            if (!state.seeds[sId]) {
-                for (let key in SEASONAL_SPECIES_DB) {
-                    const season = SEASONAL_SPECIES_DB[key];
-                    const found = (season.seeds || []).find(s => s.id === sId) || (season.divineSeed && season.divineSeed.id === sId ? season.divineSeed : null);
-                    if (found) {
-                        state.seeds[sId] = {
-                            id: found.id,
-                            name: found.name,
-                            emoji: found.emoji,
-                            time: found.time || 40,
-                            cost: found.cost || 30,
-                            value: found.value ? found.value * 2 : 100,
-                            level: found.level || 'Seasonal'
-                        };
-                        break;
-                    }
-                }
-            }
-        });
-    }
-
-    if (state.unlockedAnimals && Array.isArray(state.unlockedAnimals)) {
-        state.unlockedAnimals.forEach(aId => {
-            if (!ANIMALS_DB[aId]) {
-                for (let key in SEASONAL_SPECIES_DB) {
-                    const season = SEASONAL_SPECIES_DB[key];
-                    const found = (season.animals || []).find(a => a.id === aId) || (season.divineAnimal && season.divineAnimal.id === aId ? season.divineAnimal : null);
-                    if (found) {
-                        ANIMALS_DB[aId] = {
-                            id: found.id,
-                            name: found.name,
-                            emoji: found.emoji,
-                            level: found.level || 'Seasonal',
-                            foodName: found.foodName || 'Thức ăn đặc biệt',
-                            foodEmoji: found.foodEmoji || '🌾',
-                            time: found.time || 50,
-                            buyPrice: found.buyPrice || 500,
-                            foodValue: found.foodValue || 100
-                        };
-                        break;
-                    }
-                }
-            }
-        });
+        state.seeds = initialState.seeds || {};
     }
 
     const oldCoinsTemp = localStorage.getItem(getOldCoinsKey());
@@ -5579,33 +5564,18 @@ function save(){
         initSeasonalSeedsAndAnimals();
     }
 
-    if (state.activeOrders && Array.isArray(state.activeOrders)) {
-        state.activeOrders.forEach((o, idx) => {
-            if (!o.instanceId) {
-                o.instanceId = 'order_fixed_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).substr(2, 5);
-            }
-        });
-    }
-
     getTodayOrders(); 
     getTodayQuests();
     
-    if (typeof getTodayRanchQuests === 'function') {
-        getTodayRanchQuests();
-    }
-
-    if (typeof ensureOnlineOrders === 'function') {
-        ensureOnlineOrders();
-    }
+    if (typeof getTodayRanchQuests === 'function') getTodayRanchQuests();
+    if (typeof ensureOnlineOrders === 'function') ensureOnlineOrders();
 
     updateWater();
 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
     document.body.classList.remove('logged-out');
 
-    if (typeof renderFarmHeaderTitle === 'function') {
-        renderFarmHeaderTitle();
-    }
+    if (typeof renderFarmHeaderTitle === 'function') renderFarmHeaderTitle();
 
     renderSeeds();
     renderFarm();
@@ -5623,6 +5593,7 @@ function save(){
     updateLoginStatusUI();
     loadCustomNpcOnStartup();
 
+    // 🌟 ĐÃ THÊM ĐẦY ĐỦ CÁC HÀM RENDER KHU CHĂN NUÔI & BẾP NẤU VÀO ĐÂY
     if (typeof renderBarns === 'function') renderBarns();
     if (typeof renderRanchQuests === 'function') renderRanchQuests();
     if (typeof renderAnimalShop === 'function') renderAnimalShop();
@@ -5637,15 +5608,8 @@ function save(){
     if (typeof renderRanchTitles === 'function') renderRanchTitles();
     if (typeof renderSpecialRanchShop === 'function') renderSpecialRanchShop();
     if (typeof renderRanchOrderChallenges === 'function') renderRanchOrderChallenges(); 
-
     if (typeof renderAutoCookUI === 'function') renderAutoCookUI();
 
-    if (typeof FUSION_CHALLENGES !== 'undefined') {
-        notifiedChallenges = new Set(
-            FUSION_CHALLENGES.filter(c => c.check().isComplete).map(c => c.id)
-        );
-    }
-    
     if (isNewAccount) {
         state.statsMigrated = true;
         save();
@@ -5655,8 +5619,7 @@ function save(){
         if (typeof checkRanchTitles === 'function') checkRanchTitles();
         log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
-  }
-
+}
 
 
 function login(username){
@@ -5710,16 +5673,21 @@ function updateLoginStatusUI(){
 
 
 // --- RENDERING FUNCTIONS ---
-  
-    function renderSeeds(){
+
+function renderSeeds(){
   if (!currentUser) return;
+  if (!seedListEl) return;
 
   seedListEl.innerHTML = '';
   
   const searchInput = document.getElementById('inventorySeedSearchInput');
   const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
+  if (!state.seeds) state.seeds = {};
+  if (!state.unlockedSeeds) state.unlockedSeeds = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
+
   let availableSeeds = Object.values(state.seeds).filter(s => {
+    if (!s || !s.id) return false;
     if (!state.unlockedSeeds.includes(s.id)) return false;
     if (!keyword) return true;
     
@@ -5788,14 +5756,10 @@ function updateLoginStatusUI(){
     if (seeds.length > 0) {
       totalVisibleSeeds += seeds.length;
 
-      // 🌟 ÉP SẮP XẾP: CÀ RỐT LÊN ĐẦU, TIẾP ĐẾN CÁC HẠT KHÁC VÀ GIỮ CHUẨN CÀ PHÊ -> NHO
       seeds.sort((a, b) => {
         const exactOrder = {
-          // Cấp Common (Cà rốt số 1 để đứng đầu bảng)
           'carrot': 1, 'cucumber': 2, 'potato': 3, 'tomato': 4, 'corn': 5,
-          // Cấp Uncommon (Bắp cải -> Dâu -> Bí đỏ -> Cà phê -> Nho)
           'cabbage': 10, 'strawberry': 11, 'pumpkin': 12, 'coffee': 13, 'grape': 14,
-          // Các hạt fusion uncommon
           'carno': 20, 'tomcar': 21, 'potcorn': 22, 'tomcumber': 23, 'potcumber': 24
         };
 
@@ -5860,6 +5824,7 @@ function updateLoginStatusUI(){
     seedListEl.innerHTML = `<div class="muted" style="text-align:center; padding:15px;">Không tìm thấy hạt giống phù hợp với "${keyword}".</div>`;
   }
 }
+
 
 
 // Thêm vào sau renderSeeds()
@@ -6037,19 +6002,47 @@ function renderTileInfo(id){
 
 function renderShop(){
   if (!currentUser) return;
+  if (!shopListEl) return;
 
   shopListEl.innerHTML = '';
 
-  const shopSeeds = Object.values(state.seeds).filter(s => s.level !== 'Common' && !s.fusion);
+  if (!state.seeds) state.seeds = {};
+  if (!state.unlockedSeeds) state.unlockedSeeds = ['carrot', 'corn', 'tomato', 'potato', 'cucumber'];
+
+  // Lọc chỉ lấy các hạt: 
+  // 1. Thuộc cấp Trung bình (Uncommon) hoặc Hiếm (Rare)
+  // 2. KHÔNG PHẢI là hạt lai tạo (!s.fusion)
+  // 3. Có thiết lập shopPrice trong cơ sở dữ liệu
+  const shopSeeds = Object.values(state.seeds).filter(s => {
+    if (!s || !s.id || s.fusion === true) return false;
+    
+    let lvl = (s.level || '').toLowerCase();
+    const isUncommon = lvl === 'uncommon' || lvl.includes('trung bình');
+    const isRare = lvl === 'rare' || lvl.includes('hiếm');
+    
+    // Chỉ bán các hạt gốc mua được bằng tiền có shopPrice
+    return (isUncommon || isRare) && s.shopPrice;
+  });
   
+  if (shopSeeds.length === 0) {
+      shopListEl.innerHTML = '<div class="muted" style="text-align:center; padding:10px;">Không có hạt giống nào trong cửa hàng.</div>';
+      return;
+  }
+
+  const categorizedShop = {
+    'Uncommon': shopSeeds.filter(s => {
+        let l = (s.level || '').toLowerCase();
+        return l === 'uncommon' || l.includes('trung bình');
+    }),
+    'Rare': shopSeeds.filter(s => {
+        let l = (s.level || '').toLowerCase();
+        return l === 'rare' || l.includes('hiếm');
+    })
+  };
+
   const levelMap = {
     'Uncommon': '🌿 Trung bình',
     'Rare': '💎 Hiếm'
-  };
-  
-  const categorizedShop = {
-    'Uncommon': shopSeeds.filter(s => s.level === 'Uncommon'),
-    'Rare': shopSeeds.filter(s => s.level === 'Rare')
   };
 
   for (const level in categorizedShop) {
@@ -6065,18 +6058,17 @@ function renderShop(){
         const isUnlocked = state.unlockedSeeds.includes(s.id);
         
         const shopItem = document.createElement('div');
-        shopItem.className = 'row' + ' seed'; 
-        shopItem.dataset.level = s.level;
+        shopItem.className = 'row seed'; 
+        shopItem.dataset.level = s.level || level;
 
-        // Định dạng các giá tiền hiển thị
-        const costStr = Number(s.cost).toLocaleString('vi-VN');
-        const valStr = Number(s.value).toLocaleString('vi-VN');
-        const priceStr = Number(s.shopPrice).toLocaleString('vi-VN');
+        const costStr = Number(s.cost || 0).toLocaleString('vi-VN');
+        const valStr = Number(s.value || 0).toLocaleString('vi-VN');
+        const priceStr = Number(s.shopPrice || 150).toLocaleString('vi-VN');
 
         shopItem.innerHTML = `
-          <div class="emoji">${s.emoji}</div>
+          <div class="emoji">${s.emoji || '🌱'}</div>
           <div class="meta" style="flex:1">
-            <div style="font-weight:700">${s.name} ${isUnlocked ? ' (Đã mở khóa)' : ''}</div>
+            <div style="font-weight:700">${s.name || s.id} ${isUnlocked ? ' (Đã sở hữu)' : ''}</div>
             <div class="muted">Giá trồng: ${costStr}₵ | Lợi nhuận: ${valStr}₵</div>
           </div>
           ${isUnlocked 
@@ -6089,6 +6081,7 @@ function renderShop(){
     }
   }
 }
+
 
 function renderSpecialShop(){
   if (!currentUser) return;
@@ -6306,6 +6299,7 @@ function renderFusionPanel(){
 
 function renderRecipeTable(){
     if (!currentUser) return;
+    if (!recipeTableEl) return;
     recipeTableEl.innerHTML = '';
     
     // Lấy từ khóa tìm kiếm
@@ -6330,7 +6324,7 @@ function renderRecipeTable(){
     // Hàm phụ trợ kiểm tra xem một hạt giống (theo key) có khớp từ khóa không
     const seedMatchesKeyword = (seedKey) => {
         if (!seedKey || !keyword) return false;
-        const seed = state.seeds[seedKey];
+        const seed = (state.seeds && state.seeds[seedKey]) ? state.seeds[seedKey] : null;
         if (!seed) return false;
         const name = (seed.name || '').toLowerCase();
         const emoji = seed.emoji || '';
@@ -6342,6 +6336,8 @@ function renderRecipeTable(){
         if (selectedTierFilter !== 'ALL' && selectedTierFilter !== nextLevel) continue;
 
         const recipeGroup = fusionRecipes[nextLevel];
+        if (!recipeGroup || !recipeGroup.recipes) continue;
+
         const isSpecialLevel = nextLevel === 'Mythic' || nextLevel === 'Divine';
         
         // Lấy theme màu đồng bộ theo cấp độ
@@ -6355,7 +6351,7 @@ function renderRecipeTable(){
         else if (nextLevel === 'Divine') baseLevelText = 'Phối đặc biệt từ cây cấp Mythic + cấp Legendary'; 
 
         const cost = recipeGroup.cost ? `${Number(recipeGroup.cost).toLocaleString('vi-VN')}₵` : 'Miễn phí';
-        const successRatePct = recipeGroup.successRate * 100;
+        const successRatePct = (recipeGroup.successRate || 1) * 100;
         const failRatePct = 100 - successRatePct;
         
         const waterCost = recipeGroup.waterCost !== undefined ? recipeGroup.waterCost : (nextLevel === 'Mythic' ? 10 : (nextLevel === 'Divine' ? 15 : 0));
@@ -6370,34 +6366,37 @@ function renderRecipeTable(){
             if (seedMatchesKeyword(recipe.result)) return true;
             
             if (isSpecialLevel) {
-                return recipe.ingredients.some(req => seedMatchesKeyword(req.id));
+                return (recipe.ingredients || []).some(req => seedMatchesKeyword(req.id));
             } else {
-                return recipe.ingredients.some(seedKey => seedMatchesKeyword(seedKey));
+                return (recipe.ingredients || []).some(seedKey => seedMatchesKeyword(seedKey));
             }
         });
 
         if (filteredRecipes.length === 0) continue;
 
         filteredRecipes.forEach(recipe => {
-            const resultSeed = state.seeds[recipe.result];
-            const isUnlocked = state.unlockedSeeds.includes(recipe.result);
+            // 🛡️ BẢO VỆ AN TOÀN: Chống lỗi văng game nếu hạt kết quả không có trong state.seeds
+            const resultSeed = (state.seeds && state.seeds[recipe.result]) ? state.seeds[recipe.result] : { name: recipe.result || 'Hạt giống', emoji: '🌱', cost: 10, value: 20 };
+            const isUnlocked = state.unlockedSeeds && state.unlockedSeeds.includes(recipe.result);
             const statusBadge = isUnlocked ? '✅ Đã mở' : '🔒 Khóa';
             const statusColor = isUnlocked ? '#2e7d32' : '#8a8f94';
 
             let ingredientsDisplay = '';
             if (isSpecialLevel) {
-                ingredientsDisplay = recipe.ingredients.map(req => {
-                    const seed = state.seeds[req.id];
+                ingredientsDisplay = (recipe.ingredients || []).map(req => {
+                    const seed = (state.seeds && state.seeds[req.id]) ? state.seeds[req.id] : { name: req.id, emoji: '🌱' };
                     return `<span style="font-weight:800; color:#b45309; font-size:12px;">x${req.qty}</span> <span title="${seed.name}" style="font-size:18px; cursor:help;">${seed.emoji}</span>`;
                 }).join(' + ');
             } else {
-                const ingredient1 = state.seeds[recipe.ingredients[0]];
-                const ingredient2 = state.seeds[recipe.ingredients[1]];
+                const ingId1 = recipe.ingredients ? recipe.ingredients[0] : null;
+                const ingId2 = recipe.ingredients ? recipe.ingredients[1] : null;
+                const ingredient1 = (state.seeds && state.seeds[ingId1]) ? state.seeds[ingId1] : { name: ingId1, emoji: '🌱' };
+                const ingredient2 = (state.seeds && state.seeds[ingId2]) ? state.seeds[ingId2] : { name: ingId2, emoji: '🌱' };
                 ingredientsDisplay = `<span title="${ingredient1.name}" style="font-size:18px; cursor:help;">${ingredient1.emoji}</span> + <span title="${ingredient2.name}" style="font-size:18px; cursor:help;">${ingredient2.emoji}</span>`;
             }
 
-            const costSeedStr = Number(resultSeed.cost).toLocaleString('vi-VN') + '₵';
-            const valueSeedStr = Number(resultSeed.value).toLocaleString('vi-VN') + '₵';
+            const costSeedStr = Number(resultSeed.cost || 0).toLocaleString('vi-VN') + '₵';
+            const valueSeedStr = Number(resultSeed.value || 0).toLocaleString('vi-VN') + '₵';
 
             recipesListHtml += `
                 <div class="recipe-item-row" style="display:flex; flex-direction:column; gap:6px; width:100%; box-sizing:border-box; background: ${theme.rowBg}; margin-bottom: 8px; padding: 10px; border-radius: 6px;">
@@ -6436,7 +6435,7 @@ function renderRecipeTable(){
         html += `
             <div class="recipe-section-card" style="width:100%; box-sizing:border-box; margin-bottom: 16px;">
                 <div class="recipe-tier-header" style="background:${theme.headerBg}; color:${theme.color}; font-size:16px; font-weight:900; padding:10px 12px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; border-bottom:2px solid ${theme.color}; border-radius:8px 8px 0 0;">
-                    <span style="word-break:break-word; letter-spacing:0.3px;">⚡ PHỐI RA CÂY CẤP ${nextLevel.toUpperCase()}</span>
+                    <span style="word-break:break-word; letter-spacing:0.3px;">⚡ PHỐI RA CẤP ${nextLevel.toUpperCase()}</span>
                     <span style="font-size:12px; font-weight:700; background:rgba(255,255,255,0.85); padding:2px 8px; border-radius:12px; border:1px solid ${theme.color};">Tỉ lệ thành công: ${successRatePct}%</span>
                 </div>
                 <div style="background: ${theme.rowBg}; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: ${theme.color}; border-bottom: 1px solid #d8e5d0; word-break:break-word;">
@@ -6459,11 +6458,21 @@ function renderRecipeTable(){
   // Thêm vào khu vực RENDERING FUNCTIONS
 function renderInventory() {
     if (!currentUser) return;
+    if (!inventoryListEl) return;
     inventoryListEl.innerHTML = '';
+
+    if (!state.inventory || typeof state.inventory !== 'object') {
+        state.inventory = {};
+    }
 
     const items = Object.entries(state.inventory)
         .filter(([, qty]) => qty > 0)
-        .sort(([idA], [idB]) => state.seeds[idA].level.localeCompare(state.seeds[idB].level));
+        .sort(([idA], [idB]) => {
+            // 🛡️ BẢO VỆ AN TOÀN KHI SẮP XẾP: Tránh lỗi nếu thiếu seed
+            const seedA = (state.seeds && state.seeds[idA]) ? state.seeds[idA] : { level: 'Common' };
+            const seedB = (state.seeds && state.seeds[idB]) ? state.seeds[idB] : { level: 'Common' };
+            return (seedA.level || 'Common').localeCompare(seedB.level || 'Common');
+        });
 
     if (items.length === 0) {
         inventoryListEl.innerHTML = '<div class="muted" style="text-align:center; padding: 10px;">Kho hàng trống. Thu hoạch cây trồng để bắt đầu tích trữ!</div>';
@@ -6471,16 +6480,17 @@ function renderInventory() {
     }
 
     items.forEach(([seedId, qty]) => {
-        const seed = state.seeds[seedId];
+        // 🛡️ BẢO VỆ AN TOÀN KHI RENDER: Fallback giá trị nếu seed không tồn tại trong state.seeds
+        const seed = (state.seeds && state.seeds[seedId]) ? state.seeds[seedId] : { name: seedId || 'Nông sản', emoji: '🌱', level: 'Common', value: 10 };
         const div = document.createElement('div');
         div.className = 'seed';
-        div.dataset.level = seed.level;
+        div.dataset.level = seed.level || 'Common';
 
         div.innerHTML = `
-            <div class="emoji">${seed.emoji}</div>
+            <div class="emoji">${seed.emoji || '🌱'}</div>
             <div class="meta" style="flex:1">
-                <div style="font-weight:700">${seed.name}</div>
-                <div class="muted">Bán trực tiếp: ${seed.value}₵</div>
+                <div style="font-weight:700">${seed.name || seedId}</div>
+                <div class="muted">Bán trực tiếp: ${seed.value || 10}₵</div>
             </div>
             <div style="font-weight: 700;">x${qty}</div>
             <button class="btn secondary" style="padding: 6px 10px; font-size: 13px; min-width: 90px;" onclick="sellFromInventory('${seedId}')">Bán hết</button>
@@ -6500,10 +6510,13 @@ function renderOrders() {
     const h = Math.floor(timeUntilReset / 3600000);
     const m = Math.floor((timeUntilReset % 3600000) / 60000);
     const s = Math.floor((timeUntilReset % 60000) / 1000);
-    timeToOrderResetEl.textContent = `${h} giờ ${m} phút ${s} giây`;
+    if (timeToOrderResetEl) {
+        timeToOrderResetEl.textContent = `${h} giờ ${m} phút ${s} giây`;
+    }
 
     getTodayOrders();
 
+    if (!orderListEl) return;
     orderListEl.innerHTML = '';
     
     // 🌟 Thêm giới hạn chiều cao và thanh cuộn dọc cho khung chứa đơn hàng khu trồng cây
@@ -6511,11 +6524,16 @@ function renderOrders() {
     orderListEl.style.overflowY = 'auto';
     orderListEl.style.paddingRight = '4px';
 
+    if (!state.activeOrders || !Array.isArray(state.activeOrders)) {
+        state.activeOrders = [];
+        return;
+    }
+
     // 🌟 SẮP XẾP 2 TẦNG: TRẠNG THÁI ƯU TIÊN -> SAU ĐÓ XẾP THEO TIỀN THƯỞNG TỪ THẤP ĐẾN CAO
     const sortedOrders = [...state.activeOrders].sort((a, b) => {
         const getPriority = (order) => {
             if (order.status === 'completed') return 2; // Đã giao xuống đáy
-            const isReady = order.required.every(req => (state.inventory[req.seedId] || 0) >= req.qty);
+            const isReady = (order.required || []).every(req => (state.inventory[req.seedId] || 0) >= req.qty);
             return isReady ? 0 : 1; // Đủ hàng (sẵn sàng) lên trên cùng, chưa đủ ở giữa
         };
 
@@ -6535,8 +6553,9 @@ function renderOrders() {
         let requirementsMet = true;
         let requirementDetails = '';
 
-        order.required.forEach(req => {
-            const seed = state.seeds[req.seedId];
+        (order.required || []).forEach(req => {
+            // 🛡️ BẢO VỆ AN TOÀN: Chống lỗi văng game nếu hạt giống không tồn tại trong state.seeds
+            const seed = (state.seeds && state.seeds[req.seedId]) ? state.seeds[req.seedId] : { name: req.seedId || 'Nông sản', emoji: '🌱' };
             const hasQty = state.inventory[req.seedId] || 0;
             const met = hasQty >= req.qty;
             if (!met) requirementsMet = false;
@@ -6565,7 +6584,7 @@ function renderOrders() {
         div.innerHTML = `
             <div>
                 <strong style="font-size: 15px;">${order.customer}</strong>
-                <span class="muted-2"> (${order.level})</span>
+                <span class="muted-2"> (${order.level || 'Thường'})</span>
                 ${requirementDetails}
             </div>
             <div class="row" style="align-items: center;">
@@ -6918,12 +6937,19 @@ function harvestAllTiles() {
     // NEW: Cập nhật nước trước khi thu hoạch
     updateWater();
 
+    if (!state.tiles || !Array.isArray(state.tiles)) {
+        state.tiles = [];
+        return;
+    }
+
     state.tiles.forEach(tile => {
         // Chỉ thu hoạch ô đã trồng VÀ đã chín
         if (tile.planted && Date.now() >= tile.growUntil) {
-            const seed = state.seeds[tile.seedId];
+            // 🛡️ BẢO VỆ AN TOÀN: Chống lỗi văng game nếu hạt giống không tồn tại trong state.seeds
+            const seed = (state.seeds && state.seeds[tile.seedId]) ? state.seeds[tile.seedId] : { id: tile.seedId || 'unknown', level: 'Common', name: 'Nông sản', emoji: '🌱' };
             
             // === 1. Cho sản phẩm vào Kho hàng (Inventory) ===
+            if (!state.inventory) state.inventory = {};
             if (!state.inventory[seed.id]) {
                 state.inventory[seed.id] = 0;
             }
@@ -6977,10 +7003,14 @@ function harvestAllTiles() {
         renderInventory();
         renderOrders();
         renderFusionPanel();
-        tileInfoEl.textContent = `Đã thu hoạch tất cả (${harvestedCount} cây) và chuyển vào kho.`;
+        if (tileInfoEl) {
+            tileInfoEl.textContent = `Đã thu hoạch tất cả (${harvestedCount} cây) và chuyển vào kho.`;
+        }
     } else {
         log('Không có cây nào đã chín để thu hoạch.');
-        tileInfoEl.textContent = 'Không có cây nào đã chín để thu hoạch.';
+        if (tileInfoEl) {
+            tileInfoEl.textContent = 'Không có cây nào đã chín để thu hoạch.';
+        }
     }
 }
 
@@ -10249,6 +10279,7 @@ function renderFoodInventory() {
 
 
 
+
 function sellFoodItem(animalId) {
   const qty = state.foodInventory[animalId] || 0;
   if (qty <= 0) return;
@@ -10900,6 +10931,7 @@ function renderKitchenFace() {
   }
   updateCookingSlotsUI();
 }
+
 
 
 function addIngredientToCooking(animalId) {
@@ -17107,7 +17139,7 @@ async function handleLogin() {
     showTopToast('Đang kết nối', 'Đang xử lý dữ liệu trên đám mây...', '🔄');
 
     try {
-        // --- TRƯỜNG HỢP 1: NGƯỜI CHƠI NHẬP MÃ ID 6 SỐ (VÀO ACC CŨ TRÊN THIẾT BỊ MỚI) ---
+        // --- TRƯỜNG HỢP 1: NGƯỜI CHƠI NHẬP MÃ ID 6 SỐ (VÀO ACC CŨ) ---
         if (inputId !== "" && inputId.length === 6) {
             const snapshot = await db.ref('users/' + inputId).once('value');
 
@@ -17115,9 +17147,8 @@ async function handleLogin() {
                 const userData = snapshot.val();
                 
                 currentUserId = inputId;
-                currentUser = userData.username || `NôngDân_${inputId}`; // Lấy lại đúng tên gốc gắn với ID đó
+                currentUser = userData.username || `NôngDân_${inputId}`;
                 
-                // Kéo toàn bộ dữ liệu (xu, nước, kho hàng, chuồng trại...) xuống localStorage của máy mới
                 if (userData.gameData) {
                     const targetStorageKey = STORAGE_KEY_PREFIX + currentUser;
                     localStorage.setItem(targetStorageKey, JSON.stringify(userData.gameData));
@@ -17127,7 +17158,6 @@ async function handleLogin() {
                 localStorage.setItem(STORAGE_KEY_PREFIX + 'last_active_id', currentUserId);
                 localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
 
-                // Ép hiển thị số ID lên giao diện ngay lập tức
                 const idDisplayEl = document.getElementById('displayUserId');
                 const idTextValEl = document.getElementById('idTextVal');
                 if (idDisplayEl && idTextValEl) {
@@ -17141,47 +17171,52 @@ async function handleLogin() {
                 showTopToast('ĐỒNG BỘ THÀNH CÔNG', `Đã khôi phục tài khoản [${currentUser}] thành công!`, '🌾');
                 return;
             } else {
-                alert(`Không tìm thấy tài khoản nào mang Mã ID "${inputId}" trên hệ thống! Vui lòng kiểm tra lại 6 chữ số.`);
+                alert(`Không tìm thấy tài khoản nào mang Mã ID "${inputId}" trên hệ thống!`);
                 return;
             }
         }
 
-        // Nếu người chơi gõ nhầm ID thiếu số hoặc có ký tự lạ mà bấm
         if (inputId !== "" && inputId.length !== 6) {
             alert('Mã ID khôi phục tài khoản phải đúng 6 chữ số!');
             return;
         }
 
-        // --- TRƯỜNG HỢP 2: ĐỂ TRỐNG ID VÀ CÓ NHẬP TÊN (TẠO TÀI KHOẢN MỚI HOÀN TOÀN) ---
+        // --- TRƯỜNG HỢP 2: TẠO ACC MỚI (ĐÃ SỬA AN TOÀN TRÁNH LỖI SNAPSHOT) ---
         if (username !== "") {
             if (username.length < 3) {
                 alert('Tên nhân vật phải có ít nhất 3 ký tự.');
                 return;
             }
 
-            // 🛑 BƯỚC KIỂM TRA TRÙNG TÊN TRÊN FIREBASE (Đảm bảo tên độc nhất 100%)
-            const allUsersSnap = await db.ref('users').once('value');
-            let isNameTaken = false;
-            
-            if (allUsersSnap.exists()) {
-                allUsersSnap.forEach(childSnap => {
-                    const uData = childSnap.val();
-                    if (uData.username && uData.username.toLowerCase() === username.toLowerCase()) {
-                        isNameTaken = true;
+            // Kiểm tra trùng tên an toàn với cơ chế bọc try/catch
+            try {
+                const allUsersSnap = await db.ref('users').once('value');
+                if (allUsersSnap.exists()) {
+                    let isNameTaken = false;
+                    allUsersSnap.forEach(childSnap => {
+                        const uData = childSnap.val();
+                        if (uData && uData.username && uData.username.toLowerCase() === username.toLowerCase()) {
+                            isNameTaken = true;
+                        }
+                    });
+
+                    if (isNameTaken) {
+                        alert(`⚠️ Tên "${username}" đã có người sử dụng! Vui lòng chọn tên khác hoặc dùng Mã ID 6 số để vào acc cũ.`);
+                        return;
                     }
-                });
+                }
+            } catch (err) {
+                console.warn("Bỏ qua kiểm tra trùng tên do lỗi kết nối nhanh:", err);
             }
 
-            if (isNameTaken) {
-                alert(`⚠️ Tên "${username}" đã có người sử dụng rồi!\n\nTên chỉ dùng để tạo tài khoản mới. Nếu đây là tài khoản cũ của bạn, vui lòng sử dụng "Mã ID 6 số" ở ô bên trên để vào lại nhé!`);
-                return;
-            }
-
-            // Tạo tài khoản mới hoàn toàn với Mã ID 6 số độc quyền
+            // Tạo tài khoản mới
             const newId = generateRandomId();
             currentUserId = newId;
             currentUser = username;
             state.farmName = `${currentUser} 🚜`;
+
+            // Khởi tạo trạng thái mặc định đầy đủ mảng để tránh lỗi undefined
+            state.tiles = createEmptyTiles(state.rows, state.cols);
 
             await db.ref('users/' + currentUserId).set({
                 username: currentUser,
@@ -17194,7 +17229,6 @@ async function handleLogin() {
             localStorage.setItem(STORAGE_KEY_PREFIX + 'last_active_id', currentUserId);
             localStorage.setItem(STORAGE_KEY_PREFIX + 'last_user', currentUser);
 
-            // Ép hiển thị số ID lên giao diện
             const idDisplayEl = document.getElementById('displayUserId');
             const idTextValEl = document.getElementById('idTextVal');
             if (idDisplayEl && idTextValEl) {
@@ -17202,13 +17236,12 @@ async function handleLogin() {
                 idDisplayEl.style.display = 'flex';
             }
 
-            alert(`🎉 Đăng ký tài khoản thành công cho [ ${currentUser} ]!\n\n🔑 MÃ ID 6 SỐ CỦA BẠN LÀ: [ ${currentUserId} ]\n\nHãy ghi nhớ hoặc bấm sao chép mã ID này. Khi sang thiết bị khác, bạn CHỈ CẦN GÕ ĐÚNG 6 SỐ NÀY là toàn bộ tiến trình game sẽ đi theo y chang!`);
+            alert(`🎉 Đăng ký tài khoản thành công cho [ ${currentUser} ]!\n\n🔑 MÃ ID 6 SỐ CỦA BẠN LÀ: [ ${currentUserId} ]\n\nHãy ghi nhớ mã này để chơi trên thiết bị khác!`);
             
             finishLoginSuccess(`Tạo thành công tài khoản [${currentUser}]! ID: ${currentUserId}`);
             return;
         }
 
-        // --- TRƯỜNG HỢP 3: ĐỂ TRỐNG CẢ 2 Ô (TỰ ĐỘNG LOAD ACC GẦN NHẤT TRÊN MÁY NÀY) ---
         const lastActiveId = localStorage.getItem(STORAGE_KEY_PREFIX + 'last_active_id');
         if (lastActiveId) {
             document.getElementById('userIdInput').value = lastActiveId;
