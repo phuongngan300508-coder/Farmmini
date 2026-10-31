@@ -18920,7 +18920,7 @@ function closeMusicPopup() {
     if (modal) modal.classList.remove('open');
 }
 
-// Render danh sách bài hát lên popup (Chỉ hiện nhạc sự kiện khi có sự kiện đang diễn ra)
+// Render danh sách bài hát lên popup (Giữ nguyên nhạc thường và tự động gộp thêm nhạc sự kiện khi đang diễn ra)
 function renderYtMusicPlaylistUI() {
     const container = document.getElementById('musicPlaylistContainer');
     const subtitleEl = document.getElementById('musicPopupSubtitle');
@@ -18939,20 +18939,20 @@ function renderYtMusicPlaylistUI() {
     container.innerHTML = '';
 
     const status = typeof getCurrentEventStatus === 'function' ? getCurrentEventStatus() : null;
-    let activeList = [];
-    let seasonNameStr = "Danh sách phát thông thường (Bình thường)";
+    let seasonNameStr = "Danh sách phát thông thường";
 
-    // 🌟 Kiểm tra trạng thái sự kiện: Nếu có sự kiện active -> CHỈ LẤY NHẠC SỰ KIỆN ĐÓ
+    // 🌟 Bắt đầu với danh sách nhạc thường mặc định
+    let activeList = [...NORMAL_MUSIC_TRACKS];
+
+    // 🌟 Nếu đang trong mùa sự kiện active -> Bổ sung thêm bài hát sự kiện vào danh sách chung
     if (status && status.type === 'active' && SEASONAL_MUSIC_TRACKS[status.config.prefix]) {
         const eventTrack = SEASONAL_MUSIC_TRACKS[status.config.prefix];
-        activeList = [eventTrack]; // Chỉ chứa duy nhất bài của sự kiện
-        seasonNameStr = `Đang trong mùa: ${status.config.name} 🎪 (Đã ẩn nhạc thường)`;
-    } else {
-        // Nếu không có sự kiện nào, hiển thị danh sách nhạc nền bình thường
-        activeList = NORMAL_MUSIC_TRACKS;
+        // Đưa bài sự kiện lên vị trí đầu tiên cho dễ chọn
+        activeList.unshift(eventTrack);
+        seasonNameStr = `Đang trong mùa: ${status.config.name} 🎪`;
     }
 
-    // Vẫn giữ lại các bài do người chơi tự thêm (customUserTracks) để họ nghe lúc nào cũng được
+    // Kết hợp thêm các bài do người chơi tự thêm (customUserTracks)
     let finalDisplayList = [...customUserTracks, ...activeList];
 
     if (subtitleEl) subtitleEl.textContent = seasonNameStr + (customUserTracks.length > 0 ? ` (+ ${customUserTracks.length} bài tự thêm)` : '');
