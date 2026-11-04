@@ -2708,6 +2708,473 @@ body:not(.logged-out) #eventIconButton {
     border-color: #ea580c;
     background: #ffedd5;
 }
+
+/* Lớp phủ mờ toàn màn hình */
+.seasonal-event-overlay {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(4px);
+    z-index: 999999 !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.seasonal-event-overlay.open {
+    display: flex !important;
+}
+
+/* Khung banner tông màu Pastel đậm (Trầm ấm, dịu mắt, nổi bật tuyết trắng) */
+.seasonal-event-banner {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: linear-gradient(135deg, #2d473e, #1a2e28) !important; /* Xanh rêu pastel đậm trầm ấm */
+    border: 4px solid #749c8f !important; /* Viền pastel sang trọng */
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(116, 156, 143, 0.2);
+    box-sizing: border-box;
+    text-align: center;
+    overflow: hidden;
+    animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Nút tắt dấu X ép sát góc trên bên phải tuyệt đối */
+.close-banner-btn {
+    position: absolute !important; 
+    top: 10px !important; 
+    right: 12px !important;
+    background: rgba(255, 255, 255, 0.1) !important; 
+    border: 1px solid #749c8f !important; 
+    color: #a3c1b6 !important;
+    font-size: 14px !important; 
+    font-weight: bold !important; 
+    width: 28px !important; 
+    height: 28px !important; 
+    border-radius: 50% !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    cursor: pointer !important; 
+    z-index: 99 !important;
+    transition: all 0.2s ease !important;
+}
+.close-banner-btn:hover { 
+    background: #749c8f !important; 
+    color: #1a2e28 !important; 
+    transform: scale(1.1) !important; 
+}
+
+/* Tiêu đề & Phụ đề màu pastel sáng dịu */
+.banner-title { font-size: 18px; font-weight: 900; color: #d8f3dc !important; text-transform: uppercase; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+.banner-subtitle { font-size: 11.5px; color: #b7e4c7 !important; font-weight: 700; margin-top: 2px; }
+
+.banner-rewards-container { display: flex; justify-content: space-around; align-items: center; gap: 10px; margin: 10px 0; position: relative; z-index: 2; }
+
+/* Thẻ phần thưởng phụ (Pastel đậm) */
+.sub-reward-card { background: #3b5c51 !important; border: 2px solid #749c8f !important; border-radius: 12px; padding: 10px; width: 95px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.sub-reward-icon { font-size: 28px; }
+.sub-reward-name { font-size: 11px; font-weight: 800; color: #f0fdf4 !important; }
+.sub-reward-desc { font-size: 9.5px; color: #b7e4c7 !important; }
+
+/* Phần thưởng chính (Ảnh nền to ở giữa) */
+.main-divine-reward { background: #0f172a; border: 3px solid #749c8f; border-radius: 16px; width: 150px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(116, 156, 143, 0.3); }
+.divine-badge-top { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); background: #4f776d; color: #fff; font-size: 8px; font-weight: 900; padding: 1px 6px; border-radius: 10px; z-index: 3; text-transform: uppercase; }
+.banner-preview-img-box { width: 100%; height: 85px; background: #000; }
+.banner-preview-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.main-divine-info { padding: 6px 8px; background: #3b5c51 !important; }
+.main-divine-name { font-size: 11px; font-weight: 900; color: #f0fdf4 !important; }
+.main-divine-desc { font-size: 9.5px; color: #b7e4c7 !important; font-weight: 700; }
+
+/* Hiệu ứng phát sáng nhấp nháy cho nút tham gia sự kiện (Đồng bộ tông pastel đậm) */
+@keyframes eventBtnGlow {
+    0%, 100% { 
+        box-shadow: 0 4px 15px rgba(116, 156, 143, 0.4);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 22px rgba(116, 156, 143, 0.8), 0 0 8px rgba(255, 255, 255, 0.6);
+        transform: scale(1.02);
+    }
+}
+
+.event-join-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #4f776d, #3c5d54) !important; /* Xanh rêu pastel đậm trầm ấm */
+    border: 2px solid #749c8f !important; /* Viền pastel tinh tế */
+    font-size: 13.5px;
+    padding: 11px;
+    border-radius: 12px;
+    color: #f0fdf4 !important; /* Chữ màu trắng ngà mềm mại, không bị chói */
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(116, 156, 143, 0.4);
+    animation: eventBtnGlow 2s infinite ease-in-out;
+    transition: all 0.2s ease;
+}
+
+.event-join-btn:hover {
+    background: linear-gradient(135deg, #5b877c, #4f776d) !important;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(116, 156, 143, 0.7);
+}
+
+/* Hiệu ứng nền tuyết rơi bên trong popup banner tháng 11 */
+.seasonal-event-banner {
+    position: relative;
+    /* Giữ nguyên các thuộc tính cũ và thêm phần quản lý hiệu ứng */
+}
+
+/* Lớp chứa các hạt tuyết */
+.snowflakes-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1; /* Nằm dưới nội dung chữ và nút bấm nhưng trên ảnh nền */
+    border-radius: 20px;
+}
+
+/* Kiểu dáng từng hạt tuyết */
+.snowflake {
+    position: absolute;
+    top: -10px;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(350px) translateX(20px);
+        opacity: 0.2;
+    }
+}
+
+/* Đảm bảo nội dung chữ, ảnh và nút bấm hiển thị nổi lên trên lớp tuyết rơi */
+.seasonal-event-banner > *:not(.snowflakes-container) {
+    position: relative;
+    z-index: 2;
+}
+
+/* ======================================================== */
+/* HIỆU ỨNG NỀN ĐỘNG TRUNG TẦNG (NẰM TRÊN NỀN, DƯỚI CÁC Ô KHUNG) */
+/* ======================================================== */
+
+.seasonal-event-banner,
+.farm-modal-box {
+    position: relative;
+    overflow: hidden !important;
+}
+
+/* Lớp chứa hiệu ứng động trung tầng */
+.event-fx-container,
+.snowflakes-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1 !important; /* Nằm trên nền nhưng dưới các khung con */
+    overflow: hidden;
+    border-radius: inherit;
+}
+
+/* Ép toàn bộ các nội dung (tiêu đề, khung shop, nhiệm vụ, nút bấm) lên lớp trên cùng */
+.seasonal-event-banner > *:not(.snowflakes-container):not(.event-fx-container),
+.seasonal-event-overlay .farm-modal-box > *:not(.event-fx-container),
+#seasonalEventModal .farm-modal-box > *:not(.event-fx-container),
+.event-modal-grid,
+.banner-title-area,
+.banner-rewards-container,
+.event-join-btn,
+.close-banner-btn {
+    position: relative;
+    z-index: 3 !important; /* Nằm đè lên trên hiệu ứng */
+}
+
+/* ======================================================== */
+/* HIỆU ỨNG PHÁO HOA THẬT (BAY LÊN + NỞ BUNG TỎA TIA + TRỌNG LỰC) */
+/* ======================================================== */
+
+/* Vệt sáng bay vút từ dưới lên trời */
+@keyframes realFireworkLaunch {
+    0% { transform: translateY(220px) scale(0.2); opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 0; }
+}
+
+/* Tâm pháo hoa lóe sáng lúc nổ tung */
+@keyframes realFireworkBurst {
+    0% { transform: scale(0.1); opacity: 0; }
+    20% { opacity: 1; filter: drop-shadow(0 0 15px #fff); }
+    60% { opacity: 0.9; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Các tia sáng văng ra tứ phía có kèm hiệu ứng rơi xuống nhẹ theo trọng lực */
+@keyframes realSparkFly {
+    0% { transform: translate(0, 0) scale(1.4); opacity: 1; }
+    60% { opacity: 0.9; }
+    100% { transform: translate(var(--dx), calc(var(--dy) + 30px)) scale(0.1); opacity: 0; }
+}
+
+.real-firework-cluster {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: realFireworkBurst 1.6s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+.real-fw-core {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.real-fw-spark {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    animation: realSparkFly 1.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+/* ======================================================== */
+/* HIỆU ỨNG THÁNG 3: HOA RƠI TỪ TRÊN XUỐNG TỰ NHIÊN          */
+/* ======================================================== */
+
+@keyframes fallFlower {
+    0% {
+        transform: translateY(-30px) translateX(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(380px) translateX(30px) rotate(360deg) scale(1.1);
+        opacity: 0;
+    }
+}
+
+.fx-pink-flower {
+    position: absolute;
+    top: -30px; /* Bắt buộc xuất phát từ phía trên đỉnh khung, ngoài tầm nhìn */
+    font-size: 22px;
+    animation: fallFlower linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ======================================================== */
+/* HIỆU ỨNG THÁNG 4: XUẤT HIỆN, RUNG LẮC RỒI BIẾN MẤT LẶP LẠI    */
+/* ======================================================== */
+
+@keyframes clownPopAndShake {
+    0% {
+        transform: scale(0.2) rotate(0deg);
+        opacity: 0;
+    }
+    15% {
+        transform: scale(1.2) rotate(-10deg);
+        opacity: 1;
+    }
+    25% {
+        transform: scale(1) rotate(10deg);
+    }
+    35% {
+        transform: scale(1.1) rotate(-10deg);
+    }
+    45% {
+        transform: scale(1) rotate(10deg);
+    }
+    85% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.2) rotate(20deg);
+        opacity: 0;
+    }
+}
+
+.fx-clown-dynamic {
+    position: absolute;
+    font-size: 28px;
+    pointer-events: none;
+    z-index: 1;
+    animation: clownPopAndShake 3s ease-in-out forwards; /* Đúng chuẩn 3 giây kết thúc 1 chu kỳ */
+}
+
+/* --- THÁNG 5 & 6: ÁNH NẮNG CHÓI CHANG --- */
+/* ======================================================== */
+/* HIỆU ỨNG TIA NẮNG HIỆN SẴN RỒI MỜ DẦN BIẾN MẤT TOÀN CỤC   */
+/* ======================================================== */
+
+@keyframes sunFadeInOutGroup {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    20% {
+        opacity: 0.85; /* Vừa mở lên là bừng sáng rực rỡ */
+    }
+    70% {
+        opacity: 0.75; /* Giữ sáng thong thả để tỏa sáng */
+    }
+    100% {
+        opacity: 0; /* Mờ dần biến mất từ từ rồi lặp lại */
+        transform: scale(1.05);
+    }
+}
+
+@keyframes miniDustFloat {
+    0% {
+        transform: translateY(0) translateX(0) scale(0.6);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.9;
+    }
+    80% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(260px) translateX(-50px) scale(1.3);
+        opacity: 0;
+    }
+}
+
+.fx-sunbeam-group {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+    /* Áp dụng chung hiệu ứng mờ dần / sáng lên cho toàn bộ cụm tia */
+    animation: sunFadeInOutGroup 6s ease-in-out infinite;
+}
+
+/* Các tia nắng cố định ở sát mép phải, xòe rộng sang trái */
+.sunbeam-item {
+    position: absolute;
+    top: -50px;
+    right: -10px; /* Sát mép phải tuyệt đối */
+    left: auto;
+    width: 130px;
+    height: 120%;
+    background: linear-gradient(180deg, rgba(255, 238, 88, 0.8) 0%, rgba(255, 183, 77, 0.35) 50%, rgba(255, 255, 255, 0) 100%);
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%); /* Hình tam giác */
+    transform-origin: top right;
+}
+
+/* Các chấm tròn mini (hạt bụi nắng) */
+.sun-mini-dot {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #fff9c4;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ffee58, 0 0 3px #fff;
+    animation: miniDustFloat linear infinite;
+}
+/* --- THÁNG 7 & 8: THÁNG CÔ HỒN --- */
+@keyframes ghostFade {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 0.85; transform: scale(1.2); filter: drop-shadow(0 0 8px rgba(156,39,176,0.8)); }
+}
+.fx-ghost {
+    position: absolute;
+    font-size: 28px;
+    animation: ghostFade 2.5s ease-in-out infinite;
+}
+
+/* --- THÁNG 9: TRĂNG TRÒN & THỎ --- */
+@keyframes rabbitHops {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(150px) translateY(-8px); }
+}
+.fx-moon {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 34px;
+    filter: drop-shadow(0 0 12px rgba(255,235,59,0.9));
+    z-index: 2;
+}
+.fx-rabbit {
+    position: absolute;
+    bottom: 12px; left: 10px;
+    font-size: 26px;
+    animation: rabbitHops 2.8s ease-in-out infinite alternate;
+}
+
+/* --- THÁNG 10: DƠI, NHỆN & BÍ NGÔ --- */
+@keyframes dropItem {
+    0% { transform: translateY(-30px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(350px); opacity: 0.2; }
+}
+@keyframes pumpkinSwing {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+}
+.fx-bat-spider {
+    position: absolute;
+    font-size: 22px;
+    animation: dropItem linear infinite;
+}
+.fx-creepy-pumpkin {
+    position: absolute;
+    bottom: 10px;
+    font-size: 28px;
+    animation: pumpkinSwing 1.2s ease-in-out infinite alternate;
+    transform-origin: top center;
+}
+
+/* --- THÁNG 11 & 12: TUYẾT RƠI --- */
+@keyframes snowfall {
+    0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { transform: translateY(350px) translateX(20px); opacity: 0.2; }
+}
+.snowflake {
+    position: absolute;
+    top: -10px;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: snowfall linear infinite;
+}
+
+/* Đảm bảo chữ & nút trong banner/popup luôn nổi lên trên hiệu ứng nền */
+.seasonal-event-banner > *:not(.snowflakes-container):not(.event-fx-container),
+.seasonal-event-overlay .farm-modal-box > *:not(.event-fx-container) {
+    position: relative;
+    z-index: 2;
+}
   </style>
 </head>
 <body>
@@ -4964,8 +5431,58 @@ body:not(.logged-out) #eventIconButton {
             <button class="btn secondary" onclick="closeRanchUltimatePickerModal()" style="width:100%;">Đóng</button>
         </div>
     </div>
+</div>
+
+<!-- BANNER SỰ KIỆN THÁNG 11 (HIỆN NGAY KHI VỪA VÀO GAME) -->
+<div id="seasonalEventOverlay" class="seasonal-event-overlay">
+    <div class="seasonal-event-banner">
+
+      <!-- KHUNG CHỨA HIỆU ỨNG TUYẾT RƠI NỀN ĐỘNG -->
+        <div class="snowflakes-container" id="snowflakesBox"></div>
+
+        <button class="close-banner-btn" onclick="closeSeasonalBanner()" title="Đóng banner">✕</button>
+
+        <div class="banner-title-area">
+            <h3 class="banner-title">🎄 Lễ Hội Mùa Đông & Noel ❄️</h3>
+            <div class="banner-subtitle">Chinh phục thử thách tháng 11 để nhận quà giới hạn!</div>
+        </div>
+
+        <div class="banner-rewards-container">
+            <!-- PHẦN THƯỞNG PHỤ TRÁI: HẠT GIỐNG DIVINE -->
+            <div class="sub-reward-card">
+                <div class="sub-reward-icon">🎄⭐</div>
+                <div class="sub-reward-name">Cây Thông Vàng Noel</div>
+                <div class="sub-reward-desc">Hạt Giống Divine</div>
+            </div>
+
+            <!-- PHẦN THƯỞNG CHÍNH Ở GIỮA: ẢNH NỀN TO NỔI BẬT -->
+            <div class="main-divine-reward">
+                <div class="divine-badge-top">⭐ Ảnh Nền Độc Quyền</div>
+                <div class="banner-preview-img-box">
+                    <img src="https://i.postimg.cc/02ct6pPY/8582a9207787016621733f5cade69cf2.jpg" alt="Ảnh nền tháng 11">
+                </div>
+                <div class="main-divine-info">
+                    <div class="main-divine-desc">Ảnh nền Noel</div>
+                </div>
+            </div>
+
+            <!-- PHẦN THƯỞNG PHỤ PHẢI: CON GIỐNG DIVINE & THỰC PHẨM -->
+            <div class="sub-reward-card">
+                <div class="sub-reward-icon">🦌✨</div>
+                <div class="sub-reward-name">Tuần Lộc Thần Thoại</div>
+                <div class="sub-reward-desc">Con giống Divine</div>
+            </div>
+        </div>
+
+        <!-- NÚT BẤM VÀO SỰ KIỆN (ĐÃ ĐỔI MÀU NỔI BẬT & PHÁT SÁNG) -->
+<div style="margin-top: 14px; position: relative; z-index: 2;">
+    <button class="event-join-btn" onclick="goToEventAndCloseBanner()">
+        🎪 Tham Gia Sự Kiện Ngay ➔
+    </button>
+</div>
+    </div>
   </div>
-<script>
+  <script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
 */
@@ -5659,6 +6176,9 @@ function load(){
           rewardClaimed: false
         },
 
+        // 🌟 KHỞI TẠO TRẠNG THÁI MỞ KHÓA ẢNH NỀN
+        unlockedEventBackgrounds: {},
+
         claimedFarmRewards: [],
         claimedRanchRewards: [],
 
@@ -5838,7 +6358,10 @@ function load(){
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed;
 
-                // 🌟 KHÔI PHỤC TIẾN ĐỘ ĐƠN HÀNG SỰ KIỆN TỪ DỮ LIỆU TẢI VỀ
+                // 🌟 KHÔI PHỤC TRẠNG THÁI MỞ KHÓA ẢNH NỀN SỰ KIỆN TỪ DỮ LIỆU TẢI VỀ
+                state.unlockedEventBackgrounds = parsed.unlockedEventBackgrounds || {};
+
+                // 🌟 KHÔI PHỤC TIẾN ĐỘ ĐƠN HÀNG SỰ KIỆN TỪ DỮ LIỆU TẢI VỀ TRÊN FIREBASE
                 if (parsed.eventFoodOrdersData) {
                     const status = typeof getCurrentEventStatus === 'function' ? getCurrentEventStatus() : null;
                     if (status && status.type === 'active') {
@@ -5944,6 +6467,11 @@ function load(){
         isNewAccount = true; 
         save();
     }
+
+    // 🌟 TỰ ĐỘNG QUÉT GỐC RỄ: Mở khóa bù đắp ảnh nền cho người chơi đã hoàn thành Thử Thách 5 từ trước
+    if (typeof migrateAndAutoUnlockEventBackgrounds === 'function') {
+        migrateAndAutoUnlockEventBackgrounds();
+    }
     
     // Đảm bảo dữ liệu seeds gốc được nạp đủ
     if (typeof state.seeds === 'undefined' || !state.seeds) {
@@ -6020,8 +6548,6 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
 }
-
-
 
 function login(username){
   if (username && username.trim().length >= 3){
@@ -10728,8 +11254,7 @@ function renderSelectedAnimalDisplay() {
   }
 }
 
-
-function updateQuickPlantButtonsLockState() {
+    function updateQuickPlantButtonsLockState() {
     const btnRowPlant = document.getElementById('btnOpenRowPlantModal');
     const btnQuickPlant = document.getElementById('btnOpenRanchQuickPlant');
     
@@ -14771,7 +15296,7 @@ document.getElementById('closeEventModalBtn').onclick = () => {
 // ==========================================
 let TEST_OVERRIDE_STATUS = {
   type: null, // 'active', 'countdown', 'waiting', hoặc null
-  month: 2,      // 10 = Tháng 10 (Halloween)
+  month: 7,      // 10 = Tháng 10 (Halloween)
   day: 1          // Ngày muốn test (ví dụ: ngày 1, ngày 5, ngày 12,...)
 };
 
@@ -15377,9 +15902,9 @@ function updateSeasonalSeedsAndAnimals() {
       ANIMALS_DB[da.id].buyPrice = da.buyPrice;
     }
   }
-  }
+}
 
-  // Hàm ghi nhận và liên kết toàn bộ tiến độ Nhiệm vụ & Thử thách sự kiện (Đã lọc chuẩn chỉ tính hạt thuộc ĐÚNG SỰ KIỆN HIỆN TẠI)
+// Hàm ghi nhận và liên kết toàn bộ tiến độ Nhiệm vụ & Thử thách sự kiện (Đã lọc chuẩn chỉ tính hạt thuộc ĐÚNG SỰ KIỆN HIỆN TẠI)
 function checkEventTaskProgress(actionType, amountOrData = 1, extraData = {}) {
     const status = getCurrentEventStatus();
     if (status.type !== 'active') return;
@@ -15541,11 +16066,18 @@ function claimUltimateEventReward() {
 
     state.eventProgress.rewardClaimed = true;
 
-    // 1. Tự động mở khóa Hạt giống Divine sự kiện
+    // 🌟 1. Lưu trạng thái mở khóa ảnh nền RIÊNG BIỆT theo đúng prefix của mùa hiện tại (VD: 'halloween', 'tet_duong'...)
+    if (!state.unlockedEventBackgrounds) {
+        state.unlockedEventBackgrounds = {};
+    }
+    state.unlockedEventBackgrounds[cfg.prefix] = true;
+
+    // 2. Mở khóa Hạt giống Divine
     if (seasonalData.divineSeed && !state.unlockedSeeds.includes(seasonalData.divineSeed.id)) {
         state.unlockedSeeds.push(seasonalData.divineSeed.id);
+        renderSeeds(); // 👈 Cập nhật lại giao diện kho hạt giống ngay lập tức
     }
-    // 2. Tự động mở khóa Con giống Divine sự kiện
+    // 3. Mở khóa Con giống Divine
     if (seasonalData.divineAnimal) {
         if (!state.unlockedAnimals) state.unlockedAnimals = ['chicken', 'duck'];
         if (!state.unlockedAnimals.includes(seasonalData.divineAnimal.id)) {
@@ -15553,8 +16085,24 @@ function claimUltimateEventReward() {
         }
     }
 
-    // 3. Tự động mở khóa và áp dụng ngay ảnh nền cực phẩm sự kiện
-    applyGameBackground('event_ultimate_bg');
+    // 4. Ánh xạ đúng ID ảnh nền của tháng hiện tại (VD: event_month_10 cho halloween)
+    const monthPrefixToBgId = {
+        tet_duong: 'event_month_1',
+        tet_am: 'event_month_2',
+        '8_thang_3': 'event_month_3',
+        ca_thang_tu: 'event_month_4',
+        he_thang_5: 'event_month_5',
+        he_thang_6: 'event_month_6',
+        co_hon_7: 'event_month_7',
+        co_hon_8: 'event_month_8',
+        trung_thu: 'event_month_9',
+        halloween: 'event_month_10',
+        noel_11: 'event_month_11',
+        noel_12: 'event_month_12'
+    };
+    
+    const targetBgId = monthPrefixToBgId[cfg.prefix] || 'event_month_10';
+    applyGameBackground(targetBgId);
 
     save();
     showTopToast(
@@ -15565,9 +16113,9 @@ function claimUltimateEventReward() {
     if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
         SoundEngine.fanfareChallenge();
     }
-}
+    }
 
-function claimEventQuest(questId) {
+  function claimEventQuest(questId) {
   if (!currentUser) return;
   if (!state.eventProgress || !state.eventProgress.quests) return;
 
@@ -16487,7 +17035,7 @@ const DETAILED_SEASONAL_EVENT_RECIPES_DB = {
         { id: 'n11_res_41', name: 'Đêm Giáng Sinh Diệu Kỳ', emoji: '🌟🎄', tier: 'EventDivine', ingredients: [{ id: 'n11_s1', qty: 5 }, { id: 'n11_s3', qty: 5 }, { id: 'n11_s7', qty: 5 }], value: 4900 },
         { id: 'n11_res_42', name: 'Phép Màu Mùa Đông', emoji: '🪄❄️', tier: 'EventDivine', ingredients: [{ id: 'n11_s2', qty: 6 }, { id: 'n11_s4', qty: 5 }, { id: 'n11_s8', qty: 5 }], value: 5100 },
         { id: 'n11_res_43', name: 'Hạnh Phúc Tràn Trề', emoji: '💖🏡', tier: 'EventDivine', ingredients: [{ id: 'n11_s3', qty: 7 }, { id: 'n11_s5', qty: 6 }, { id: 'n11_s9', qty: 4 }], value: 5300 },
-        { id: 'n11_res_44', name: 'Băng Sơn Vĩnh Cửu', emoji: '🏔️♾️', tier: 'EventDivine', ingredients: [{ id: 'n11_s6', qty: 8 }, { id: 'n11_s7', qty: 6 }, { id: 'n11_s10', qty: 6 }], value: 5500 },
+        { id: 'n11_res_44', name: 'Băng Sơn Vĩnh Cửu', emoji: '🏔️♾️', tier: 'EventDivine', ingredients: [{ id: 'n11_s6', qty: 8 }, { id: 'n11_s7', qty: 6 }, { id: 'n11_s10', qty: 5 }], value: 5500 },
         { id: 'n11_res_45', name: 'Chúa Tể Giáng Sinh', emoji: '👑🎅', tier: 'EventDivine', ingredients: [{ id: 'n11_s10', qty: 10 }, { id: 'n11_s3', qty: 8 }, { id: 'n11_s5', qty: 6 }], value: 6000 },
         { id: 'n11_res_46', name: 'Thông Noel Tối Thượng', emoji: '🌲👑', tier: 'EventDivine', ingredients: [{ id: 'n11_s1', qty: 10 }, { id: 'n11_s9', qty: 6 }], value: 5400 },
         { id: 'n11_res_47', name: 'Kẹo Gậy Tối Thượng', emoji: '🍬👑', tier: 'EventDivine', ingredients: [{ id: 'n11_s2', qty: 10 }, { id: 'n11_s10', qty: 6 }], value: 5600 },
@@ -17870,7 +18418,6 @@ function claimFarmSuperReward() {
     showTopToast('🏆 HOÀN THÀNH 10/10 DANH HIỆU', rewardDescMsg, '🌟');
 }
 
-// Nhận thưởng 10/10 Chăn Nuôi (Chỉ lấy con giống thường, loại bỏ hoàn toàn con giống sự kiện)
 // Nhận thưởng 10/10 Chăn Nuôi (Đồng bộ vĩnh viễn lên Firebase)
 function claimRanchSuperReward() {
     if (!currentUser) return;
@@ -17999,7 +18546,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/nLK94HcS/Khong-Co-Tieu-De58-20261018144434.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/3xJxsKtg/Khong-Co-Tieu-De54-20261018140848.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/nLK94HcS/Khong-Co-Tieu-De58-20261018144434.jpg")',
-        isUnlocked: () => true // Mặc định luôn mở khóa
+        isUnlocked: () => true
     },
     {
         id: 'event_month_1',
@@ -18008,7 +18555,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/HxZ8gsbw/Khong-Co-Tieu-De72-20261027224714.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/rmWpm502/Khong-Co-Tieu-De62-20261022011817.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/HxZ8gsbw/Khong-Co-Tieu-De72-20261027224714.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['tet_duong'] === true
     },
     {
         id: 'event_month_2',
@@ -18017,7 +18564,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/XYjZpCx2/3c22035d2116bc08309f1165eb8bbe66.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/CLZt4CDr/IMG-089b4e89-cdb7-41ef-bf02-824b6e57d66e.webp")',
         bgImgDesktop: 'url("https://i.postimg.cc/XYjZpCx2/3c22035d2116bc08309f1165eb8bbe66.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['tet_am'] === true
     },
     {
         id: 'event_month_3',
@@ -18026,7 +18573,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/SK8p4ZC0/384c5d56454c43ed7cf2ec35bb4ed54d.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/7YzwxWq5/ee17b42ea84ee6144760f1423cf51af5.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/SK8p4ZC0/384c5d56454c43ed7cf2ec35bb4ed54d.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['8_thang_3'] === true
     },
     {
         id: 'event_month_4',
@@ -18035,7 +18582,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/GpjqvG1c/511c5b660555e14e1737682b6d995a32.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/3x6qdK9R/1c43df8912c63a3a3e94d4c06d3b01de.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/GpjqvG1c/511c5b660555e14e1737682b6d995a32.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['ca_thang_tu'] === true
     },
     {
         id: 'event_month_5',
@@ -18044,7 +18591,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/kMLzJNJ0/2247687dd8fbf72e3a01e3e41620c252.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/mZJmsbZ4/35a80d49a7ef39cb5a15cce9b692fc1f.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/kMLzJNJ0/2247687dd8fbf72e3a01e3e41620c252.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['he_thang_5'] === true
     },
     {
         id: 'event_month_6',
@@ -18053,7 +18600,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/sDFHdVK7/84102bce2cabb5eb898530978df51988.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/59Cw88Jp/55961272fe60bd34eaec35217fa8acc8.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/sDFHdVK7/84102bce2cabb5eb898530978df51988.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['he_thang_6'] === true
     },
     {
         id: 'event_month_7',
@@ -18062,7 +18609,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/L4v5GXmx/Khong-Co-Tieu-De73-20261027230218.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/zvbpgQ7r/Khong-Co-Tieu-De71-20261027223417.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/L4v5GXmx/Khong-Co-Tieu-De73-20261027230218.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['co_hon_7'] === true
     },
     {
         id: 'event_month_8',
@@ -18071,7 +18618,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/8c3SDxK7/Khong-Co-Tieu-De74-20261027230449.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/sgc8yt0Q/bc453f7771229ed1c3abed68e440fe4f.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/8c3SDxK7/Khong-Co-Tieu-De74-20261027230449.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['co_hon_8'] === true
     },
     {
         id: 'event_month_9',
@@ -18080,7 +18627,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/Gmz1mBSv/203ef12c93757de1988cc7fa05114b5a.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/ZKYp2232/a147289e409a093d89e735feabffc996.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/Gmz1mBSv/203ef12c93757de1988cc7fa05114b5a.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['trung_thu'] === true
     },
     {
         id: 'event_month_10',
@@ -18089,7 +18636,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/xTyw6JY1/a9c8c2ed37be8965e846c5f6dc9d85b4.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/sXskYyBh/Khong-Co-Tieu-De60-20261022005323.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/xTyw6JY1/a9c8c2ed37be8965e846c5f6dc9d85b4.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['halloween'] === true
     },
     {
         id: 'event_month_11',
@@ -18098,7 +18645,7 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/02ct6pPY/8582a9207787016621733f5cade69cf2.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/TPvwM5Ff/f5155d7ede02af0d292bda5b3a041a46.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/02ct6pPY/8582a9207787016621733f5cade69cf2.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['noel_11'] === true
     },
     {
         id: 'event_month_12',
@@ -18107,9 +18654,11 @@ const GAME_BACKGROUNDS = [
         previewImgDesktop: 'https://i.postimg.cc/SRVGMhFh/c14ae03dab989d8ee8a88d16e7cecf60.jpg',
         bgImgMobile: 'url("https://i.postimg.cc/2yLRS2Bz/d2143d295be586ce3b84117c52eb94aa.jpg")',
         bgImgDesktop: 'url("https://i.postimg.cc/SRVGMhFh/c14ae03dab989d8ee8a88d16e7cecf60.jpg")',
-        isUnlocked: () => state.eventProgress && state.eventProgress.rewardClaimed === true
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['noel_12'] === true
     }
 ];
+
+
 
 function applyGameBackground(bgId) {
     const bgConfig = GAME_BACKGROUNDS.find(b => b.id === bgId);
@@ -18434,7 +18983,7 @@ function finishLoginSuccess(logMsg) {
 }
 
 // 🌟 ĐÂY LÀ HÀM SAVE DUY NHẤT ĐƯỢC GIỮ LẠI (Tự động lưu Local + Đồng bộ Firebase)
-function save(){// 🌟 ĐÂY LÀ HÀM SAVE DUY NHẤT ĐƯỢC GIỮ LẠI (Tự động lưu Local + Đồng bộ Firebase)
+function save(){
   if (!currentUser || !currentStorageKey) return; // Chỉ lưu nếu đã đăng nhập
   
   updateWater(); // Thực hiện trừ nước ngay trước khi lưu
@@ -18515,6 +19064,9 @@ function save(){// 🌟 ĐÂY LÀ HÀM SAVE DUY NHẤT ĐƯỢC GIỮ LẠI (T�
     dailyRanchQuests: state.dailyRanchQuests,
     lastRanchQuestReset: state.lastRanchQuestReset,
     
+    // 🌟 LƯU VÀ ĐỒNG BỘ TRẠNG THÁI MỞ KHÓA ẢNH NỀN SỰ KIỆN LÊN ĐÁM MÂY
+    unlockedEventBackgrounds: state.unlockedEventBackgrounds || {},
+
     // 🌟 THÊM DÒNG NÀY ĐỂ LƯU VÀ ĐỒNG BỘ DANH SÁCH NHẠC / VIDEO TỰ THÊM LÊN ĐÁM MÂY
     customTracks: state.customTracks || [],
     // 🌟 BỔ SUNG 2 DÒNG LƯU TRẠNG THÁI MỞ KHÓA & KHO CON GIỐNG TỐI THƯỢNG
@@ -18544,6 +19096,61 @@ function save(){// 🌟 ĐÂY LÀ HÀM SAVE DUY NHẤT ĐƯỢC GIỮ LẠI (T�
   }
 }
 
+
+// 🌟 HÀM TỰ ĐỘNG QUÉT GỐC RỄ: Mở khóa bù đắp ảnh nền cho người chơi đã hoàn thành Thử Thách 5 từ trước
+function migrateAndAutoUnlockEventBackgrounds() {
+    if (!state) return;
+    if (!state.unlockedEventBackgrounds) {
+        state.unlockedEventBackgrounds = {};
+    }
+
+    // Bản đồ quy đổi tiền tố sự kiện (prefix) sang ID ảnh nền tương ứng trong GAME_BACKGROUNDS
+    const prefixToBgId = {
+        tet_duong: 'event_month_1',
+        tet_am: 'event_month_2',
+        '8_thang_3': 'event_month_3',
+        ca_thang_tu: 'event_month_4',
+        he_thang_5: 'event_month_5',
+        he_thang_6: 'event_month_6',
+        co_hon_7: 'event_month_7',
+        co_hon_8: 'event_month_8',
+        trung_thu: 'event_month_9',
+        halloween: 'event_month_10',
+        noel_11: 'event_month_11',
+        noel_12: 'event_month_12'
+    };
+
+    let hasUnlockedNew = false;
+
+    // 1. Kiểm tra nếu cờ `rewardClaimed` đã từng được bật (dành cho các bản lưu cũ)
+    if (state.eventProgress && state.eventProgress.rewardClaimed === true && state.eventProgress.eventPrefix) {
+        const currentPrefix = state.eventProgress.eventPrefix;
+        const targetBgId = prefixToBgId[currentPrefix];
+        if (targetBgId && !state.unlockedEventBackgrounds[currentPrefix]) {
+            state.unlockedEventBackgrounds[currentPrefix] = true;
+            hasUnlockedNew = true;
+        }
+    }
+
+    // 2. Quét sâu hơn: Kiểm tra trong các mảng thử thách nếu Thử thách cuối cùng (ec_5) đã hoàn thành (`completed: true`)
+    if (state.eventProgress && Array.isArray(state.eventProgress.challenges)) {
+        const challenge5 = state.eventProgress.challenges.find(c => c.id === 'ec_5');
+        if (challenge5 && challenge5.completed && state.eventProgress.eventPrefix) {
+            const prefix = state.eventProgress.eventPrefix;
+            const bgId = prefixToBgId[prefix];
+            if (bgId && !state.unlockedEventBackgrounds[prefix]) {
+                state.unlockedEventBackgrounds[prefix] = true;
+                hasUnlockedNew = true;
+            }
+        }
+    }
+
+    // 3. Nếu có phát hiện mới được mở khóa bù đắp, tiến hành lưu lại dữ liệu ngay lập tức
+    if (hasUnlockedNew) {
+        if (typeof save === 'function') save();
+        console.log("🌟 Đã tự động mở khóa bù đắp ảnh nền sự kiện cho tài khoản đã hoàn thành thử thách từ trước!");
+    }
+}
 
 
 // Gắn sự kiện nút Đăng nhập / Bắt đầu
@@ -18796,10 +19403,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================================================
-// 🎶 HỆ THỐNG QUẢN LÝ NHẠC YOUTUBE API + TÙY CHỈNH THÊM/XÓA BÀI HÁT VĨNH VIỄN
-// ==========================================================================
-
-// ==========================================================================
 // 🎶 DANH SÁCH NHẠC NỀN & SỰ KIỆN 12 THÁNG (ĐÃ CẬP NHẬT CHUẨN ID YOUTUBE)
 // ==========================================================================
 
@@ -19019,6 +19622,7 @@ function renderYtMusicPlaylistUI() {
         container.appendChild(card);
     });
 }
+
 
 // Phát bài hát qua YouTube API
 function playYtTrack(trackId, trackName) {
@@ -20123,8 +20727,428 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+    function openSeasonalBanner() {
+        const overlay = document.getElementById('seasonalEventOverlay');
+        if (overlay) {
+            overlay.classList.add('open');
+        }
+    }
+
+    function closeSeasonalBanner() {
+        const overlay = document.getElementById('seasonalEventOverlay');
+        if (overlay) {
+            overlay.classList.remove('open');
+        }
+    }
+
+    // Tự động quét khi màn hình loading game biến mất
+    document.addEventListener('DOMContentLoaded', () => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) {
+            // Theo dõi khi nào màn hình loading được thêm class 'hidden'
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class' && loader.classList.contains('hidden')) {
+                        // Loading vừa xong -> Hiện ngay banner sự kiện
+                        setTimeout(openSeasonalBanner, 300);
+                    }
+                });
+            });
+            observer.observe(loader, { attributes: true });
+        } else {
+            // Dự phòng nếu không tìm thấy loading screen
+            setTimeout(openSeasonalBanner, 1200);
+        }
+    });
+
+    window.addEventListener('click', (e) => {
+        const overlay = document.getElementById('seasonalEventOverlay');
+        if (e.target === overlay) {
+            closeSeasonalBanner();
+        }
+    });
+
+// Hàm bấm vào nút sự kiện: Tắt banner và mở popup sự kiện ra
+    function goToEventAndCloseBanner() {
+        // 1. Tắt banner thông báo
+        closeSeasonalBanner();
+
+        // 2. Tự động mở popup sự kiện (gọi hàm openEventPopup có sẵn trong game của bạn)
+        if (typeof openEventPopup === 'function') {
+            openEventPopup();
+        } else {
+            console.warn("Hàm openEventPopup chưa được định nghĩa trong game.");
+        }
+    }
+
+    // Hàm tạo ngẫu nhiên các hạt tuyết rơi bên trong banner
+    function initSnowEffect() {
+        const snowBox = document.getElementById('snowflakesBox');
+        if (!snowBox) return;
+        snowBox.innerHTML = ''; // Xóa sạch tuyết cũ nếu có
+
+        // Tạo 30 hạt tuyết rơi
+        const snowflakeCount = 30;
+        for (let i = 0; i < snowflakeCount; i++) {
+            const flake = document.createElement('div');
+            flake.className = 'snowflake';
+            
+            // Random vị trí ngang, kích thước, tốc độ rơi và độ trễ
+            const size = Math.random() * 5 + 3; // Kích thước từ 3px đến 8px
+            const left = Math.random() * 100; // Vị trí theo chiều ngang (%)
+            const duration = Math.random() * 3 + 2; // Tốc độ rơi từ 2s đến 5s
+            const delay = Math.random() * 3; // Độ trễ xuất hiện
+
+            flake.style.width = `${size}px`;
+            flake.style.height = `${size}px`;
+            flake.style.left = `${left}%`;
+            flake.style.animationDuration = `${duration}s`;
+            flake.style.animationDelay = `${delay}s`;
+
+            snowBox.appendChild(flake);
+        }
+    }
+
+    // Móc vào hàm mở banner để tự động chạy hiệu ứng tuyết rơi
+    const originalOpenSeasonalBanner = window.openSeasonalBanner || function() {
+        const overlay = document.getElementById('seasonalEventOverlay');
+        if (overlay) overlay.classList.add('open');
+    };
+
+    window.openSeasonalBanner = function() {
+        originalOpenSeasonalBanner();
+        initSnowEffect(); // Kích hoạt hiệu ứng tuyết ngay khi banner mở ra
+    };
+
+// ==========================================
+// HỆ THỐNG HIỆU ỨNG NỀN ĐỘNG TRUNG TẦNG (BANNER & POPUP)
+// ==========================================
+function renderDynamicEventEffects(containerElement) {
+    if (!containerElement) return;
+
+    // Xóa lớp hiệu ứng cũ nếu có (bao gồm cả dọn dẹp interval pháo hoa cũ)
+    let fxContainer = containerElement.querySelector('.event-fx-container');
+    if (fxContainer) {
+        if (fxContainer._fwInterval) clearInterval(fxContainer._fwInterval);
+        fxContainer.remove();
+    }
+
+    // Tạo mới vùng chứa hiệu ứng
+    fxContainer = document.createElement('div');
+    fxContainer.className = 'event-fx-container';
+    containerElement.prepend(fxContainer); // Đặt lên đầu để nằm ở tầng trung (dưới các ô khung con)
+
+    // Xác định tháng sự kiện (Lấy theo hệ thống hoặc sự kiện active)
+    const status = typeof getCurrentEventStatus === 'function' ? getCurrentEventStatus() : null;
+    let targetMonth = new Date().getMonth() + 1; // Mặc định tháng hiện tại
+
+    if (status && status.type === 'active' && status.config) {
+        const prefixMap = { 
+            tet_duong: 1, tet_am: 2, '8_thang_3': 3, ca_thang_tu: 4, 
+            he_thang_5: 5, he_thang_6: 6, co_hon_7: 7, co_hon_8: 8, 
+            trung_thu: 9, halloween: 10, noel_11: 11, noel_12: 12 
+        };
+        if (prefixMap[status.config.prefix]) {
+            targetMonth = prefixMap[status.config.prefix];
+        }
+    }
+
+    // Phân rã hiệu ứng theo đúng 12 tháng:
+    switch (targetMonth) {
+        case 1:
+        case 2:
+            // THÁNG 1 & 2: Pháo hoa thật (Nhiều chùm cùng lúc, đa dạng màu sắc, nở bung tỏa tia rộng)
+            const fwPalette = [
+                { core: '#ffeb3b', sparks: ['#ffeb3b', '#f44336', '#ff9800', '#ffffff'] }, // Vàng/Đỏ/Trắng
+                { core: '#4caf50', sparks: ['#4caf50', '#8bc34a', '#ffeb3b', '#00bcd4'] }, // Xanh lá/Vàng/Xanh dương
+                { core: '#e91e63', sparks: ['#e91e63', '#9c27b0', '#ff5722', '#ffffff'] }, // Hồng/Tím/Cam/Trắng
+                { core: '#00bcd4', sparks: ['#00bcd4', '#2196f3', '#ffeb3b', '#e91e63'] }, // Xanh dương/Vàng/Hồng
+                { core: '#ff9800', sparks: ['#ff9800', '#f44336', '#ffeb3b', '#9c27b0'] }  // Cam/Đỏ/Vàng/Tím
+            ];
+
+            const spawnRandomFirework = () => {
+                if (!fxContainer || !fxContainer.isConnected) return;
+
+                const cluster = document.createElement('div');
+                cluster.className = 'real-firework-cluster';
+                
+                // Trải rộng vị trí ngẫu nhiên khắp bề mặt khung
+                cluster.style.top = `${10 + Math.random() * 75}%`;
+                cluster.style.left = `${10 + Math.random() * 80}%`;
+                
+                const colorSet = fwPalette[Math.floor(Math.random() * fwPalette.length)];
+                
+                // Tâm pháo hoa lóe sáng
+                const core = document.createElement('div');
+                core.className = 'real-fw-core';
+                core.style.background = colorSet.core;
+                core.style.boxShadow = `0 0 16px 8px ${colorSet.core}`;
+                cluster.appendChild(core);
+
+                // Số lượng tia văng ra nhiều hơn (từ 20 đến 24 tia cho độ dày đặc giống thật)
+                const totalSparks = 22;
+                for (let j = 0; j < totalSparks; j++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'real-fw-spark';
+                    
+                    const angle = (j / totalSparks) * 2 * Math.PI;
+                    // Bán kính tỏa ra rộng hơn (từ 50px đến 100px)
+                    const distance = 50 + Math.random() * 50; 
+                    const dx = Math.cos(angle) * distance;
+                    const dy = Math.sin(angle) * distance;
+
+                    spark.style.setProperty('--dx', `${dx}px`);
+                    spark.style.setProperty('--dy', `${dy}px`);
+                    spark.style.background = colorSet.sparks[Math.floor(Math.random() * colorSet.sparks.length)];
+                    spark.style.boxShadow = `0 0 8px ${spark.style.background}`;
+
+                    cluster.appendChild(spark);
+                }
+
+                fxContainer.appendChild(cluster);
+
+                // Tự động dọn dẹp DOM sau khi nổ xong
+                setTimeout(() => {
+                    if (cluster && cluster.parentNode) {
+                        cluster.remove();
+                    }
+                }, 1600);
+            };
+
+            // 1. Phóng dồn dập ngay các chùm đầu tiên khi vừa mở
+            for (let i = 0; i < 5; i++) {
+                setTimeout(spawnRandomFirework, i * 200);
+            }
+
+            // 2. Tần suất liên tục: Cứ mỗi 350ms - 450ms lại có các chùm pháo hoa mới nở bung rực rỡ ở các vị trí khác nhau
+            const fwInterval = setInterval(() => {
+                if (!fxContainer || !fxContainer.isConnected) {
+                    clearInterval(fwInterval);
+                    return;
+                }
+                // Mỗi nhịp có thể nổ ngẫu nhiên 1 hoặc 2 chùm cùng lúc cho sinh động
+                spawnRandomFirework();
+                if (Math.random() > 0.4) {
+                    setTimeout(spawnRandomFirework, 150);
+                }
+            }, 450);
+
+            fxContainer._fwInterval = fwInterval;
+            break;
+
+        case 3:
+            // THÁNG 3: Hoa màu hồng rơi từ trên xuống liên tục ngẫu nhiên
+            const flowerEmojis = ['🌸', '🌺', '🌷', '💮', '💐'];
+            
+            // Tạo ra một lượng hoa rơi rải đều trong container
+            const totalFlowers = 12;
+            for (let i = 0; i < totalFlowers; i++) {
+                const fl = document.createElement('div');
+                fl.className = 'fx-pink-flower';
+                fl.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+                
+                // Trải đều vị trí theo chiều ngang (từ 0% đến 95%)
+                fl.style.left = `${Math.random() * 95}%`;
+                
+                // Tốc độ rơi ngẫu nhiên khác nhau (từ 3 giây đến 5.5 giây) để tạo độ sâu
+                fl.style.animationDuration = `${3 + Math.random() * 2.5}s`;
+                
+                // Độ trễ (delay) khác nhau để các bông hoa không rơi đồng loạt cùng lúc
+                fl.style.animationDelay = `${Math.random() * 4}s`;
+                
+                fxContainer.appendChild(fl);
+            }
+            break;
+
+        case 4:
+            // THÁNG 4: Mỗi lần xuất hiện cố định 10 icon ở các vị trí khác nhau, rung lắc 3 giây rồi biến mất và lặp lại
+            const clownEmojis = ['🤡', '🃏', '🤪', '🎭', '🎩', '🎪', '🪄', '👅', '🤹', '🦹'];
+
+            // Hàm tự động tạo đúng 10 icon ở các vị trí ngẫu nhiên
+            const spawnClownGroup = () => {
+                if (!fxContainer || !fxContainer.isConnected) return;
+
+                // Cố định số lượng sinh ra mỗi lần là 10 icon
+                const count = 10;
+                
+                for (let i = 0; i < count; i++) {
+                    const clown = document.createElement('div');
+                    clown.className = 'fx-clown-dynamic';
+                    clown.textContent = clownEmojis[Math.floor(Math.random() * clownEmojis.length)];
+                    
+                    // Rải vị trí ngẫu nhiên khắp bề mặt khung
+                    clown.style.top = `${12 + Math.random() * 70}%`;
+                    clown.style.left = `${8 + Math.random() * 80}%`;
+                    
+                    // Thời lượng cho mỗi chu kỳ xuất hiện, rung lắc và mờ dần
+                    clown.style.animationDuration = '3s';
+
+                    fxContainer.appendChild(clown);
+
+                    // Tự động xóa DOM sau đúng 3 giây để giải phóng bộ nhớ
+                    setTimeout(() => {
+                        if (clown && clown.parentNode) {
+                            clown.remove();
+                        }
+                    }, 3000);
+                }
+            };
+
+            // 1. Phóng ngay nhóm đầu tiên khi vừa mở popup
+            spawnClownGroup();
+
+            // 2. Vòng lặp liên tục: Cứ sau mỗi 3 giây, nhóm 10 icon cũ biến mất thì nhóm mới ở chỗ khác lại xuất hiện
+            const clownInterval = setInterval(() => {
+                if (!fxContainer || !fxContainer.isConnected) {
+                    clearInterval(clownInterval);
+                    return;
+                }
+                spawnClownGroup();
+            }, 3000);
+
+            // Lưu lại interval để dọn dẹp khi tắt popup
+            fxContainer._clownInterval = clownInterval;
+            break;
+
+      case 5:
+        case 6:
+            // THÁNG 5 & 6: 5 tia nắng xuất phát từ mép phải, chuyển động chậm rãi tỏa sáng kèm hạt bụi mini
+            const sunContainer = document.createElement('div');
+            sunContainer.className = 'fx-sunbeam-group';
+            
+            const angles = [0, 16, 32, 48, 64]; // Góc xoay trải dài mượt mà từ phải sang trái
+            
+            angles.forEach((angle, i) => {
+                const ray = document.createElement('div');
+                ray.className = 'sunbeam-item';
+                
+                ray.style.transform = `rotate(${angle}deg)`;
+                
+                // 🌟 Đặt thời lượng chậm (`8.5s`) và độ trễ hợp lý (`i * 0.8s`) để các tia thong thả tỏa sáng, không bị dồn dập
+                ray.style.animationDuration = `8.5s`;
+                ray.style.animationDelay = `${i * 0.8}s`; 
+                
+                sunContainer.appendChild(ray);
+            });
+
+            // 2. Tạo 18 chấm tròn mini (hạt bụi nắng) bay lơ lửng trong không gian
+            for (let j = 0; j < 18; j++) {
+                const dot = document.createElement('div');
+                dot.className = 'sun-mini-dot';
+                
+                const dotSize = 2 + Math.random() * 3;
+                dot.style.width = `${dotSize}px`;
+                dot.style.height = `${dotSize}px`;
+                
+                dot.style.top = `${Math.random() * 60}%`;
+                dot.style.left = `${10 + Math.random() * 80}%`;
+                
+                dot.style.animationDuration = `${2 + Math.random() * 2.5}s`;
+                dot.style.animationDelay = `${Math.random() * 3}s`;
+                
+                sunContainer.appendChild(dot);
+            }
+
+            fxContainer.appendChild(sunContainer);
+            break;
+            
+        case 7:
+        case 8:
+            // THÁNG 7 & 8: Tháng cô hồn (xuất hiện và biến mất thay phiên)
+            const ghosts = ['👻', '💀', '🕯️', '🔮', '🦇'];
+            for (let i = 0; i < 6; i++) {
+                const gh = document.createElement('div');
+                gh.className = 'fx-ghost';
+                gh.textContent = ghosts[i % ghosts.length];
+                gh.style.top = `${Math.random() * 70}%`;
+                gh.style.left = `${Math.random() * 85}%`;
+                gh.style.animationDelay = `${i * 0.4}s`;
+                fxContainer.appendChild(gh);
+            }
+            break;
+
+        case 9:
+            // THÁNG 9: Trăng tròn góc trên phải & Thỏ di chuyển khu dưới
+            const moon = document.createElement('div');
+            moon.className = 'fx-moon';
+            moon.textContent = '🌕';
+            fxContainer.appendChild(moon);
+
+            for (let i = 0; i < 2; i++) {
+                const rab = document.createElement('div');
+                rab.className = 'fx-rabbit';
+                rab.textContent = i === 0 ? '🐇' : '🥮';
+                rab.style.left = `${15 + i * 140}px`;
+                fxContainer.appendChild(rab);
+            }
+            break;
+
+        case 10:
+            // THÁNG 10: Dơi, nhện rơi và bí ngô đung đưa khu dưới
+            for (let i = 0; i < 5; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'fx-bat-spider';
+                drop.textContent = i % 2 === 0 ? '🦇' : '🕷️';
+                drop.style.left = `${Math.random() * 85}%`;
+                drop.style.animationDuration = `${2 + Math.random() * 2}s`;
+                drop.style.animationDelay = `${Math.random() * 1.5}s`;
+                fxContainer.appendChild(drop);
+            }
+            for (let i = 0; i < 3; i++) {
+                const pump = document.createElement('div');
+                pump.className = 'fx-creepy-pumpkin';
+                pump.textContent = '🎃';
+                pump.style.left = `${30 + i * 110}px`;
+                pump.style.animationDelay = `${i * 0.2}s`;
+                fxContainer.appendChild(pump);
+            }
+            break;
+
+        case 11:
+        case 12:
+        default:
+            // THÁNG 11 & 12: Tuyết rơi
+            const snowBox = document.createElement('div');
+            snowBox.className = 'snowflakes-container';
+            fxContainer.appendChild(snowBox);
+
+            for (let i = 0; i < 25; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'snowflake';
+                const size = Math.random() * 4 + 2;
+                snow.style.width = `${size}px`;
+                snow.style.height = `${size}px`;
+                snow.style.left = `${Math.random() * 100}%`;
+                snow.style.animationDuration = `${2 + Math.random() * 3}s`;
+                snow.style.animationDelay = `${Math.random() * 3}s`;
+                snowBox.appendChild(snow);
+            }
+            break;
+    }
+}
+
+// 🌟 GẮN VÀO BANNER KHI VÀO GAME
+document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.querySelector('.seasonal-event-banner');
+    if (banner) {
+        renderDynamicEventEffects(banner);
+    }
+});
+
+// 🌟 GẮN VÀO POPUP SỰ KIỆN KHI BẤM MỞ (`openEventPopup`)
+const originalOpenEventPopup = window.openEventPopup;
+window.openEventPopup = function() {
+    if (typeof originalOpenEventPopup === 'function') originalOpenEventPopup();
+    
+    setTimeout(() => {
+        const modalBox = document.getElementById('eventModalBox') || document.querySelector('#seasonalEventModal .farm-modal-box');
+        if (modalBox) {
+            renderDynamicEventEffects(modalBox);
+        }
+    }, 50);
+};
 </script>
 </body>
 </html>
-  
+
   
