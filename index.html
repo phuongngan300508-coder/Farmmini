@@ -15053,18 +15053,26 @@ function openEventPopup() {
     };
     const currentPreviewImage = isDesktopScreen ? rewardImages.desktop : rewardImages.mobile;
 
+    // 🌟 Kiểm tra trạng thái người chơi đã nhận thưởng cực phẩm cuối sự kiện này chưa
+    const isUltimateClaimed = state.eventProgress && state.eventProgress.rewardClaimed === true;
+    
+    // Thu gọn text, giảm font-size và thêm white-space: nowrap để tuyệt đối không bị cắt khúc
+    const claimStatusBadgeHtml = isUltimateClaimed 
+      ? `<span style="font-size: 9.5px; background: #15803d; color: #fff; padding: 2px 6px; font-weight: 700; border-radius: 8px; white-space: nowrap; box-shadow: 0 2px 4px rgba(21, 128, 61, 0.2);">✅ ĐÃ NHẬN QUÀ</span>`
+      : `<span style="font-size: 9.5px; background: #b91c1c; color: #fff; padding: 2px 6px; font-weight: 700; border-radius: 8px; white-space: nowrap; box-shadow: 0 2px 4px rgba(185, 28, 28, 0.2);">⏳ CHƯA NHẬN QUÀ</span>`;
+
     // 🎁 Khung Quà Cực Phẩm (Hiển thị mockup ảnh nền linh hoạt theo thiết bị và mùa sự kiện)
     let ultimateRewardHtml = `
-      <div style="background: linear-gradient(135deg, #fffdf5, #fff8e1); border: 2px solid #d4af37; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);">
+      <div style="background: linear-gradient(135deg, #fffdf5, #fff8e1); border: 2px solid ${isUltimateClaimed ? '#15803d' : '#d4af37'}; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); transition: all 0.3s ease;">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <div style="font-weight: 800; color: #b78103; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
             🎁 Quà Cực Phẩm Cuối Sự Kiện
           </div>
-          <span style="font-size: 10px; background: #d4af37; color: #fff; padding: 2px 6px; font-weight: 700; border-radius: 10px;">Đang diễn ra 🔥</span>
+          <div>${claimStatusBadgeHtml}</div>
         </div>
 
-        <div style="display: flex; gap: 10px; align-items: center; background: #fff; padding: 8px; border-radius: 8px; border: 1.5px solid #f3e5ab;">
+        <div style="display: flex; gap: 10px; align-items: center; background: #fff; padding: 8px; border-radius: 8px; border: 1.5px solid ${isUltimateClaimed ? '#bbf7d0' : '#f3e5ab'};">
           
           <!-- KHUNG MOCKUP ẢNH NỀN (Tự thay đổi theo thiết bị & tháng sự kiện) -->
           <div style="position: relative; width: 110px; height: 75px; border-radius: 6px; overflow: hidden; border: 1px solid #d4af37; flex-shrink: 0; background: #eee;">
@@ -15090,6 +15098,7 @@ function openEventPopup() {
 
       </div>
     `;
+
 
     // Render 10 Nhiệm vụ sự kiện
     let questsHtml = '';
@@ -15280,8 +15289,7 @@ function openEventPopup() {
   }
 
   modal.classList.add('open');
-}
-
+    }
 
 document.getElementById('closeEventModalBtn').onclick = () => {
   document.getElementById('seasonalEventModal').classList.remove('open');
