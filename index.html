@@ -5481,8 +5481,8 @@ body:not(.logged-out) #eventIconButton {
     </button>
 </div>
     </div>
-  </div>
-  <script>
+</div>
+<script>
 /*
   Farm Mini — JavaScript logic (Sửa lỗi và tối ưu hóa cho cơ chế Đăng nhập)
 */
@@ -6137,6 +6137,9 @@ function save(){
 function load(){
     if (!currentUser) return; 
 
+    // 🌟 BẬT CỜ KHỞI ĐỘNG NGẦM: Chặn tuyệt đối mọi toast phát sinh trong suốt quá trình load game
+    window._isGameLoading = true;
+
     currentStorageKey = STORAGE_KEY_PREFIX + currentUser;
     const raw = localStorage.getItem(currentStorageKey);
 
@@ -6176,8 +6179,9 @@ function load(){
           rewardClaimed: false
         },
 
-        // 🌟 KHỞI TẠO TRẠNG THÁI MỞ KHÓA ẢNH NỀN
+        // 🌟 KHỞI TẠO TRẠNG THÁI MỞ KHÓA ẢNH NỀN VÀ ẢNH NỀN ĐANG DÙNG
         unlockedEventBackgrounds: {},
+        equippedBackground: 'default_vertical',
 
         claimedFarmRewards: [],
         claimedRanchRewards: [],
@@ -6358,8 +6362,9 @@ function load(){
                 if(parsed.fusionRewardClaimed !== undefined) state.fusionRewardClaimed = parsed.fusionRewardClaimed;
                 if(parsed.ranchOrderChallengeClaimed !== undefined) state.ranchOrderChallengeClaimed = parsed.ranchOrderChallengeClaimed;
 
-                // 🌟 KHÔI PHỤC TRẠNG THÁI MỞ KHÓA ẢNH NỀN SỰ KIỆN TỪ DỮ LIỆU TẢI VỀ
+                // 🌟 KHÔI PHỤC TRẠNG THÁI MỞ KHÓA ẢNH NỀN SỰ KIỆN VÀ ẢNH NỀN ĐANG TRANG BỊ TỪ DỮ LIỆU TẢI VỀ
                 state.unlockedEventBackgrounds = parsed.unlockedEventBackgrounds || {};
+                state.equippedBackground = parsed.equippedBackground || 'default_vertical';
 
                 // 🌟 KHÔI PHỤC TIẾN ĐỘ ĐƠN HÀNG SỰ KIỆN TỪ DỮ LIỆU TẢI VỀ TRÊN FIREBASE
                 if (parsed.eventFoodOrdersData) {
@@ -6473,6 +6478,16 @@ function load(){
         migrateAndAutoUnlockEventBackgrounds();
     }
     
+    // 🌟 ÁP DỤNG NGAY ẢNH NỀN ĐÃ LƯU KHI VÀO GAME (TRUYỀN `false` ĐỂ KHÔNG HIỆN TOAST PHIỀN PHỨC)
+    if (state.equippedBackground) {
+        applyGameBackground(state.equippedBackground, false);
+    } else {
+        applyGameBackground('default_vertical', false);
+    }
+
+    // 🌟 TẮT CỜ KHỞI ĐỘNG NGẦM: Mở lại thông báo toast bình thường cho các hành động sau này của người chơi
+    window._isGameLoading = false;
+
     // Đảm bảo dữ liệu seeds gốc được nạp đủ
     if (typeof state.seeds === 'undefined' || !state.seeds) {
         state.seeds = initialState.seeds || {};
@@ -6548,6 +6563,7 @@ function load(){
         log(`Chào mừng ${currentUser}! Đã tải trang trại & khu chăn nuôi.`);
     }
 }
+
 
 function login(username){
   if (username && username.trim().length >= 3){
@@ -7661,8 +7677,7 @@ function renderOrders() {
     });
 }
 
-  
-// --- GAME LOGIC FUNCTIONS ---
+  // --- GAME LOGIC FUNCTIONS ---
 
   // Thêm vào khu vực GAME LOGIC FUNCTIONS
 
@@ -11254,7 +11269,8 @@ function renderSelectedAnimalDisplay() {
   }
 }
 
-    function updateQuickPlantButtonsLockState() {
+
+function updateQuickPlantButtonsLockState() {
     const btnRowPlant = document.getElementById('btnOpenRowPlantModal');
     const btnQuickPlant = document.getElementById('btnOpenRanchQuickPlant');
     
@@ -15289,13 +15305,14 @@ function openEventPopup() {
   }
 
   modal.classList.add('open');
-    }
+}
+
 
 document.getElementById('closeEventModalBtn').onclick = () => {
   document.getElementById('seasonalEventModal').classList.remove('open');
 };
 
-// ==========================================
+  // ==========================================
 // BẢNG GIẢ LẬP ĐỂ TEST 
 // - 'active'     : Giao diện đang diễn ra sự kiện
 // - 'countdown'  : Giao diện đếm ngược sắp tới sự kiện mới
@@ -16121,9 +16138,10 @@ function claimUltimateEventReward() {
     if (typeof SoundEngine !== 'undefined' && SoundEngine.fanfareChallenge) {
         SoundEngine.fanfareChallenge();
     }
-    }
+}
 
-  function claimEventQuest(questId) {
+
+function claimEventQuest(questId) {
   if (!currentUser) return;
   if (!state.eventProgress || !state.eventProgress.quests) return;
 
@@ -18667,13 +18685,17 @@ const GAME_BACKGROUNDS = [
 ];
 
 
-
-function applyGameBackground(bgId) {
+function applyGameBackground(bgId, showNotification = true) {
     const bgConfig = GAME_BACKGROUNDS.find(b => b.id === bgId);
     if (!bgConfig) return;
 
+    // Lưu vào state và gọi save()
     state.equippedBackground = bgId;
-    save();
+    
+    // 🛡️ CHẶN GỌI SAVE GÂY NHIỄU KHI ĐANG LOAD: Nếu game đang load thì bỏ qua save() để tránh lỗi
+    if (showNotification && !window._isGameLoading) {
+        save();
+    }
 
     let styleTag = document.getElementById('dynamic-game-bg-style');
     if (!styleTag) {
@@ -18693,9 +18715,18 @@ function applyGameBackground(bgId) {
         }
     `;
 
-    renderInterfaceModalGrid();
-    showTopToast('ĐÃ ĐỔI GIAO DIỆN', `Đã áp dụng ảnh nền: <strong>${bgConfig.name}</strong>`, '🎨');
+    if (typeof renderInterfaceModalGrid === 'function') {
+        renderInterfaceModalGrid();
+    }
+    
+    // 🌟 TUYỆT ĐỐI CHẶN TOAST: Chỉ hiện Toast khi người chơi chủ động bấm đổi VÀ game không ở trạng thái load
+    if (showNotification && !window._isGameLoading) {
+        showTopToast('ĐÃ ĐỔI GIAO DIỆN', `Đã áp dụng ảnh nền: <strong>${bgConfig.name}</strong>`, '🎨');
+    }
 }
+
+
+
 
 // Render danh sách mockup trong popup Giao Diện (Mặc định đầu tiên -> Đã mở theo tháng -> Đang khóa theo tháng)
 function renderInterfaceModalGrid() {
@@ -18802,14 +18833,15 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Tự động khôi phục ảnh nền đã lưu khi người chơi load lại game
+// ✅ ĐÃ SỬA: Thêm `, false` để chặn hoàn toàn toast khi load game
 const originalLoadForBg = window.load;
 window.load = function() {
     if (typeof originalLoadForBg === 'function') originalLoadForBg();
     if (state.equippedBackground) {
-        applyGameBackground(state.equippedBackground);
+        applyGameBackground(state.equippedBackground, false);
     }
 };
+
 
 /* ========================================================== */
 /* CẤU HÌNH FIREBASE & HỆ THỐNG ĐĂNG NHẬP ID 6 SỐ + TÊN TÀI KHOẢN */
@@ -19072,8 +19104,9 @@ function save(){
     dailyRanchQuests: state.dailyRanchQuests,
     lastRanchQuestReset: state.lastRanchQuestReset,
     
-    // 🌟 LƯU VÀ ĐỒNG BỘ TRẠNG THÁI MỞ KHÓA ẢNH NỀN SỰ KIỆN LÊN ĐÁM MÂY
+    // 🌟 LƯU VÀ ĐỒNG BỘ TRẠNG THÁI MỞ KHÓA ẢNH NỀN VÀ ẢNH NỀN ĐANG TRANG BỊ
     unlockedEventBackgrounds: state.unlockedEventBackgrounds || {},
+    equippedBackground: state.equippedBackground || 'default_vertical',
 
     // 🌟 THÊM DÒNG NÀY ĐỂ LƯU VÀ ĐỒNG BỘ DANH SÁCH NHẠC / VIDEO TỰ THÊM LÊN ĐÁM MÂY
     customTracks: state.customTracks || [],
@@ -19103,6 +19136,7 @@ function save(){
       });
   }
 }
+
 
 
 // 🌟 HÀM TỰ ĐỘNG QUÉT GỐC RỄ: Mở khóa bù đắp ảnh nền cho người chơi đã hoàn thành Thử Thách 5 từ trước
@@ -21158,5 +21192,5 @@ window.openEventPopup = function() {
 </script>
 </body>
 </html>
-
+  
   
