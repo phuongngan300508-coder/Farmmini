@@ -6168,7 +6168,8 @@ function load(){
         dailyQuests: [],
         lastQuestReset: 0,
         inventory: {}, 
-        activeOrders: [], 
+        activeOrders: [],
+        customBackgrounds: [], // Lưu danh sách ảnh cá nhân 
         lastOrderReset: 0, 
         fusionRewardClaimed: null,
         ranchOrderChallengeClaimed: null,
@@ -6433,6 +6434,16 @@ function load(){
 
                 state.dailyRanchQuests = Array.isArray(parsed.dailyRanchQuests) ? parsed.dailyRanchQuests : [];
                 state.lastRanchQuestReset = parsed.lastRanchQuestReset || 0;
+
+                state.customBackgrounds = Array.isArray(parsed.customBackgrounds) ? parsed.customBackgrounds : [];
+
+// Khôi phục ảnh nền cá nhân nếu người chơi đang sử dụng nó
+if (state.equippedBackground && state.equippedBackground.startsWith('custom_bg_')) {
+    const foundCustom = state.customBackgrounds.find(b => b.id === state.equippedBackground);
+    if (foundCustom) {
+        applyCustomGameBackground(foundCustom.id, foundCustom.dataUrl);
+    }
+}
 
                 // 🌟 KHÔI PHỤC DANH SÁCH NHẠC / VIDEO TỰ THÊM TỪ ĐÁM MÂY
                 state.customTracks = Array.isArray(parsed.customTracks) ? parsed.customTracks : [];
@@ -18575,6 +18586,56 @@ const GAME_BACKGROUNDS = [
         isUnlocked: () => true
     },
     {
+        id: 'bg_sarino',
+        name: 'Sarino Characters',
+        price: 5000,
+        previewImgMobile: 'https://i.postimg.cc/y63dKyh8/3aa633033541448cd3c7037a7b1c22a7.jpg',
+        previewImgDesktop: 'https://i.postimg.cc/cLLGxsqv/98021dab3e72c7c0fb0e9fd105f8839b.jpg',
+        bgImgMobile: 'url("https://i.postimg.cc/y63dKyh8/3aa633033541448cd3c7037a7b1c22a7.jpg")',
+        bgImgDesktop: 'url("https://i.postimg.cc/cLLGxsqv/98021dab3e72c7c0fb0e9fd105f8839b.jpg")',
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['bg_sarino'] === true
+    },
+    {
+        id: 'bg_hello_kitty',
+        name: 'Hello Kitty',
+        price: 7000,
+        previewImgMobile: 'https://i.postimg.cc/0NRBjtvv/0f3f99cb1035e3cfda3d08b6810afef7.jpg',
+        previewImgDesktop: 'https://i.postimg.cc/XJxH24ys/0995a80658ddf6cdfca9aade10d7b063.jpg',
+        bgImgMobile: 'url("https://i.postimg.cc/0NRBjtvv/0f3f99cb1035e3cfda3d08b6810afef7.jpg")',
+        bgImgDesktop: 'url("https://i.postimg.cc/XJxH24ys/0995a80658ddf6cdfca9aade10d7b063.jpg")',
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['bg_hello_kitty'] === true
+    },
+    {
+        id: 'bg_kuromi',
+        name: 'Kuromi',
+        price: 7000,
+        previewImgMobile: 'https://i.postimg.cc/SRgFhM1c/12d338bf2d43a66eae8bb1bcc1e81d0d.jpg',
+        previewImgDesktop: 'https://i.postimg.cc/zvxZrg26/ae4454c194bdbeed3741438ad0cf8e03.jpg',
+        bgImgMobile: 'url("https://i.postimg.cc/SRgFhM1c/12d338bf2d43a66eae8bb1bcc1e81d0d.jpg")',
+        bgImgDesktop: 'url("https://i.postimg.cc/zvxZrg26/ae4454c194bdbeed3741438ad0cf8e03.jpg")',
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['bg_kuromi'] === true
+    },
+    {
+        id: 'bg_melody',
+        name: 'Melody',
+        price: 7000,
+        previewImgMobile: 'https://i.postimg.cc/BbCMhmT1/0ae50c4a18a39d8e830b776d89e07f15.jpg',
+        previewImgDesktop: 'https://i.postimg.cc/bN3mkFNc/934dc1febc8ea748d622ad93c690cab0.jpg',
+        bgImgMobile: 'url("https://i.postimg.cc/BbCMhmT1/0ae50c4a18a39d8e830b776d89e07f15.jpg")',
+        bgImgDesktop: 'url("https://i.postimg.cc/bN3mkFNc/934dc1febc8ea748d622ad93c690cab0.jpg")',
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['bg_melody'] === true
+    },
+    {
+        id: 'bg_cinnamoroll',
+        name: 'Cinnamoroll',
+        price: 7000,
+        previewImgMobile: 'https://i.postimg.cc/BvxDcXcH/8e4eeadba918ddfb9553b5939f5d4d21.jpg',
+        previewImgDesktop: 'https://i.postimg.cc/hjsd665y/e658e5e730feabd027c140cc966f2a7e.jpg',
+        bgImgMobile: 'url("https://i.postimg.cc/BvxDcXcH/8e4eeadba918ddfb9553b5939f5d4d21.jpg")',
+        bgImgDesktop: 'url("https://i.postimg.cc/hjsd665y/e658e5e730feabd027c140cc966f2a7e.jpg")',
+        isUnlocked: () => state.unlockedEventBackgrounds && state.unlockedEventBackgrounds['bg_cinnamoroll'] === true
+    },
+    {
         id: 'event_month_1',
         name: 'Tết Dương Lịch (Tháng 1)',
         previewImgMobile: 'https://i.postimg.cc/rmWpm502/Khong-Co-Tieu-De62-20261022011817.jpg',
@@ -18726,86 +18787,620 @@ function applyGameBackground(bgId, showNotification = true) {
 }
 
 
-
-
 // Render danh sách mockup trong popup Giao Diện (Mặc định đầu tiên -> Đã mở theo tháng -> Đang khóa theo tháng)
 function renderInterfaceModalGrid() {
-    const gridEl = document.getElementById('interfaceBackgroundGrid');
-    if (!gridEl) return;
-    gridEl.innerHTML = '';
+const gridEl = document.getElementById('interfaceBackgroundGrid');
+if (!gridEl) return;
+gridEl.innerHTML = '';
 
-    const currentBg = state.equippedBackground || 'default_vertical';
-    const isDesktopScreen = window.innerWidth >= 1024;
+const currentBg = state.equippedBackground || 'default_vertical';
+const isDesktopScreen = window.innerWidth >= 1024;
 
-    // Sắp xếp thứ tự:
-    // 1. Ảnh mặc định (default_vertical) luôn ưu tiên số 1.
-    // 2. Nhóm đã mở khóa xếp theo thứ tự khai báo (Tháng 1 -> 12).
-    // 3. Nhóm đang khóa xếp theo thứ tự khai báo (Tháng 1 -> 12).
-    const sortedBackgrounds = [...GAME_BACKGROUNDS].sort((a, b) => {
-        // Cố định Ảnh Mặc Định ở vị trí đầu tiên
-        if (a.id === 'default_vertical') return -1;
-        if (b.id === 'default_vertical') return 1;
+// 🌟 BỔ SUNG: KHU VỰC THÊM & QUẢN LÝ ẢNH NỀN CÁ NHÂN (NẰM Ở ĐẦU CHO NGƯỜI CHƠI DỄ THẤY)
+const customSection = document.createElement('div');
+customSection.style.cssText = `
+    grid-column: 1 / -1;
+    background: #f8fafc;
+    border: 2px dashed #3b82f6;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+`;
 
-        const aUnlocked = a.isUnlocked();
-        const bUnlocked = b.isUnlocked();
+customSection.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 800; font-size: 13px; color: #1e293b;">🖼️ Tải Ảnh Nền Cá Nhân (Phí: 10.000 xu/lần)</span>
+        <label style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+            📂 Chọn Ảnh Tải Lên
+            <input type="file" id="customBgFileInput" accept="image/*" style="display: none;">
+        </label>
+    </div>
+    <div style="font-size: 11px; color: #64748b;">Hệ thống tự động giải nén & tối ưu ảnh chống giật lag. Chọn xong sẽ hiển thị xem trước ngoài giao diện!</div>
+    
+    <!-- Danh sách các ảnh cá nhân đã lưu nằm chung khu chứa ảnh nền -->
+    <div id="customBgListContainer" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-top: 4px;"></div>
+`;
+gridEl.appendChild(customSection);
 
-        // Nhóm đã mở khóa nằm trên nhóm đang khóa
-        if (aUnlocked && !bUnlocked) return -1;
-        if (!aUnlocked && bUnlocked) return 1;
+// Xử lý sự kiện chọn file: Nén ảnh xong -> Tự động đóng popup Giao Diện và đưa thẳng ra giao diện chính xem trước
+const fileInput = customSection.querySelector('#customBgFileInput');
+fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        // Nếu cùng trạng thái mở hoặc cùng trạng thái khóa -> Sắp xếp theo đúng thứ tự mảng gốc (Tháng 1 -> 12)
-        return GAME_BACKGROUNDS.indexOf(a) - GAME_BACKGROUNDS.indexOf(b);
+    // Nén ảnh qua Canvas để chống giật lag & không tràn localStorage
+    compressAndResizeImage(file, 1200, 0.8, (base64String) => {
+        // Đóng popup Giao Diện hiện tại
+        const interfaceModal = document.getElementById('interfaceModal');
+        if (interfaceModal) interfaceModal.classList.remove('open');
+
+        // Bật ngay chế độ xem trước ngoài màn hình chính kèm nút quay lại khu thanh toán
+        enterBackgroundPreviewMode(base64String);
+
+        fileInput.value = '';
     });
+};
 
-    sortedBackgrounds.forEach(bg => {
-        const unlocked = bg.isUnlocked();
-        const isSelected = (currentBg === bg.id);
-        const activePreviewImg = isDesktopScreen ? bg.previewImgDesktop : bg.previewImgMobile;
-
-        const card = document.createElement('div');
-        card.style.cssText = `
-            background: #ffffff;
-            border: 2px solid ${isSelected ? '#2563eb' : unlocked ? '#93c5fd' : '#cbd5e1'};
-            border-radius: 10px;
+// Render các ảnh nền cá nhân vào danh sách
+const customListEl = customSection.querySelector('#customBgListContainer');
+if (state.customBackgrounds && state.customBackgrounds.length > 0) {
+    state.customBackgrounds.forEach((cBg) => {
+        const isSelected = (currentBg === cBg.id);
+        const thumb = document.createElement('div');
+        thumb.style.cssText = `
+            min-width: 70px;
+            height: 50px;
+            border-radius: 6px;
+            border: 2px solid ${isSelected ? '#2563eb' : '#cbd5e1'};
             overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: ${isSelected ? '0 0 8px rgba(37,99,235,0.4)' : 'none'};
+        `;
+        thumb.innerHTML = `<img src="${cBg.dataUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        thumb.onclick = () => {
+            applyCustomGameBackground(cBg.id, cBg.dataUrl);
+            if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+                SoundEngine.selectSeed();
+            }
+        };
+        customListEl.appendChild(thumb);
+    });
+} else {
+    customListEl.innerHTML = `<div style="font-size: 11px; color: #94a3b8; font-style: italic;">Chưa có ảnh cá nhân nào được tải lên.</div>`;
+}
+
+// Sắp xếp thứ tự:
+// 1. Ảnh mặc định (default_vertical) luôn ưu tiên số 1.
+// 2. Nhóm đã mở khóa xếp theo thứ tự khai báo (Tháng 1 -> 12).
+// 3. Nhóm đang khóa xếp theo thứ tự khai báo (Tháng 1 -> 12).
+const sortedBackgrounds = [...GAME_BACKGROUNDS].sort((a, b) => {
+// Cố định Ảnh Mặc Định ở vị trí đầu tiên
+if (a.id === 'default_vertical') return -1;
+if (b.id === 'default_vertical') return 1;
+
+const aUnlocked = a.isUnlocked();
+const bUnlocked = b.isUnlocked();
+
+// Nhóm đã mở khóa nằm trên nhóm đang khóa
+if (aUnlocked && !bUnlocked) return -1;
+if (!aUnlocked && bUnlocked) return 1;
+
+// Nếu cùng trạng thái mở hoặc cùng trạng thái khóa -> Sắp xếp theo đúng thứ tự mảng gốc (Tháng 1 -> 12)
+return GAME_BACKGROUNDS.indexOf(a) - GAME_BACKGROUNDS.indexOf(b);
+});
+
+sortedBackgrounds.forEach(bg => {
+const unlocked = bg.isUnlocked();
+const isSelected = (currentBg === bg.id);
+const activePreviewImg = isDesktopScreen ? bg.previewImgDesktop : bg.previewImgMobile;
+
+const card = document.createElement('div');
+card.style.cssText = `
+background: #ffffff;
+border: 2px solid ${isSelected ? '#2563eb' : unlocked ? '#93c5fd' : '#cbd5e1'};
+border-radius: 10px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+cursor: pointer;
+opacity: ${unlocked ? '1' : bg.price !== undefined ? '1' : '0.5'};
+position: relative;
+box-shadow: ${isSelected ? '0 0 10px rgba(37,99,235,0.4)' : 'none'};
+transition: transform 0.15s ease;
+`;
+
+let statusText = '';
+let statusColor = '';
+
+if (isSelected) {
+statusText = 'Đang dùng ✓';
+statusColor = '#1d4ed8';
+} else if (unlocked) {
+statusText = 'Đã mở khóa';
+statusColor = '#15803d';
+} else if (bg.price !== undefined) {
+statusText = `🛒 Mua: ${bg.price.toLocaleString()} xu`;
+statusColor = '#d97706';
+} else {
+statusText = '🔒 Đang khóa (Nhận từ sự kiện)';
+statusColor = '#64748b';
+}
+
+card.innerHTML = `
+<div style="width: 100%; height: 95px; background: #eee; position: relative;">
+<img src="${activePreviewImg}" alt="${bg.name}" style="width: 100%; height: 100%; object-fit: cover;">
+</div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 3px; flex-grow: 1; justify-content: space-between;">
+<div style="font-weight: 700; font-size: 12px; color: #1e293b;">${bg.name}</div>
+<div style="font-size: 10.5px; font-weight: 700; color: ${statusColor};">${statusText}</div>
+</div>
+`;
+
+if (unlocked) {
+card.onclick = () => {
+applyGameBackground(bg.id);
+if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
+SoundEngine.selectSeed();
+}
+};
+} else if (bg.price !== undefined) {
+// 🪙 XỬ LÝ HIỆN POPUP MUA HÀNG ĐẸP MẮT (RESPONSIVE PC & MOBILE)
+card.onclick = () => {
+showCustomBuyBackgroundModal(bg);
+};
+} else {
+card.onclick = () => {
+alert('Ảnh nền này chưa đến tháng sự kiện hoặc chưa được mở khóa!');
+};
+}
+
+gridEl.appendChild(card);
+});
+}
+
+// Hàm giải nén và thu nhỏ ảnh tự động để tránh giật lag & tràn localStorage
+function compressAndResizeImage(file, maxWidth, quality, callback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Xuất ra định dạng nén JPEG chất lượng tùy chỉnh (mặc định 0.8)
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            callback(dataUrl);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Áp dụng ảnh nền cá nhân lên game
+function applyCustomGameBackground(bgId, dataUrl) {
+    state.equippedBackground = bgId;
+    save();
+
+    let styleTag = document.getElementById('dynamic-game-bg-style');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-game-bg-style';
+        document.head.appendChild(styleTag);
+    }
+
+    styleTag.innerHTML = `
+        body {
+            background-image: url("${dataUrl}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+        }
+    `;
+
+    if (typeof renderInterfaceModalGrid === 'function') {
+        renderInterfaceModalGrid();
+    }
+}
+
+// Chế độ xem trước: Cho phép lướt lên xuống xem trang trại, chặn mọi thao tác khác và hiện nút quay lại khu thanh toán
+function enterBackgroundPreviewMode(base64DataUrl) {
+    // 1. Lưu lại ID ảnh nền đang dùng thực tế trước khi xem trước (để khôi phục nếu hủy)
+    const previousBgId = state.equippedBackground || 'default_vertical';
+
+    // 2. Áp dụng ảnh nền xem trước ra màn hình chính
+    let styleTag = document.getElementById('dynamic-game-bg-style');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-game-bg-style';
+        document.head.appendChild(styleTag);
+    }
+
+    styleTag.innerHTML = `
+        body {
+            background-image: url("${base64DataUrl}") !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+        }
+    `;
+
+    // 3. Xóa lớp phủ cũ nếu có
+    let previewOverlay = document.getElementById('bgPreviewLockOverlay');
+    let returnBtnContainer = document.getElementById('bgPreviewReturnBtnContainer');
+    if (previewOverlay) previewOverlay.remove();
+    if (returnBtnContainer) returnBtnContainer.remove();
+
+    // 4. Tạo lớp phủ toàn màn hình nhưng cho phép sự kiện cuộn (scroll/touchmove) xuyên qua
+    previewOverlay = document.createElement('div');
+    previewOverlay.id = 'bgPreviewLockOverlay';
+    previewOverlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 99998;
+        background: transparent;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    `;
+
+    // Tạo lớp giả lập chặn mọi cú click chuột / chạm vào các thành phần bên trong game
+    const clickBlocker = document.createElement('div');
+    clickBlocker.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 200%;
+        pointer-events: auto;
+        z-index: 1;
+    `;
+    clickBlocker.onclick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+    };
+
+    previewOverlay.appendChild(clickBlocker);
+
+    // 5. Tạo nút "Quay lại khu thanh toán" đặt nổi bật ở trên cùng
+    returnBtnContainer = document.createElement('div');
+    returnBtnContainer.id = 'bgPreviewReturnBtnContainer';
+    returnBtnContainer.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99999;
+        pointer-events: auto;
+        background: rgba(15, 23, 42, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 10px 20px;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 2px solid #3b82f6;
+        animation: fadeInDown 0.3s ease-out;
+    `;
+
+    returnBtnContainer.innerHTML = `
+        <span style="color: #fff; font-size: 13px; font-weight: 700;">👀 Đang xem trước ảnh nền</span>
+        <button id="goToPaymentPopupBtn" style="
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        ">💳 Quay lại khu thanh toán</button>
+    `;
+
+    document.body.appendChild(previewOverlay);
+    document.body.appendChild(returnBtnContainer);
+
+    // Khi bấm nút "Quay lại khu thanh toán" -> Gỡ bỏ xem trước, trả nền về cũ ngay lập tức và mở popup thanh toán
+    document.getElementById('goToPaymentPopupBtn').onclick = () => {
+        previewOverlay.remove();
+        returnBtnContainer.remove();
+        
+        // Trả nền về ảnh cũ đang trang bị trước đó ngay lập tức
+        applyGameBackground(previousBgId, false);
+
+        // Mở popup thanh toán
+        showCustomBackgroundPaymentPopup(base64DataUrl, previousBgId);
+    };
+}
+
+
+// 🪙 POPUP THANH TOÁN TẢI ẢNH NỀN CÁ NHÂN (Nhận thêm previousBgId để khôi phục khi hủy/tắt)
+function showCustomBackgroundPaymentPopup(base64DataUrl, previousBgId = 'default_vertical') {
+    const oldModal = document.getElementById('customBgPaymentModal');
+    if (oldModal) oldModal.remove();
+
+    const uploadCost = 10000;
+    const playerCoins = state.coins || 0;
+    const canAfford = playerCoins >= uploadCost;
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'customBgPaymentModal';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(5px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        animation: fadeInModal 0.2s ease-out;
+        padding: 15px;
+        box-sizing: border-box;
+    `;
+
+    modalOverlay.innerHTML = `
+        <div style="
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35);
             display: flex;
             flex-direction: column;
-            cursor: ${unlocked ? 'pointer' : 'not-allowed'};
-            opacity: ${unlocked ? '1' : '0.5'};
-            position: relative;
-            box-shadow: ${isSelected ? '0 0 10px rgba(37,99,235,0.4)' : 'none'};
-            transition: transform 0.15s ease;
-        `;
-
-        let statusText = isSelected ? 'Đang dùng ✓' : unlocked ? 'Đã mở khóa' : '🔒 Đang khóa (Nhận từ sự kiện)';
-        let statusColor = isSelected ? '#1d4ed8' : unlocked ? '#15803d' : '#64748b';
-
-        card.innerHTML = `
-            <div style="width: 100%; height: 95px; background: #eee; position: relative;">
-                <img src="${activePreviewImg}" alt="${bg.name}" style="width: 100%; height: 100%; object-fit: cover;">
+            animation: scaleUpModal 0.2s ease-out;
+            font-family: inherit;
+        ">
+            <!-- Header Popup -->
+            <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 14px 18px; font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <span>✨ Thanh Toán Tải Ảnh Nền</span>
+                <button id="closePaymentModalBtn" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
             </div>
-            <div style="padding: 8px; display: flex; flex-direction: column; gap: 3px; flex-grow: 1; justify-content: space-between;">
-                <div style="font-weight: 700; font-size: 12px; color: #1e293b;">${bg.name}</div>
-                <div style="font-size: 10.5px; font-weight: 700; color: ${statusColor};">${statusText}</div>
-            </div>
-        `;
 
-        if (unlocked) {
-            card.onclick = () => {
-                applyGameBackground(bg.id);
-                if (typeof SoundEngine !== 'undefined' && SoundEngine.selectSeed) {
-                    SoundEngine.selectSeed();
-                }
-            };
-        } else {
-            card.onclick = () => {
-                alert('Ảnh nền này chưa đến tháng sự kiện hoặc chưa được mở khóa!');
-            };
+            <!-- Body Popup -->
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Khung Mockup xem trước ảnh nền -->
+                <div style="width: 100%; height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid #3b82f6; background: #000; position: relative;">
+                    <img src="${base64DataUrl}" alt="Mockup Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">
+                        📸 Bản Mockup Xác Nhận
+                    </div>
+                </div>
+
+                <!-- Thông tin chi phí & Số dư -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #334155;">
+                        <span>Phí tải ảnh nền cá nhân:</span>
+                        <strong style="color: #d97706; font-size: 14px;">-${uploadCost.toLocaleString()} 🪙</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #334155;">
+                        <span>Số dư của bạn:</span>
+                        <strong style="color: ${canAfford ? '#15803d' : '#dc2626'};">${playerCoins.toLocaleString()} 🪙</strong>
+                    </div>
+                </div>
+
+                <!-- Khu vực nút bấm thao tác -->
+                <div style="display: flex; gap: 10px; margin-top: 4px;">
+                    <!-- Nút quay lại chế độ xem trước ngoài màn hình -->
+                    <button id="backToPreviewModeBtn" style="
+                        flex: 1;
+                        padding: 11px;
+                        background: #e2e8f0;
+                        color: #334155;
+                        border: none;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        cursor: pointer;
+                        transition: background 0.2s;
+                    ">👁️ Xem lại ngoài game</button>
+
+                    <!-- Nút xác nhận thanh toán -->
+                    <button id="confirmPayBgBtn" style="
+                        flex: 1;
+                        padding: 11px;
+                        background: ${canAfford ? '#2563eb' : '#94a3b8'};
+                        color: #fff;
+                        border: none;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        cursor: ${canAfford ? 'pointer' : 'not-allowed'};
+                        transition: background 0.2s;
+                    ">${canAfford ? 'Chốt thanh toán ✓' : 'Không đủ xu'}</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    // Nút tắt (X) hoặc bấm ngoài -> Đóng popup, trả nền về cũ và mở lại popup Giao Diện
+    const closeAndReturnInterface = () => {
+        modalOverlay.remove();
+        applyGameBackground(previousBgId, false); // Trả lại nền cũ ngay lập tức
+
+        const interfaceModal = document.getElementById('interfaceModal');
+        if (interfaceModal) {
+            renderInterfaceModalGrid();
+            interfaceModal.classList.add('open');
+        }
+    };
+
+    document.getElementById('closePaymentModalBtn').onclick = closeAndReturnInterface;
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) closeAndReturnInterface();
+    };
+
+    // Nút "Xem lại ngoài game" -> Đóng popup thanh toán, bật lại lớp xem trước ngoài màn hình chính
+    document.getElementById('backToPreviewModeBtn').onclick = () => {
+        modalOverlay.remove();
+        enterBackgroundPreviewMode(base64DataUrl);
+    };
+
+    // Nút "Chốt thanh toán" -> Trừ 10k xu, lưu trữ vĩnh viễn và mở lại popup Giao Diện
+    document.getElementById('confirmPayBgBtn').onclick = () => {
+        if (state.coins < uploadCost) {
+            alert('Bạn không đủ xu trong game để thanh toán tải ảnh nền này!');
+            return;
         }
 
-        gridEl.appendChild(card);
-    });
+        // Trừ xu và lưu vào kho ảnh cá nhân
+        state.coins -= uploadCost;
+
+        if (!state.customBackgrounds) state.customBackgrounds = [];
+
+        const newBgId = 'custom_bg_' + Date.now();
+        const newBgObj = {
+            id: newBgId,
+            name: `Ảnh cá nhân (${state.customBackgrounds.length + 1})`,
+            dataUrl: base64DataUrl
+        };
+
+        state.customBackgrounds.push(newBgObj);
+        state.equippedBackground = newBgId;
+        if (typeof save === 'function') save();
+
+        // Đóng popup thanh toán và xóa nút xem trước
+        modalOverlay.remove();
+        let previewOverlay = document.getElementById('bgPreviewLockOverlay');
+        let returnBtnContainer = document.getElementById('bgPreviewReturnBtnContainer');
+        if (previewOverlay) previewOverlay.remove();
+        if (returnBtnContainer) returnBtnContainer.remove();
+
+        // Áp dụng vĩnh viễn và mở lại popup Giao Diện để thấy ảnh nằm trong danh sách
+        applyCustomGameBackground(newBgId, true);
+        
+        const interfaceModal = document.getElementById('interfaceModal');
+        if (interfaceModal) {
+            renderInterfaceModalGrid();
+            interfaceModal.classList.add('open');
+        }
+
+        if (typeof showTopToast === 'function') {
+            showTopToast('THANH TOÁN THÀNH CÔNG', `Đã trừ 10.000 xu và lưu ảnh nền cá nhân!`, '🎉');
+        }
+    };
 }
+
+
+// 🎨 HÀM TẠO VÀ HIỂN THỊ POPUP MUA BACKGROUND CHUẨN UI/UX (HỖ TRỢ MOBILE & PC)
+function showCustomBuyBackgroundModal(bg) {
+    const existingModal = document.getElementById('customBuyBgModal');
+    if (existingModal) existingModal.remove();
+
+    const playerCoins = state.coins || 0;
+    const isMobile = window.innerWidth < 1024;
+    const previewImg = isMobile ? bg.previewImgMobile : bg.previewImgDesktop;
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'customBuyBgModal';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        animation: fadeInModal 0.2s ease-out;
+        padding: 15px;
+        box-sizing: border-box;
+    `;
+
+    modalOverlay.innerHTML = `
+        <div style="
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            animation: scaleUpModal 0.2s ease-out;
+            font-family: inherit;
+        ">
+            <!-- Header Popup -->
+            <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 14px 18px; font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <span>✨ Mở Khóa Ảnh Nền</span>
+                <button id="closeBuyBgModal" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+            </div>
+
+            <!-- Body Popup -->
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                <!-- Ảnh Preview Lớn -->
+                <div style="width: 100%; height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; background: #000;">
+                    <img src="${previewImg}" alt="${bg.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <!-- Tên và Giá -->
+                <div style="text-align: center; width: 100%;">
+                    <div style="font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">${bg.name}</div>
+                    <div style="font-size: 13px; color: #64748b;">Giá sở hữu: <strong style="color: #d97706; font-size: 15px;">${bg.price.toLocaleString()} 🪙</strong></div>
+                    <div style="font-size: 12px; color: #475569; margin-top: 4px; background: #f1f5f9; padding: 6px; border-radius: 6px;">
+                        Số dư của bạn: <strong style="color: ${playerCoins >= bg.price ? '#15803d' : '#dc2626'};">${playerCoins.toLocaleString()} xu</strong>
+                    </div>
+                </div>
+
+                <!-- Nút thao tác -->
+                <div style="display: flex; gap: 10px; width: 100%; margin-top: 4px;">
+                    <button id="cancelBuyBtn" style="flex: 1; padding: 10px; background: #e2e8f0; color: #334155; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s;">Hủy bỏ</button>
+                    <button id="confirmBuyBtn" style="flex: 1; padding: 10px; background: ${playerCoins >= bg.price ? '#2563eb' : '#94a3b8'}; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: ${playerCoins >= bg.price ? 'pointer' : 'not-allowed'}; transition: background 0.2s;">
+                        ${playerCoins >= bg.price ? 'Xác nhận mua' : 'Không đủ xu'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modalOverlay);
+
+    const closeModal = () => modalOverlay.remove();
+    document.getElementById('closeBuyBgModal').onclick = closeModal;
+    document.getElementById('cancelBuyBtn').onclick = closeModal;
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) closeModal();
+    };
+
+    document.getElementById('confirmBuyBtn').onclick = () => {
+        const currentCoins = state.coins || 0;
+        if (currentCoins >= bg.price) {
+            state.coins -= bg.price;
+
+            if (!state.unlockedEventBackgrounds) state.unlockedEventBackgrounds = {};
+            state.unlockedEventBackgrounds[bg.id] = true;
+
+            if (typeof save === 'function') save();
+            closeModal();
+            renderInterfaceModalGrid();
+            applyGameBackground(bg.id);
+
+            if (typeof showTopToast === 'function') {
+                showTopToast('MỞ KHÓA THÀNH CÔNG', `Đã sở hữu ảnh nền: <strong>${bg.name}</strong>`, '🎉');
+            }
+        } else {
+            alert('Bạn không đủ xu trong game để mua ảnh nền này!');
+        }
+    };
+}
+
 
 // Gắn sự kiện mở/đóng popup Giao Diện
 const interfaceModal = document.getElementById('interfaceModal');
@@ -18841,6 +19436,7 @@ window.load = function() {
         applyGameBackground(state.equippedBackground, false);
     }
 };
+
 
 
 /* ========================================================== */
@@ -19074,6 +19670,7 @@ function save(){
     },
     claimedFarmRewards: state.claimedFarmRewards || [],
     claimedRanchRewards: state.claimedRanchRewards || [],
+    customBackgrounds: state.customBackgrounds || [],
     farmName: state.farmName || 'Trang trại của bạn',
     farmIcon: state.farmIcon || '🚜',
     stats: state.stats,
