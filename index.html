@@ -14129,6 +14129,24 @@ function toggleNpcDialog(event) {
   if (imgEl) imgEl.style.animation = 'npcFloat 3s ease-in-out infinite';
 }
 
+// Bảng ánh xạ link ảnh NPC theo từng tháng sự kiện (Tháng 1 đến Tháng 12)
+const SEASONAL_NPC_IMAGES = {
+  1: 'https://i.postimg.cc/tTFsGfmQ/1794028436856(1).png',       // Tháng 1 – Tết Dương lịch
+  2: 'https://i.postimg.cc/J0mGrq9x/1794028436856(1)(1).png',   // Tháng 2 – Tết Âm lịch
+  3: 'https://i.postimg.cc/WznthZVP/1794028436856(1)(2).png',   // Tháng 3 – 8/3
+  4: 'https://i.postimg.cc/sDbC5Xgm/1794028436856(1)(3).png',   // Tháng 4 – Cá tháng Tư
+  5: 'https://i.postimg.cc/nzSPZRs5/1794028436856(1)(4).png',   // Tháng 5 – Mùa hè
+  6: 'https://i.postimg.cc/yxwp3DT4/1794028436856(1)(5).png',   // Tháng 6 – Mùa hè
+  7: 'https://i.postimg.cc/WpwcxDk3/1794028754702.png',       // Tháng 7 – Tháng Cô Hồn
+  8: 'https://i.postimg.cc/ydqzCcj9/1794028893419.png',       // Tháng 8 – Tháng Cô Hồn
+  9: 'https://i.postimg.cc/Kzj09P9n/1794028421980.png',       // Tháng 9 – Trung Thu
+  10: 'https://i.postimg.cc/1tdJb825/1794028436856(1)(6).png',  // Tháng 10 – Halloween
+  11: 'https://i.postimg.cc/Z0tjK1Jj/1794028436856(1)(7).png',  // Tháng 11 – Giáng Sinh
+  12: 'https://i.postimg.cc/RCkzHhFd/1794028436856(1)(8).png'   // Tháng 12 – Giáng Sinh
+};
+
+// Ảnh NPC mặc định khi sự kiện kết thúc hoặc trong giai đoạn chờ/countdown
+const DEFAULT_NPC_IMAGE = 'https://i.postimg.cc/Fzd50HVv/1792315110051(5).png';
 
 // Lưu trữ ảnh NPC tùy chỉnh vào localStorage theo tài khoản người chơi
 function getCustomNpcKey() {
@@ -14149,28 +14167,21 @@ function handleCustomNpcUpload(event) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // Dùng Canvas để tự động khử nền trắng (nếu ảnh chưa tách nền)
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = img.width;
       canvas.height = img.height;
       
       ctx.drawImage(img, 0, 0);
-      
-      // Lấy dữ liệu pixel của toàn bộ ảnh
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
       
-      // Kiểm tra các góc của ảnh để đoán màu nền (ví dụ: góc trên bên trái là màu trắng hay màu khác)
-      // Nếu góc ảnh là màu trắng (RGB gần như 255,255,255), ta sẽ chuyển toàn bộ các pixel màu trắng đó thành trong suốt (alpha = 0)
       const r0 = data[0], g0 = data[1], b0 = data[2];
-      // Nếu màu nền ở góc khá sáng (gần trắng > 220)
       if (r0 > 220 && g0 > 220 && b0 > 220) {
         for (let i = 0; i < data.length; i += 4) {
           const r = data[i], g = data[i+1], b = data[i+2];
-          // Nếu pixel nào có màu gần giống màu nền ở góc (gần trắng) thì cho biến mất (trong suốt)
           if (r > 215 && g > 215 && b > 215) {
-            data[i+3] = 0; // Đặt độ trong suốt alpha về 0
+            data[i+3] = 0; 
           }
         }
         ctx.putImageData(imgData, 0, 0);
@@ -14193,16 +14204,15 @@ function handleCustomNpcUpload(event) {
   reader.readAsDataURL(file);
 }
 
-// Khôi phục lại NPC mặc định
+// Khôi phục lại NPC mặc định / tự động theo chu kỳ thời gian sự kiện
 function resetCustomNpc() {
   const storageKey = getCustomNpcKey();
   if (storageKey) {
     localStorage.removeItem(storageKey);
   }
 
-  const defaultNpcImg = 'https://i.postimg.cc/Fzd50HVv/1792315110051(5).png';
-  applyCustomNpcImage(defaultNpcImg);
-  showTopToast('ĐÃ KHÔI PHỤC', 'Trợ lý đã trở về nhân vật mặc định.', '🔄');
+  loadCustomNpcOnStartup();
+  showTopToast('ĐÃ KHÔI PHỤC', 'Trợ lý đã trở về trạng thái tự động theo thời gian sự kiện.', '🔄');
   if (typeof SoundEngine !== 'undefined' && SoundEngine.click) {
     SoundEngine.click();
   }
@@ -14216,15 +14226,50 @@ function applyCustomNpcImage(imgSrc) {
   }
 }
 
-// Tự động tải lại ảnh NPC đã lưu khi load game
+// 🌟 HÀM TỰ ĐỘNG LOAD ẢNH NPC (ĐÃ FIX ĐỂ NHẬN CHUẨN CẢ KHI TEST HOẶC DÙNG THỰC TẾ)
 function loadCustomNpcOnStartup() {
   const storageKey = getCustomNpcKey();
-  if (!storageKey) return;
-  const savedImg = localStorage.getItem(storageKey);
-  if (savedImg) {
-    applyCustomNpcImage(savedImg);
+  
+  // 1. ƯU TIÊN SỐ 1: Nếu người chơi tự tải ảnh NPC cá nhân lên -> Luôn hiển thị ảnh cá nhân trước trong mọi hoàn cảnh
+  if (storageKey) {
+    const savedImg = localStorage.getItem(storageKey);
+    if (savedImg) {
+      applyCustomNpcImage(savedImg);
+      return;
+    }
+  }
+
+  // 2. Kiểm tra xem đang test thủ công hay chạy thực tế
+  let activeMonth = null;
+  let isEventActive = false;
+
+  if (typeof TEST_OVERRIDE_STATUS !== 'undefined' && TEST_OVERRIDE_STATUS && TEST_OVERRIDE_STATUS.type) {
+    // Nếu đang dùng bảng test thủ công
+    if (TEST_OVERRIDE_STATUS.type === 'active') {
+      const testDay = TEST_OVERRIDE_STATUS.day || 1;
+      // Theo logic của bạn: active chỉ từ ngày 1 đến ngày 14
+      if (testDay <= 14) {
+        isEventActive = true;
+        activeMonth = TEST_OVERRIDE_STATUS.month;
+      }
+    }
   } else {
-    applyCustomNpcImage('https://i.postimg.cc/Fzd50HVv/1792315110051(5).png');
+    // Nếu chạy theo thời gian thực của máy tính
+    const now = new Date();
+    const currentDay = now.getDate();
+    if (currentDay <= 14) {
+      isEventActive = true;
+      activeMonth = now.getMonth() + 1;
+    }
+  }
+
+  // 3. Áp dụng ảnh dựa vào việc sự kiện có đang trong khoảng ngày 1 - 14 hay không
+  if (isEventActive && activeMonth) {
+    const eventNpcUrl = SEASONAL_NPC_IMAGES[activeMonth] || DEFAULT_NPC_IMAGE;
+    applyCustomNpcImage(eventNpcUrl);
+  } else {
+    // Từ ngày 15 trở đi hoặc ở các chế độ waiting/countdown -> Trả về NPC mặc định
+    applyCustomNpcImage(DEFAULT_NPC_IMAGE);
   }
 }
 
@@ -15332,8 +15377,8 @@ document.getElementById('closeEventModalBtn').onclick = () => {
 // ==========================================
 let TEST_OVERRIDE_STATUS = {
   type: null, // 'active', 'countdown', 'waiting', hoặc null
-  month: 7,      // 10 = Tháng 10 (Halloween)
-  day: 1          // Ngày muốn test (ví dụ: ngày 1, ngày 5, ngày 12,...)
+  month: 12,      // 10 = Tháng 10 (Halloween)
+  day: 14          // Ngày muốn test (ví dụ: ngày 1, ngày 5, ngày 12,...)
 };
 
 function getCurrentEventStatus() {
@@ -21789,5 +21834,6 @@ window.openEventPopup = function() {
 </script>
 </body>
 </html>
+
   
   
