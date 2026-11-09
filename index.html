@@ -19659,6 +19659,9 @@ function finishLoginSuccess(logMsg) {
     load(); 
     updateUserIdDisplay();
 
+    // 🌟 KÍCH HOẠT BANNER SỰ KIỆN NGAY SAU KHI ĐĂNG NHẬP VÀO GAME THÀNH CÔNG
+    setTimeout(openSeasonalBanner, 600);
+
     log(logMsg);
     showTopToast('VÀO GAME THÀNH CÔNG', logMsg, '🧑‍🌾');
 }
@@ -21411,46 +21414,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-    function openSeasonalBanner() {
-        const overlay = document.getElementById('seasonalEventOverlay');
-        if (overlay) {
+   function openSeasonalBanner() {
+    const overlay = document.getElementById('seasonalEventOverlay');
+    if (overlay) {
+        // Chỉ mở banner nếu người chơi ĐÃ ĐĂNG NHẬP (không nằm ở màn hình login)
+        const isLoggedOut = document.body.classList.contains('logged-out');
+        if (typeof currentUser !== 'undefined' && currentUser && !isLoggedOut) {
             overlay.classList.add('open');
         }
     }
+}
 
-    function closeSeasonalBanner() {
-        const overlay = document.getElementById('seasonalEventOverlay');
-        if (overlay) {
-            overlay.classList.remove('open');
-        }
+function closeSeasonalBanner() {
+    const overlay = document.getElementById('seasonalEventOverlay');
+    if (overlay) {
+        overlay.classList.remove('open');
     }
+}
 
-    // Tự động quét khi màn hình loading game biến mất
-    document.addEventListener('DOMContentLoaded', () => {
-        const loader = document.getElementById('loadingScreen');
-        if (loader) {
-            // Theo dõi khi nào màn hình loading được thêm class 'hidden'
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.attributeName === 'class' && loader.classList.contains('hidden')) {
-                        // Loading vừa xong -> Hiện ngay banner sự kiện
-                        setTimeout(openSeasonalBanner, 300);
+// Tự động quét khi màn hình loading game biến mất (Dành cho tài khoản tự động đăng nhập từ trước)
+document.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('loadingScreen');
+    if (loader) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class' && loader.classList.contains('hidden')) {
+                    // Loading vừa xong -> Kiểm tra nếu đã đăng nhập thì mới hiện banner
+                    const isLoggedOut = document.body.classList.contains('logged-out');
+                    if (typeof currentUser !== 'undefined' && currentUser && !isLoggedOut) {
+                        setTimeout(openSeasonalBanner, 400);
                     }
-                });
+                }
             });
-            observer.observe(loader, { attributes: true });
-        } else {
-            // Dự phòng nếu không tìm thấy loading screen
-            setTimeout(openSeasonalBanner, 1200);
-        }
-    });
+        });
+        observer.observe(loader, { attributes: true });
+    } else {
+        setTimeout(() => {
+            const isLoggedOut = document.body.classList.contains('logged-out');
+            if (typeof currentUser !== 'undefined' && currentUser && !isLoggedOut) {
+                openSeasonalBanner();
+            }
+        }, 1200);
+    }
+});
 
-    window.addEventListener('click', (e) => {
-        const overlay = document.getElementById('seasonalEventOverlay');
-        if (e.target === overlay) {
-            closeSeasonalBanner();
-        }
-    });
+window.addEventListener('click', (e) => {
+    const overlay = document.getElementById('seasonalEventOverlay');
+    if (e.target === overlay) {
+        closeSeasonalBanner();
+    }
+});
 
 // Hàm bấm vào nút sự kiện: Tắt banner và mở popup sự kiện ra
     function goToEventAndCloseBanner() {
@@ -21834,6 +21847,5 @@ window.openEventPopup = function() {
 </script>
 </body>
 </html>
-
   
   
